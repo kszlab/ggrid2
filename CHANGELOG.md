@@ -15,6 +15,13 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.63 — 2026-09-25
+
+### Kétgolyós pályák pontozása
+- A kétgolyós pályák is pontot adnak. Maximum: 5 + ⌈terület/5⌉ + 2·D + ⌈optimum/4⌉ + 3 (egygolyósnál változatlanul ⌈optimum/3⌉, golyóbónusz nélkül). A D-skála közös, a hosszabb kétgolyós megoldások miatt enyhébb a hossztag, a +3 a két golyó egyidejű kezeléséért jár.
+- Minden más ugyanaz, mint egygolyósnál: hatékonysági szorzó, legjobb eredmény szabálya, súgó 1 pont, Freeze 10 pont, automatikus megoldás után nincs pont.
+- A felső sávban kétgolyós pályán is a Pont látszik; a golyók jele a Pálya mezőbe került („D5 · 5×8 · ●●”). A győzelmi ablak a megszerzett pontot mutatja.
+
 ## v0.15.62 — 2026-09-25
 
 ### Több téma, véletlen váltás pályánként

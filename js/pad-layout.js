@@ -46,13 +46,11 @@ const PadLayout=(()=>{
   parEl.textContent=par==null?'–':String(par);
   movesEl.parentElement.classList.toggle('over-par',par!=null&&state.moves>par);
   const diff=(typeof difficultyEl!=='undefined'&&difficultyEl?.value)?'D'+difficultyEl.value:'';
-  levelEl.textContent=[diff,`${state.width}×${state.height}`].filter(Boolean).join(' · ');
-  levelEl.title=(typeof currentLevelId!=='undefined'&&currentLevelId)||'';
-  // Multi-ball test: no score; show the balls still on the board instead.
+  // Two-ball levels are scored since v0.15.63; the ball count moved next to the level.
   const multi=typeof inMultiBallTest==='function'&&inMultiBallTest();
-  const balls=$('#padBalls'),slot=top.querySelector('.pad-score-slot'),lab=$('#padScoreLabel');
-  if(balls&&slot&&lab){balls.hidden=!multi;slot.hidden=multi;lab.textContent=multi?'Golyók':'Pont';
-   if(multi&&typeof remainingBalls==='function'&&typeof totalBalls==='function'){try{balls.textContent=`${remainingBalls()} / ${totalBalls(initial)}`}catch(_){balls.textContent='–'}}}
+  levelEl.textContent=[diff,`${state.width}×${state.height}`,multi?'●●':''].filter(Boolean).join(' · ');
+  levelEl.title=(typeof currentLevelId!=='undefined'&&currentLevelId)||'';
+
  }
  function setWanted(v){wanted=v;try{localStorage.setItem(KEY,v?'pad':'classic')}catch(_){}sw?.setAttribute('aria-checked',String(v));sync()}
  sw?.setAttribute('aria-checked',String(wanted));

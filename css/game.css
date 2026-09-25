@@ -302,8 +302,6 @@ body[data-ui-context="game"] main #freeze.freeze-action[data-freeze-state="unava
 #settingsPanel .settings-calibrate:disabled{opacity:.42;cursor:not-allowed;filter:saturate(.25)}
 
 /* v0.12.97 – separate two-ball library launcher/state */
-body.multiball-test-mode .score-box{border-color:#78d8ef55;background:#102b38d6}
-body.multiball-test-mode .score-box strong{font-size:16px!important;letter-spacing:.06em}
 
 
 /* v0.15.0 – Artwork Theme Renderer foundation */

@@ -35,10 +35,13 @@ function inFreePlay(){return !document.body.classList.contains('scenario-mode')}
 function inMultiBallTest(){return document.body.classList.contains('multiball-test-mode')}
 function inGeneratedTest(){return document.body.classList.contains('generated-test-mode')}
 function inV3D10Benchmark(){return document.body.classList.contains('v3-d10-benchmark-mode')}
-function isScoredFreePlay(){return inFreePlay()&&!inMultiBallTest()&&!inGeneratedTest()}
+function isScoredFreePlay(){return inFreePlay()&&!inGeneratedTest()}
 function totalBalls(s=state){return s?.objects?.filter(o=>o.type==='ball').length||0}
 function remainingBalls(s=state){return s?.objects?.filter(o=>o.type==='ball'&&!o.exited).length||0}
-function scoreBase(){const d=Math.max(1,Math.min(10,Number(currentLevelRecord?.analysis?.testDifficultyClass)||Number(difficultyEl.value)||1));return 5+Math.ceil(state.width*state.height/5)+2*d+Math.ceil(optimal.length/3)}
+/* v0.15.63: two-ball levels are scored too. Their D uses the same structural scale,
+   but optimal solutions run longer: the length term is /4 instead of /3, plus a
+   fixed +3 for handling two balls at once. */
+function scoreBase(){const d=Math.max(1,Math.min(10,Number(currentLevelRecord?.analysis?.testDifficultyClass)||Number(difficultyEl.value)||1)),len=optimal.length,multi=totalBalls(initial||state)>1;return 5+Math.ceil(state.width*state.height/5)+2*d+(multi?Math.ceil(len/4)+3:Math.ceil(len/3))}
 function scoreReward(){const optimum=Math.max(1,optimal.length),steps=Math.max(optimum,state.moves);return Math.max(1,Math.round(scoreBase()*(0.5+0.5*optimum/steps)))}
 function updateLevelScore(){
  if(!state||!currentLevelId||!isScoredFreePlay())return;
@@ -48,9 +51,9 @@ function updateLevelScore(){
  for(const id of ['homeLevelId','playLevelId']){const el=document.querySelector('#'+id);if(!el)continue;el.textContent=label;el.classList.toggle('completed',done);el.title=done?`Teljesített pálya · legjobb eredmény: ${best}/${scoreBase()} pont`:`Még nem teljesített pálya · maximum: ${scoreBase()} pont`}
 }
 function updateScore(){
- const won=!!state?.won,generated=inGeneratedTest(),test=inMultiBallTest()||generated;
+ const won=!!state?.won,generated=inGeneratedTest(),test=generated;
  if(scoreValue){
-  if(test){scoreValue.textContent='D'+difficultyEl.value;scoreValue.dataset.size='sm';scoreValue.title='Kétgolyós játék · pontozás nélkül'}
+  if(test){scoreValue.textContent='D'+difficultyEl.value;scoreValue.dataset.size='sm';scoreValue.title='Generátor teszt · pontozás nélkül'}
   else{
    scoreValue.textContent=scoreData.balance.toLocaleString('hu-HU');
    const digits=String(Math.abs(scoreData.balance)).length;
@@ -64,7 +67,7 @@ function updateScore(){
  if(visibleFreezeHint){visibleFreezeHint.disabled=hintDisabled;visibleFreezeHint.title=won?'A pálya már kész.':autoSolveAllowed?`Freeze-súgó: rövid nyomás egy lépéses javaslat, ${autoSolveSeconds} másodperc Freeze-t is használó automatikus megoldás.`:'Freeze-súgó: rövid nyomás egy lépéses javaslat.'}
  freezeBtn.disabled=won||!canUseFreeze()||(isScoredFreePlay()&&scoreData.balance<10);
  freezeBtn.dataset.freezeState=freezeBtn.disabled?'unavailable':freezeArmed?'active':'available';
- freezeBtn.title=won?'A pálya már kész.':freezeBtn.disabled?'Freeze: 10 pont szükséges':freezeArmed?'Freeze aktív: válassz elemet, vagy nyomd meg újra a kilépéshez':generated?'Generátor teszt: Freeze pontlevonás nélkül':test?'Kétgolyós játék: Freeze pontlevonás nélkül':isScoredFreePlay()?'Freeze: 10 pont a kijelölt elemmel kiadott irányparancsért':'Freeze: elem kijelölése';
+ freezeBtn.title=won?'A pálya már kész.':freezeBtn.disabled?'Freeze: 10 pont szükséges':freezeArmed?'Freeze aktív: válassz elemet, vagy nyomd meg újra a kilépéshez':generated?'Generátor teszt: Freeze pontlevonás nélkül':isScoredFreePlay()?'Freeze: 10 pont a kijelölt elemmel kiadott irányparancsért':'Freeze: elem kijelölése';
 }
 function spendScore(cost){if(scoreData.balance<cost)return false;scoreData.balance-=cost;saveScore();updateScore();return true}
 function awardWin(){
@@ -87,9 +90,7 @@ function enterVictory(automatic=false,rewardInfo=null){
  if(autoSolveTimer)clearTimeout(autoSolveTimer);autoSolveTimer=null;autoSolveToken++;autoSolveActive=false;hideAutoSolveBar();
  document.body.classList.add('victory-state');updateScore();
  victoryMoves.textContent=String(state.moves);
- const test=inMultiBallTest();
- if(test)victoryScore.textContent=`Kétgolyós pálya · D${difficultyEl.value} · pontozás nélkül`;
- else if(solverUsedThisRun||automatic)victoryScore.textContent='Automatikus megoldás · 0 pont';
+ if(solverUsedThisRun||automatic)victoryScore.textContent='Automatikus megoldás · 0 pont';
  else if(isScoredFreePlay()&&rewardInfo)victoryScore.textContent=rewardInfo.earned?`+${rewardInfo.earned} pont · Egyenleg: ${rewardInfo.balance}`:`Korábbi legjobb eredmény: ${rewardInfo.previous} pont`;
  else victoryScore.textContent='Pálya teljesítve';
  victoryChoose.hidden=!!ScenarioMode?.active;
@@ -142,7 +143,6 @@ function render(opts={}){
  const modeLabel=document.querySelector('#playModeLabel'),levelLabel=document.querySelector('#playLevelId');
  if(inMultiBallTest()){
   if(modeLabel)modeLabel.textContent='Kétgolyós játék';
-  if(levelLabel){levelLabel.textContent=`D${difficultyEl.value} · ${remainingBalls()}/${totalBalls(initial)} golyó`;levelLabel.classList.remove('completed');levelLabel.title=`${currentLevelId} · hátralévő golyók / induló golyók`}
   meta.textContent=`D${difficultyEl.value} · modell: ${currentLevelRecord?.difficulty?.modelVersion||'puzzle-v3-multiball'} · optimum: ${optimal.length} · golyók: ${remainingBalls()}/${totalBalls(initial)} · fix: ${walls}`;
  }else meta.textContent=`${diff} · modell: ${currentLevelRecord?.analysis?.rawDifficulty??'-'} · optimum: ${optimal.length} · fix: ${walls}`;
  codeEl.textContent=`Pálya: ${currentLevelId}`;
@@ -173,9 +173,8 @@ function render(opts={}){
  }
 }
 /* ===== v0.12.98 TWO-BALL LEVEL LIBRARY =====
-   Separate, pre-generated and solver-verified library. It uses the same size,
-   D1-D10 and theme selectors as Free Play, but remains unscored while the
-   multi-ball difficulty calibration is being play-tested. */
+   Separate, pre-generated and solver-verified library. Since v0.15.63 its levels
+   are scored like single-ball ones (see scoreBase). */
 function applyMultiBallLevel(g){
  cancelAutoSolve();clearSolverCache();resetWinState();document.body.classList.remove('generated-test-mode');
  state=g.state;validateLevel(state);
@@ -183,9 +182,9 @@ function applyMultiBallLevel(g){
  document.body.classList.add('multiball-test-mode');
  initial=cloneState(state);optimal=g.solution||[];currentLevelId=g.code;currentLevelRecord=g.level||null;
  freezeLimitEl.value='inf';freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;
- rewardedThisRun=true;solverUsedThisRun=false;toast.textContent='';
+ rewardedThisRun=false;solverUsedThisRun=false;toast.textContent='';
  if(optimal.length)rememberSolverRoute(state,optimal);
- render();MotionControl?.onNewLevel?.();
+ updateLevelScore();render();MotionControl?.onNewLevel?.();
 }
 function leaveMultiBallTest(){
  document.body.classList.remove('multiball-test-mode');
