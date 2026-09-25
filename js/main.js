@@ -484,7 +484,10 @@ const MotionControl=(()=>{
  let enabled=false,wanted=false,paused=true,sensorReady=false,capability='checking',sensitivity=5,settle=5,allowSlides=false,engine='v2',pendingDir=null,pendingTimer=null,recognizer=null,lastSensorAt=0,lastOrientationAt=0,healthTimer=null,graceUntil=0,probeTimer=null;
  const settleValue=document.querySelector('#settleValue'),slideMotion=document.querySelector('#slideMotion'),availabilityEl=document.querySelector('#motionAvailability'),motionSection=document.querySelector('#motionSettingsSection');
  const dependentControls=['angleMinus','anglePlus','motionFast','slideMotion','settleMinus','settlePlus','calibrate'].map(id=>document.querySelector('#'+id)).filter(Boolean);
- function note(t=''){motionNote.textContent=t}
+ // Routine sensor states are shown on the motion switch (label()), not over the board;
+ // only messages that need attention appear here, and they fade out on their own.
+ let noteTimer=null;
+ function note(t=''){clearTimeout(noteTimer);motionNote.textContent=t;if(t)noteTimer=setTimeout(()=>{motionNote.textContent=''},4000)}
  function apiPresent(){return 'DeviceMotionEvent' in window&&'DeviceOrientationEvent' in window}
  function permissionPromptNeeded(){return typeof window.DeviceMotionEvent?.requestPermission==='function'||typeof window.DeviceOrientationEvent?.requestPermission==='function'}
  function mobileSensorPlatform(){
@@ -550,7 +553,7 @@ const MotionControl=(()=>{
  function refreshSensorReady(now){
   if(paused||document.hidden||!enabled)return;
   const ready=lastSensorAt>0&&lastOrientationAt>0&&now-lastSensorAt<SENSOR_STALE_MS&&now-lastOrientationAt<SENSOR_STALE_MS;
-  if(ready&&!sensorReady){sensorReady=true;reset();label();note('Mozgás aktív · egy billentés, egy lépés')}
+  if(ready&&!sensorReady){sensorReady=true;reset();label();note('')}
  }
  // A tilt that arrives while the previous move is still animating is kept (only the newest one)
  // and played as soon as the board is free, like a buffered key press.
@@ -589,7 +592,7 @@ const MotionControl=(()=>{
   newRecognizer();enabled=true;paused=!uiAllowsMotion();sensorReady=false;lastSensorAt=lastOrientationAt=0;graceUntil=performance.now()+START_GRACE_MS;
   addEventListener('deviceorientation',onOrientation,true);addEventListener('devicemotion',onMotion,true);
   clearInterval(healthTimer);healthTimer=setInterval(health,1200);
-  label();note(paused?'Mozgás szünetel':'Mozgásérzékelő indítása…');
+  label();note('');
  }
  function stopRuntime(){
   enabled=false;paused=true;sensorReady=false;removeEventListener('deviceorientation',onOrientation,true);removeEventListener('devicemotion',onMotion,true);
@@ -620,7 +623,7 @@ const MotionControl=(()=>{
   wanted=false;saveSettings();stopRuntime();note('');
  }
  async function toggle(){if(wanted)disable();else await enable(true,true)}
- function pause(){if(enabled){paused=true;sensorReady=false;reset();label();note('Mozgás szünetel')}}
+ function pause(){if(enabled){paused=true;sensorReady=false;reset();label();note('')}}
  function resume(){
   if(!wanted||capability!=='available')return;
   if(!enabled){
@@ -628,7 +631,7 @@ const MotionControl=(()=>{
    else{label();note('Mozgásvezérlés bekapcsolva · játék közben érintésre aktiválódik.');return}
   }
   if(!uiAllowsMotion()){paused=true;label();return}
-  paused=false;sensorReady=false;lastSensorAt=lastOrientationAt=0;graceUntil=performance.now()+START_GRACE_MS;reset();label();note('Mozgásérzékelő újraindítása…');
+  paused=false;sensorReady=false;lastSensorAt=lastOrientationAt=0;graceUntil=performance.now()+START_GRACE_MS;reset();label();note('');
  }
  function adjustAngle(delta){sensitivity=Math.max(1,Math.min(10,sensitivity+delta));angleValue.textContent=sensitivity+'/10';saveSettings();if(enabled)newRecognizer()}
  function adjustSettle(delta){settle=Math.max(1,Math.min(10,settle+delta));settleValue.textContent=settle+'/10';saveSettings();if(enabled)newRecognizer()}
@@ -660,7 +663,7 @@ const MotionControl=(()=>{
   sensorReady=false;reset();label();
   if(document.hidden)return;
   lastSensorAt=lastOrientationAt=0;graceUntil=performance.now()+START_GRACE_MS;
-  if(!paused)note('Mozgásérzékelő újraindítása…');
+  if(!paused)note('');
  }
  loadSettings();setAvailability('checking');probeCapability();
  document.addEventListener('visibilitychange',onVisibility);

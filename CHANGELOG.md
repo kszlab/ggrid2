@@ -15,6 +15,13 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.56 — 2026-09-25
+
+### Kontroller-elrendezés: témához illő, nagyobb pálya
+- A „Mozgás aktív · egy billentés, egy lépés” és a többi rutinszerű mozgásállapot („indítása…”, „szünetel”, „újraindítása…”) már nem jelenik meg a pálya fölött; az állapotot a mozgás-kapcsoló mutatja. A figyelmet igénylő üzenetek (hiányzó engedély, szenzorhiba) továbbra is megjelennek, de 4 másodperc után eltűnnek.
+- Az alsó gombok, az iránykereszt és a Menü gomb a téma `--ui-*` színeiből kapja a színét; a funkciót csak halvány színárnyalat jelzi, így minden témához illeszkednek.
+- Kisebb felső sáv (46 px) és vezérlősáv (164 px), keskenyebb margók: 412×780-as képernyőn az 5×8-as pálya 287 px helyett 335 px széles (+17%).
+
 ## v0.15.55 — 2026-09-25
 
 ### Kontroller-elrendezés (alapértelmezett)
