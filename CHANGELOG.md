@@ -15,6 +15,11 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.65 — 2026-09-25
+
+### Súgó frissítése
+- A főmenü súgója a jelenlegi működést írja le: nyilak a pálya alatt, simítás, billentés, a pálya alatti gombok, tetszőleges méret- és nehézségkombináció, vegyes egy- és kétgolyós válogatás, több téma kijelölése, alkalmazkodó nehézség, kétgolyós pontozás, az automatikus megoldás leállítása és a Freeze-súgó ára. Kikerült a megszűnt „2 golyós játék” indító és a pontozás nélküli kétgolyós mód leírása.
+
 ## v0.15.64 — 2026-09-25
 
 ### Alkalmazkodó nehézség
