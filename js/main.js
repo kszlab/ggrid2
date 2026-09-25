@@ -223,7 +223,7 @@ function requestPoolLevel(){
   console.error('Level pool',e);toast.textContent='Nincs pálya a kiválasztott méretekhez és nehézséghez.';return false;
  }
 }
-function newLevel(){return requestPoolLevel()}
+function newLevel(){return typeof ThemeRotation!=='undefined'?ThemeRotation.newLevel(requestPoolLevel):requestPoolLevel()}
 function playEvents(events){
  const moves=events.filter(e=>e.type==='move').length,blocked=events.some(e=>e.type==='blocked'),exited=events.some(e=>e.type==='exit'),won=events.some(e=>e.type==='win');
  if(blocked){AudioManager.blocked();SceneRenderer?.event?.('blocked')}else if(moves){AudioManager.move(moves);SceneRenderer?.event?.('move')}

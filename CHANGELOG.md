@@ -15,6 +15,15 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.62 — 2026-09-25
+
+### Több téma, véletlen váltás pályánként
+- A szabad játék témaválasztóján minden témánál „✓ Kijelölve / + Hozzáadás” kapcsoló, alatta „Mind” és „Csak ez” gomb, valamint a kijelölt témák száma; a pontsor aranyszínnel jelzi a kijelölteket. Legalább egy téma mindig kijelölve marad.
+- Minden új pálya véletlen témát kap a kijelöltek közül; kétszer egymás után nem ugyanazt, ha van választás. Az újrakezdés megtartja a témát.
+- A következő pálya témája játék közben előre letöltődik, így a váltás azonnali.
+- Első használatkor az eddig választott egyetlen téma a kijelölés, tehát semmi nem változik, amíg nem jelölsz ki többet. A Theme Studio előnézetét nem érinti.
+- Önálló modul: `js/theme-rotation.js` és `css/theme-rotation.css`; a meglévő kódban csak a `newLevel()` bekötése változott. A funkció egyetlen commit visszavonásával eltávolítható.
+
 ## v0.15.61 — 2026-09-25
 
 ### Automatikus megoldás: saját állapotsáv, leállítás
