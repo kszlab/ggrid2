@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" type="image/x-icon" href="favicon.ico?v=0.15.55">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=0.15.55" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=0.15.55">
+<title>GGrid – v0.15.55 letisztult UI</title>
+<link rel="stylesheet" href="css/game.css?v=0.15.55">
+<link rel="stylesheet" href="css/game-ui-theme.css?v=0.15.55">
+<link rel="stylesheet" href="css/pad-layout.css?v=0.15.55"></head>
+<body data-ui-context="shell">
+<div id="startup" class="startup" aria-live="polite"><div class="startup-card"><div class="startup-title">GGrid</div><div class="startup-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="startup-ball"></i><i></i><i></i><i class="startup-brick"></i><i></i></div><div class="startup-text">A játék töltődik…</div></div></div>
+
+<div id="homeScreen" class="home-screen">
+ <div class="home-card">
+  <div class="home-logo">GGrid</div>
+  <div class="home-version">v0.15.55</div>
+  <button type="button" id="scenarioOpen" hidden></button>
+  <button type="button" id="homeFreePlay" class="primary-home">▶ Szabad játék <span id="homeLevelId" class="home-level-id">—</span></button>
+  <button type="button" id="homeSettings">⚙ Beállítások</button>
+  <button type="button" id="homeHelp">❔ Súgó</button>
+ </div>
+</div>
+
+<main id="game">
+ <div id="padTop" class="pad-top" hidden>
+  <div class="pad-top-menu"></div>
+  <div class="pad-stat pad-stat-moves" title="Megtett lépések / optimális lépésszám"><small>Lépések</small><strong><span id="padMoves">0</span><em> / <span id="padPar">–</span></em></strong></div>
+  <div class="pad-stat pad-stat-level" title="Nehézség és pályaméret"><small>Pálya</small><strong id="padLevel">–</strong></div>
+  <div class="pad-stat pad-stat-score"><small id="padScoreLabel">Pont</small><div class="pad-score-slot"></div><strong id="padBalls" hidden></strong></div>
+ </div>
+  <div class="game-head" data-ui-role="header">
+  <div id="scenarioInfo" class="scenario-info"><span id="playModeLabel">Szabad játék</span><span id="playLevelId" class="play-level-id">—</span></div>
+  <button type="button" id="gameMenu" class="icon-menu" aria-label="Menü">☰</button>
+ </div>
+ <div class="board-wrap"><div class="skin-scene-title" aria-hidden="true"><strong>HOLDKERT</strong><span>Szabad játék</span></div>
+  <button type="button" class="edge-control edge-up" data-hold-dir="up" aria-label="Folyamatosan fel"><span class="emboss-arrow" aria-hidden="true"></span></button>
+  <button type="button" class="edge-control edge-left" data-hold-dir="left" aria-label="Folyamatosan balra"><span class="emboss-arrow" aria-hidden="true"></span></button>
+  <div id="board" class="board" aria-label="Játéktábla"></div>
+  <button type="button" class="edge-control edge-right" data-hold-dir="right" aria-label="Folyamatosan jobbra"><span class="emboss-arrow" aria-hidden="true"></span></button>
+  <button type="button" class="edge-control edge-down" data-hold-dir="down" aria-label="Folyamatosan le"><span class="emboss-arrow" aria-hidden="true"></span></button>
+  <div id="victoryOverlay" class="victory-overlay" hidden>
+   <section class="victory-card" role="dialog" aria-labelledby="victoryTitle">
+    <div class="victory-result"><strong id="victoryTitle">SIKER</strong><span><b id="victoryMoves">0</b> lépésből</span></div>
+    <div id="victoryScore" class="victory-score"></div>
+    <div class="victory-actions">
+     <button type="button" id="victoryRestart" class="victory-secondary">↶ Újra</button>
+     <button type="button" id="victoryChoose" class="victory-secondary">▦ Pályák</button>
+     <button type="button" id="victoryNext" class="victory-primary">Következő →</button>
+    </div>
+   </section>
+  </div>
+ </div>
+  <div class="hud-row" data-ui-role="hud"><div id="status" class="status" data-ui-role="status" aria-live="polite"></div><div class="play-actions">
+   <button type="button" id="freeze" class="play-action freeze-action" data-ui-role="ability" aria-label="Freeze" title="Freeze">❄</button>
+   <button type="button" id="playHint" class="play-action" data-ui-role="action" aria-label="Súgó" title="Súgó">💡</button>
+   <button type="button" id="playFreezeHint" class="play-action" data-ui-role="action" aria-label="Freeze-súgó" title="Freeze-súgó">❄💡</button>
+   <button type="button" id="playRestart" class="play-action" data-ui-role="action" aria-label="Pálya újrakezdése" title="Pálya újrakezdése">↶</button>
+   <button type="button" id="playNext" class="play-action" data-ui-role="action" aria-label="Következő pálya" title="Új pálya ugyanilyen mérettel, nehézséggel és skinnel">⟳</button>
+   <button type="button" id="playChoose" class="play-action" data-ui-role="action" aria-label="Új pálya választása" title="Új pálya választása">▦</button>
+  </div><div id="scoreBox" class="score-box" data-ui-role="display" aria-label="Pontszám"><strong id="scoreValue"></strong></div></div>
+ <div id="padDeck" class="pad-deck" hidden>
+  <div class="pad-col pad-left"></div>
+  <div class="pad-dpad" role="group" aria-label="Irányítás">
+   <button type="button" class="pad-dir pad-up" data-hold-dir="up" aria-label="Fel"><span aria-hidden="true"></span></button>
+   <button type="button" class="pad-dir pad-left-dir" data-hold-dir="left" aria-label="Balra"><span aria-hidden="true"></span></button>
+   <button type="button" class="pad-dir pad-right-dir" data-hold-dir="right" aria-label="Jobbra"><span aria-hidden="true"></span></button>
+   <button type="button" class="pad-dir pad-down" data-hold-dir="down" aria-label="Le"><span aria-hidden="true"></span></button>
+  </div>
+  <div class="pad-col pad-right"></div>
+ </div>
+ <div id="toast" class="toast" aria-live="polite"></div>
+ <div id="motionNote" class="motion-note"></div>
+ <div id="meta" class="meta dev-detail"></div><div id="code" class="code dev-detail"></div>
+
+ <div class="topbar settings-only">
+  <label>Nehézség: <select id="difficulty"><option value="1">D1</option><option value="2">D2</option><option value="3">D3</option><option value="4">D4</option><option value="5" selected>D5</option><option value="6">D6</option><option value="7">D7</option><option value="8">D8</option><option value="9">D9</option><option value="10">D10</option></select></label>
+  <select id="freeTheme" hidden><option value="classic">GGrid Classic</option></select>
+  <label>Méret: <select id="size"><option value="3">3×3</option><option value="4" selected>4×4</option><option value="5">5×5</option><option value="5x6">5×6</option><option value="5x7">5×7</option><option value="5x8">5×8</option><option value="4x8">4×8</option></select></label>
+  <label>Freeze: <select id="freezeLimit"><option value="inf" selected>∞</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+ </div>
+ <div class="tools legacy-tools">
+  <button type="button" id="restart">↶ Újrakezdés</button>
+  <button type="button" id="new">⟳ Új pálya</button>
+ <button type="button" id="exitScenario" hidden>↩ Szabad játék</button>
+  <button type="button" id="hint" hidden>💡 Súgó</button>
+ </div>
+</main>
+
+<div id="freePlaySetup" class="free-setup" hidden>
+ <div class="free-setup-card">
+  <div class="free-setup-head"><button type="button" id="freeSetupClose" aria-label="Bezárás">✕</button><strong>SZABAD JÁTÉK</strong><span></span></div>
+  <div id="themeCinema" class="theme-cinema">
+   <button type="button" id="themePrev" class="theme-nav theme-prev" aria-label="Előző téma">‹</button>
+   <div id="themePreview" class="theme-preview"><div class="theme-preview-art"></div><div class="theme-vignette"></div><div class="theme-preview-label"><strong id="themePreviewName">GGRID</strong><small id="themePreviewTag">Válassz világot</small><p id="themePreviewDesc"></p></div></div>
+   <button type="button" id="themeNext" class="theme-nav theme-next" aria-label="Következő téma">›</button>
+  </div>
+  <div id="themeDots" class="theme-dots"></div>
+  <div class="free-quick">
+   <div class="quick-row"><span>Méret</span><div id="quickSize" class="size-picker"><button data-value="3">3×3</button><button data-value="4">4×4</button><button data-value="5">5×5</button><button data-value="5x6">5×6</button><button data-value="5x7">5×7</button><button data-value="5x8">5×8</button><button data-value="4x8">4×8</button></div></div>
+   <div class="quick-row"><span>Nehézség</span><div id="quickDifficulty" class="difficulty-picker"><button data-value="1">D1</button><button data-value="2">D2</button><button data-value="3">D3</button><button data-value="4">D4</button><button data-value="5">D5</button><button data-value="6">D6</button><button data-value="7">D7</button><button data-value="8">D8</button><button data-value="9">D9</button><button data-value="10">D10</button></div></div>
+   
+  </div>
+  <button type="button" id="freeSetupPlay" class="free-play-launch">▶ JÁTÉK INDÍTÁSA</button>
+  <button type="button" id="freeSetupMultiBall" class="multiball-test-launch">●● 2 GOLYÓS JÁTÉK</button>
+  <button type="button" id="freeSetupGenerated" class="multiball-test-launch">⚗ GENERÁTOR TESZT</button>
+  <button type="button" id="freeSetupV3D10" class="multiball-test-launch">🧪 V3 D10 TESZT</button>
+  <div class="multiball-test-note">A generátor tesztkönyvtár pontozás nélkül fut · a V3 D10 teszt csak az 5×6 / 5×7 / 5×8 benchmarkpályákat használja</div>
+  <div class="panel-version">GGrid v0.15.55</div>
+ </div>
+</div>
+
+<div id="gameMenuPanel" class="ui-panel" hidden><div class="ui-card">
+ <div class="ui-head"><strong id="menuTitle">GGrid</strong><button type="button" id="menuClose">✕</button></div>
+ <div id="menuStage" class="ui-sub"></div>
+ <button type="button" id="menuRestart">↶ Pálya újrakezdése</button>
+ <button type="button" id="menuNew">⟳ Új pálya</button>
+ <button type="button" id="menuHelp">❔ Játékleírás</button>
+ <button type="button" id="menuSettings">⚙ Beállítások</button>
+ <button type="button" id="menuHome">⌂ Kilépés a főmenübe</button>
+ <div class="panel-version">GGrid v0.15.55</div>
+</div></div>
+
+<div id="settingsPanel" class="ui-panel" hidden><div class="ui-card settings-card">
+  <div class="ui-head"><strong>Beállítások</strong><button type="button" id="settingsClose">✕</button></div>
+  <section class="settings-section"><h3>Hangok</h3><p>A játék és a háttér külön kapcsolható</p>
+   <div class="settings-group">
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Játék-akció hangok <button type="button" class="settings-info" aria-label="Információ a játék-akció hangokról" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">A mozgás, ütközés, Freeze, kijutás és győzelem hangjait kapcsolja. A háttérzene ettől független.</span></button></div><small>Mozgás, ütközés, Freeze, kijutás</small></div><button type="button" id="sound" class="settings-switch" role="switch" aria-label="Játék-akció hangok" aria-checked="true"><span></span></button></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Háttérhang és zene <button type="button" class="settings-info" aria-label="Információ a háttérhangokról és zenéről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">A választott téma zenéjét és környezeti hangjait kapcsolja. A játék-akció hangok ettől függetlenül működnek.</span></button></div><small>A választott téma hangulata</small></div><button type="button" id="ambientSound" class="settings-switch" role="switch" aria-label="Háttérhang és zene" aria-checked="true"><span></span></button></div>
+   </div>
+  </section>
+  <section id="layoutSettingsSection" class="settings-section"><h3>Kezelőfelület</h3><p>A játék vezérlőinek elrendezése</p>
+   <div class="settings-group">
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Kontroller-elrendezés <button type="button" class="settings-info" aria-label="Információ a kontroller-elrendezésről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">Bekapcsolva a tábla alatt nagy iránykereszt van, mellette feliratos gombok: balra a Freeze és a súgók, jobbra az újrakezdés, az új pálya és a pályaválasztó. Felül a lépésszám, a pálya és a pontszám látszik. Kikapcsolva a nyilak a tábla szélén vannak. Festett (artwork) témáknál ilyenkor a festett nyílsávok helyett is az iránykereszt látszik.</span></button></div><small>Nagy iránykereszt a tábla alatt</small></div><button type="button" id="padLayoutSwitch" class="settings-switch" role="switch" aria-label="Kontroller-elrendezés" aria-checked="true"><span></span></button></div>
+   </div>
+  </section>
+  <section id="motionSettingsSection" class="settings-section"><h3>Mozgásvezérlés</h3><p>Telefon billentésével és igény szerint csúsztatásával is irányíthatod a pályát</p>
+   <div class="settings-group">
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Mozgásvezérlés <button type="button" class="settings-info" aria-label="Információ a mozgásvezérlésről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">Telefonon a készülék billentésével, és külön kapcsolóval a csúsztatásával is mozgathatod a pálya elemeit. A mozgásérzékelő engedélye szükséges.</span></button></div><small id="motionAvailability">Mozgásérzékelő ellenőrzése…</small></div><button type="button" id="motion" class="settings-switch" role="switch" aria-label="Mozgásvezérlés" aria-checked="false" disabled><span></span></button></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Mozdulat érzékenysége <button type="button" class="settings-info" aria-label="Információ a mozdulat érzékenységéről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">Billentésnél és engedélyezett csúsztatásnál egyaránt érvényes. 1: nagyobb mozdulat kell; 10: kisebb mozdulat is elég. Egy mozdulat legfeljebb egy lépés.</span></button></div><small>1: határozottabb · 5: bevált alap · 10: nagyon érzékeny</small></div><div class="settings-stepper"><button type="button" id="angleMinus" aria-label="Mozdulatérzékenység csökkentése" disabled>−</button><output id="angleValue">5/10</output><button type="button" id="anglePlus" aria-label="Mozdulatérzékenység növelése" disabled>+</button></div></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Gyors billentésfelismerés <button type="button" class="settings-info" aria-label="Információ a gyors billentésfelismerésről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">Bekapcsolva a lépés már a billentés közben megtörténik, nem a telefon visszaállítása után. A visszaállító mozdulat soha nem ad ellentétes lépést, és a gyors egymás utáni billentések sem vesznek el. Kikapcsolva a korábbi (v1) felismerő működik; a csúsztatásos léptetés csak azzal érhető el.</span></button></div><small>Bekapcsolva: azonnali lépés (v2) · kikapcsolva: klasszikus (v1)</small></div><input type="checkbox" id="motionFast" class="settings-checkbox" aria-label="Gyors billentésfelismerés" disabled></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Csúsztatás is léptet <button type="button" class="settings-info" aria-label="Információ a csúsztatásos irányításról" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">Bekapcsolva a telefon képernyő síkjában jobbra, balra, fel vagy le csúsztatása is az adott nyíl egyetlen lépését adja. Kikapcsolva csak a billentés léptet. Emelés és süllyesztés egyik esetben sem léptet.</span></button></div><small>Kikapcsolva a csúsztatás nem léptet</small></div><input type="checkbox" id="slideMotion" class="settings-checkbox" aria-label="Csúsztatás is léptet" disabled></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Lépés késleltetése <button type="button" class="settings-info" aria-label="Információ a lépés késleltetéséről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">A mozdulat befejezése után várt nyugalmi idő. 1: rövidebb várakozás; 10: hosszabb. A beállítás nem változtatja meg a bábu mozgásának sebességét.</span></button></div><small>1: gyorsabb döntés · 5: bevált alap · 10: több nyugalom</small></div><div class="settings-stepper"><button type="button" id="settleMinus" aria-label="Lépés késleltetésének csökkentése" disabled>−</button><output id="settleValue">5/10</output><button type="button" id="settlePlus" aria-label="Lépés késleltetésének növelése" disabled>+</button></div></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name">Mozdulatmérés <button type="button" class="settings-info" aria-label="Információ a mozdulatmérésről" aria-expanded="false">i<span class="settings-tooltip" role="tooltip">A teszt billentéseket, emelést, süllyesztést és csúsztatásokat rögzít JSON-fájlba. Ez kutatási mérés; nem állítja be automatikusan a mozgásvezérlést.</span></button></div><small>Mérési adatok exportálása</small></div><button type="button" id="calibrate" class="settings-calibrate" disabled>Mérés indítása</button></div>
+   </div>
+  </section>
+  <section id="shellThemeSection"><h3>Főképernyő és menük</h3><label for="shellThemeSelect">Megjelenés</label> <select id="shellThemeSelect"><option value="classic">Klasszikus</option><option value="warm">Meleg üveg</option></select></section>
+  <section id="freeSettings"><h3>Szabad játék</h3><div id="settingsFree"></div></section>
+ <div id="settingsCode" hidden></div>
+ <div class="panel-version">GGrid v0.15.55</div>
+</div></div>
+
+<div id="helpPanel" class="ui-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden><div class="ui-card help-card">
+ <div class="ui-head"><strong id="helpTitle">GGrid · Súgó</strong><button type="button" id="helpClose" aria-label="Súgó bezárása">✕</button></div>
+ <div class="help-content" tabindex="0">
+  <section><h3>A játék célja</h3><p>Juttasd ki a golyót a pálya szélén jelölt <strong>KIJÁRAT</strong> felé. A kijáratból a jelzett irányba kell még egyet lépned. Egy nyíl minden mozgatható elemre hat: a falak nem mozdulnak, az egymáshoz kapcsolt téglák együtt haladnak.</p></section>
+  <section><h3>Irányítás</h3><p>A pálya melletti nyilakat érintsd meg egy lépéshez, vagy tartsd nyomva az ismételt lépésekhez. Számítógépen a billentyűzet nyilai is működnek. Telefonon a Beállításokban bekapcsolható a mozgásvezérlés. A billentés mellett a csúsztatás külön engedélyezhető; az érzékenység és a mozdulat lezárásának késleltetése állítható.</p></section>
+  <section><h3>Pályák és pontok</h3><p>A Szabad játékban válassz méretet, D1–D10 nehézséget és témát. Ugyanezekkel a választókkal a külön <strong>2 golyós játék</strong> is indítható. Az <strong>⟳</strong> új pályát ad az aktuális játékmódban ugyanezekkel a beállításokkal, az <strong>↶</strong> újrakezdi a jelenlegit. A győzelem pontértéke a pálya méretétől, nehézségétől és a lépésszámtól függ. Ugyanazon pályán csak a korábbi legjobb eredményed javulásáért jár új pont. A pontok és az elért pályák a böngésződben tárolódnak.</p></section>
+  <section><h3>Segítségek</h3><p>A <strong>💡</strong> rövid megnyomása 1 pontért megmutatja a következő optimális irányt. A játék közbeni 💡 gombot <strong>2 másodpercig nyomva tartva</strong> a motor szemmel követhető lépésekkel bemutatja a Freeze nélküli megoldást az aktuális állásból. Ez ingyenes, de az adott menetért nem jár pont; újrakezdés után újra szerezhetsz pontot. Ha abból az állásból nincs megtalálható megoldás, a játék jelzi.</p><p>Az új, kísérleti <strong>❄💡 Freeze-súgó</strong> külön solververziót használ. Rövid nyomásra olyan megoldási javaslatot keres, amely legfeljebb egy Freeze-t használhat; ha a Freeze azonnal szükséges, megnevezi a lefagyasztandó objektumot és az irányt. <strong>2 másodpercig nyomva tartva</strong> a teljes, Freeze-t is tartalmazó megoldást animálja. Ez a funkció nem módosítja a normál solver működését.</p><p>A <strong>❄ Freeze</strong> gombbal lépj kijelölési módba. Érintsd meg a helyben tartandó golyót vagy mozgatható blokkot. Ugyanarra újra bökve törölheted a kijelölést; másik elemet megérintve átteheted rá. A Freeze gomb újabb megnyomásával pontlevonás nélkül kiléphetsz. Kijelölt elem mellett az első irányparancs 10 pontba kerül akkor is, ha semmi nem mozdul; ezután a Freeze-mód megszűnik. 10 pont alatt a gomb nem érhető el.</p></section>
+  <section><h3>Hang és menü</h3><p>A Beállításokban a játék akcióhangjai és a téma háttérhangja külön kapcsolhatók. A ☰ menüből újrakezdhetsz, új pályát kérhetsz, megnyithatod a beállításokat vagy visszatérhetsz a főképernyőre.</p></section>
+ </div>
+ <div class="panel-version">GGrid v0.15.55</div>
+</div></div>
+
+<div id="scenarioPanel" class="scenario-panel" hidden><div class="scenario-card"><div class="scenario-head"><strong id="scenarioTitle">Játékmód</strong><button type="button" id="scenarioClose">✕</button></div><div id="scenarioDesc" class="scenario-desc">Válassz forgatókönyvet, vagy térj vissza a szabad játékhoz.</div><div id="scenarioList" class="scenario-list"></div><div class="scenario-actions"><button type="button" id="playScenario" disabled>Indítás</button><button type="button" id="freePlay">Szabad játék</button></div></div></div>
+
+<div id="calibration" class="calibration" hidden><div class="cal-card"><div class="cal-head"><strong>GGrid · mozdulatmérés</strong><button type="button" id="calClose" aria-label="Mérés bezárása">✕</button></div><div id="calPhase" class="cal-phase">Előkészítés</div><div id="calArrow" class="cal-arrow">•</div><div id="calInstruction" class="cal-instruction">Tartsd a képernyőt magad felé, a telefont kényelmes helyzetben.</div><div class="cal-progress"><i id="calProgress"></i></div><div id="calStats" class="cal-stats"></div><div class="cal-actions"><button type="button" id="calStart">Mérés indítása</button><button type="button" id="calExport" disabled>JSON-fájl letöltése</button></div><div class="cal-small">A nyilaknál röviden billents az adott irányba. A CSÚSZTASD feliratoknál mozgasd a telefont a kijelző síkjában, billentés nélkül; végig nézzen feléd a képernyő. Emelés és süllyesztés közben is nézzen feléd. A csúsztatás, emelés és süllyesztés nem játékirány. A mentés kizárólag az érzékelők mérési adatait tartalmazza.</div></div></div>
+
+<script src="js/game-core.js?v=0.15.55"></script>
+<script src="js/solver.js?v=0.15.55"></script>
+<script src="js/freeze-solver-v1.js?v=0.15.55"></script>
+<script src="js/freeze-solver-v2.js?v=0.15.55"></script>
+<script src="js/level-library.js?v=0.15.55"></script>
+<script src="js/multiball-library.js?v=0.15.55"></script>
+<script src="js/generated-test-library.js?v=0.15.55"></script>
+<script src="js/audio.js?v=0.15.55"></script>
+<script src="js/rigid-shapes.js?v=0.15.55"></script>
+<script src="js/theme-visuals.js?v=0.15.55"></script>
+<script src="js/theme-assets.js?v=0.15.55"></script>
+<script src="js/theme-autotile.js?v=0.15.55"></script>
+<script src="js/theme-layout.js?v=0.15.55"></script>
+<script src="js/theme-frame.js?v=0.15.55"></script>
+<script src="js/scene-renderer.js?v=0.15.55"></script>
+<script src="js/motion-model.js?v=0.15.55"></script>
+<script src="js/motion-gesture.js?v=0.15.55"></script>
+<script src="js/motion-tilt-v2.js?v=0.15.55"></script>
+<script src="js/main.js?v=0.15.55"></script>
+<script src="js/scenario-loader.js?v=0.15.55"></script>
+<script src="js/pad-layout.js?v=0.15.55"></script>
+<script src="js/ui-shell.js?v=0.15.55"></script>
+</body></html>

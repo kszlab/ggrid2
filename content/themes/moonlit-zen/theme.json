@@ -1,0 +1,108 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "moonlit-zen",
+  "version": 2,
+  "name": "HOLDKERT // Koi szentély",
+  "description": "SHOWCASE: holdfényes japán vízikert, koi szellem, lámpások, sziklák és torii-kapu.",
+  "semantic": {
+    "ball": "Koi szellem",
+    "brick": "Úszó kert",
+    "wall": "Kőlámpás",
+    "exit": "Torii kapu",
+    "freeze": "Csend"
+  },
+  "colors": {
+    "background": "#07111c",
+    "board": "#102a32",
+    "cell1": "#163943",
+    "cell2": "#12323b",
+    "accent": "#ff9b8d",
+    "ball1": "#fff5d6",
+    "ball2": "#ff806e",
+    "brick1": "#38574a",
+    "brick2": "#1c352d",
+    "wall1": "#9da49d",
+    "wall2": "#414944"
+  },
+  "scene": {
+    "type": "moonlit-zen",
+    "tier": "showcase",
+    "tagline": "MOON GARDEN // 静",
+    "layers": [
+      "moon",
+      "mountains",
+      "water",
+      "lotus",
+      "fireflies",
+      "mist"
+    ],
+    "exitStyle": "torii-gate",
+    "markup": {
+      "back": "<i class=\"sr-moon\"></i><i class=\"sr-mountain\"></i><i class=\"sr-water\"></i>",
+      "front": "<i class=\"sr-mist\"></i><i class=\"sr-fireflies\"></i><span class=\"sr-caption zen\">MOON GARDEN // 静 <b>水</b></span>"
+    }
+  },
+  "audio": {
+    "profile": "zen",
+    "ambient": {
+      "type": "procedural",
+      "name": "Víz + halk pentatonikus hangkép",
+      "enabled": true,
+      "volume": 0.05
+    },
+    "events": {
+      "move": "water-drop",
+      "blocked": "stone",
+      "freeze": "bell",
+      "exit": "gate-wind",
+      "win": "temple-chime"
+    }
+  },
+  "ui": {
+    "skin": "full",
+    "frame": "zen-slate",
+    "controls": "embossed-integrated",
+    "hud": "zen-slate",
+    "sceneChrome": true,
+    "tokens": {
+      "surface": "#091923",
+      "surfaceRaised": "#1d3944",
+      "control": "#1d303b",
+      "controlRaised": "#38505f",
+      "controlPressed": "#835654",
+      "accent": "#ffb9aa",
+      "text": "#f1f7f9",
+      "muted": "#c9d7da",
+      "border": "#ff9b8d66",
+      "shadow": "#00000099",
+      "focus": "#ff9b8d",
+      "scrim": "#07111ced"
+    }
+  },
+  "pieces": {
+    "ball": {
+      "markup": "<i class=\"koi-tail\"></i><b class=\"koi-body\">◉</b>",
+      "className": "sr-piece"
+    },
+    "brick": {
+      "markup": "<i class=\"lotus-leaf\"></i><b class=\"lotus-flower\">✿</b>",
+      "className": "sr-piece"
+    },
+    "wall": {
+      "markup": "<i class=\"stone-cap\"></i><b>灯</b>",
+      "className": "sr-piece"
+    },
+    "rigidBody": {
+      "className": "sr-composite sr-composite-moonlit-zen",
+      "markup": "<i class=\"co-moss\"></i><i class=\"co-lotus\">✿</i><b>浮島</b>"
+    },
+    "exit": {
+      "className": "sr-exit sr-torii",
+      "markup": "<i></i><b>鳥居</b>"
+    }
+  },
+  "assets": {
+    "css": "theme.css?v=0.12.57"
+  }
+}

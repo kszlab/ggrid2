@@ -1,0 +1,112 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "clockwork-sanctum",
+  "version": 1,
+  "name": "Aetherium Óramű",
+  "description": "Egy lebegő viktoriánus csillagvizsgáló belseje: réz fogaskerekek, zafír energiamag és mechanikus csillagkapu.",
+  "colors": {
+    "background": "#071017",
+    "wrap": "#111a1d",
+    "board": "#172326",
+    "cell1": "#203034",
+    "cell2": "#111b1e",
+    "accent": "#e8b85c",
+    "ball1": "#eaffff",
+    "ball2": "#5de1ff",
+    "ball3": "#135d7a",
+    "brick1": "#a66b2d",
+    "brick2": "#4e2f18",
+    "brickEdge": "#f0c778",
+    "wall1": "#566064",
+    "wall2": "#242c2f"
+  },
+  "pieces": {
+    "ball": {
+      "name": "Aether-mag",
+      "markup": "<i class=\"aether-ring r1\"></i><i class=\"aether-ring r2\"></i><b class=\"aether-light\"></b>",
+      "className": "sr-piece"
+    },
+    "brick": {
+      "name": "Óramű modul",
+      "markup": "<i class=\"rivet rv1\"></i><i class=\"rivet rv2\"></i><b class=\"piece-glyph\">{{first:CHRONO|⚙}}</b>",
+      "className": "sr-piece"
+    },
+    "wall": {
+      "name": "Obszidián pillér",
+      "markup": "<i class=\"pillar-cap\"></i><b class=\"piece-glyph\">◆</b>",
+      "className": "sr-piece"
+    },
+    "exit": {
+      "name": "Csillagkapu",
+      "className": "sr-exit sr-astrolabe",
+      "markup": "<i></i><b>✦</b>"
+    },
+    "rigidBody": {
+      "className": "sr-composite sr-composite-clockwork-sanctum",
+      "markup": "<i class=\"co-rail\"></i><i class=\"co-gear cg1\"></i><i class=\"co-gear cg2\"></i><b>CHRONO ENGINE</b>"
+    }
+  },
+  "abilities": {
+    "freeze": {
+      "name": "Kronosztázis"
+    }
+  },
+  "scene": {
+    "type": "clockwork-sanctum",
+    "tier": "showcase",
+    "tagline": "THE AETHERIUM // 03:17",
+    "layers": [
+      "starfield",
+      "brass-arches",
+      "orrery",
+      "gear-trains",
+      "glass-floor",
+      "steam",
+      "foreground-dials"
+    ],
+    "exitStyle": "astrolabe-gate",
+    "markup": {
+      "back": "<i class=\"sr-stars\"></i><i class=\"sr-arch\"></i><i class=\"sr-gear sg1\"></i><i class=\"sr-gear sg2\"></i><i class=\"sr-orrery\"></i>",
+      "front": "<i class=\"sr-steam ss1\"></i><i class=\"sr-steam ss2\"></i><span class=\"sr-caption\">AETHERIUM OBSERVATORY <b>03:17</b></span>"
+    }
+  },
+  "audio": {
+    "profile": "clockwork",
+    "ambient": {
+      "type": "procedural",
+      "name": "Óramű + éteri rezonancia",
+      "enabled": true,
+      "volume": 0.026
+    },
+    "events": {
+      "move": "ratchet-glide",
+      "blocked": "brass-clang",
+      "freeze": "time-stop",
+      "exit": "astrolabe-open",
+      "win": "celestial-chord"
+    }
+  },
+  "preview": {
+    "markup": "<div class=\"sky-detail\"><i></i><i></i><i></i></div><div class=\"ornament gear g1\"></div><div class=\"ornament gear g2\"></div><div class=\"ornament orrery\"><b></b><em></em></div><div class=\"board showcase-board\">{{cells25}}<i class=\"piece hero aether-core\"><b></b></i><i class=\"piece object brass-crate bc1\"></i><i class=\"piece object brass-crate bc2\"></i><i class=\"piece object pillar p1\"></i><i class=\"piece object pillar p2\"></i><i class=\"piece object long-machine lm1\"></i><i class=\"exit astrolabe-exit\"><b></b><em>✦</em></i></div><div class=\"scene-label\">AETHERIUM OBSERVATORY <b>03:17</b></div>"
+  },
+  "assets": {
+    "css": "theme.css?v=0.12.57"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#060d13",
+      "surfaceRaised": "#253033",
+      "control": "#152023",
+      "controlRaised": "#3a4447",
+      "controlPressed": "#78643a",
+      "accent": "#e8b85c",
+      "text": "#f5f5ef",
+      "muted": "#e5d8b7",
+      "border": "#e8b85c66",
+      "shadow": "#00000099",
+      "focus": "#e8b85c",
+      "scrim": "#071017ed"
+    }
+  }
+}

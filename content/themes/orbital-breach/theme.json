@@ -1,0 +1,95 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "orbital-breach",
+  "version": 1,
+  "name": "ORBITAL // BREACH",
+  "description": "Sérült orbitális állomás. A cél egy EVA-droid, a blokkok lebegő modulok, a kijárat légzsilip.",
+  "colors": {
+    "background": "#020713",
+    "board": "#0a1722",
+    "wrap": "#07101a",
+    "cell1": "#102a39",
+    "cell2": "#07131d",
+    "accent": "#00f0ff",
+    "ball1": "#ffffff",
+    "ball2": "#4ffff2",
+    "ball3": "#00677d",
+    "brick1": "#3d5666",
+    "brick2": "#182c38",
+    "brickEdge": "#ff6b35",
+    "wall1": "#384650",
+    "wall2": "#151e24"
+  },
+  "pieces": {
+    "ball": {
+      "name": "EVA-droid"
+    },
+    "brick": {
+      "name": "Lebegő modul"
+    },
+    "wall": {
+      "name": "Reaktorfal"
+    },
+    "exit": {
+      "name": "Légzsilip"
+    },
+    "rigidBody": {}
+  },
+  "abilities": {
+    "freeze": {
+      "name": "Stázismező"
+    }
+  },
+  "scene": {
+    "type": "orbital-breach",
+    "tagline": "HULL BREACH // DECK 07",
+    "layers": [
+      "stars",
+      "planet",
+      "hull",
+      "warning-stripes",
+      "sparks",
+      "hud"
+    ],
+    "markup": {
+      "back": "",
+      "front": ""
+    }
+  },
+  "audio": {
+    "profile": "orbital",
+    "ambient": {
+      "type": "procedural",
+      "name": "Reaktorhum és vészjelzés",
+      "enabled": true,
+      "volume": 0.028
+    },
+    "events": {
+      "move": "servo",
+      "blocked": "bulkhead",
+      "freeze": "stasis",
+      "exit": "airlock",
+      "win": "system-clear"
+    }
+  },
+  "assets": {
+    "css": "theme.css"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#020610",
+      "surfaceRaised": "#19252f",
+      "control": "#09151f",
+      "controlRaised": "#2f3a43",
+      "controlPressed": "#017c89",
+      "accent": "#00f0ff",
+      "text": "#f1f7f9",
+      "muted": "#94ebf0",
+      "border": "#00f0ff66",
+      "shadow": "#00000099",
+      "focus": "#00f0ff",
+      "scrim": "#020713ed"
+    }
+  }
+}

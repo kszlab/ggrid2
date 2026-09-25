@@ -1,0 +1,369 @@
+#!/usr/bin/env python3
+import argparse,hashlib,json,os,re,shutil,sys,threading,functools,http.server,socketserver
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont
+from make_slots import spec as make_spec
+
+HERE=Path(__file__).resolve().parent
+ROOT=HERE.parent.parent
+SLOTS_FILE=HERE/'slots.json'
+def load_slots():
+ if not SLOTS_FILE.exists():
+  import make_slots;make_slots.main()
+ try:
+  with open(SLOTS_FILE,encoding='utf-8') as f:data=json.load(f)
+  if data.get('formatVersion',0)>=4 and data.get('packs'):return data
+ except UnicodeDecodeError:
+  pass
+ data=make_spec()
+ with open(SLOTS_FILE,'w',encoding='utf-8',newline='\\n') as f:
+  json.dump(data,f,ensure_ascii=False,indent=1);f.write('\\n')
+ return data
+KIT=load_slots()
+SLOTS={s['id']:s for s in KIT['slots']}
+KEY=tuple(KIT['keyColor'])
+REQUIRED={s['id'] for s in KIT['slots'] if s.get('required',True)}
+
+def font(size,bold=False):
+ for f in (['DejaVuSans-Bold.ttf','Arial Bold.ttf'] if bold else ['DejaVuSans.ttf','Arial.ttf']):
+  for d in ['/usr/share/fonts/truetype/dejavu','/Library/Fonts','C:/Windows/Fonts','']:
+   try:return ImageFont.truetype(os.path.join(d,f) if d else f,size)
+   except OSError:pass
+ return ImageFont.load_default()
+
+def sha(path):
+ h=hashlib.sha256()
+ with open(path,'rb') as f:
+  for b in iter(lambda:f.read(1<<20),b''):h.update(b)
+ return h.hexdigest()
+
+def load_json(path,default=None):
+ if not os.path.exists(path):return default
+ with open(path,encoding='utf-8') as fp:return json.load(fp)
+
+def write_text_atomic(path,text):
+ path=Path(path);tmp=path.with_name(path.name+'.tmp')
+ with open(tmp,'w',encoding='utf-8',newline='\n') as fp:fp.write(text)
+ os.replace(tmp,path)
+
+def write_json_atomic(path,obj,indent=2):
+ write_text_atomic(path,json.dumps(obj,ensure_ascii=False,indent=indent)+'\n')
+
+def resolve_input_file(inp,*rels):
+ inp=Path(inp)
+ for rel in rels:
+  p=inp/rel
+  if p.exists():return p
+ return None
+
+def cmd_templates(args):
+ out=HERE/'templates';out.mkdir(parents=True,exist_ok=True)
+ # Legacy dense sheets.
+ for sid,sh in KIT['sheets'].items():
+  W,H=sh['size'];im=Image.new('RGB',(W,H),KEY);d=ImageDraw.Draw(im)
+  d.text((W//2,25),sh['title'],fill='white',font=font(23,True),anchor='mm')
+  for s in [x for x in KIT['slots'] if x['sheet']==sid]:
+   x,y,w,h=s['box'];d.rectangle((x,y,x+w,y+h),outline='white',width=3)
+   d.text((x,y-6),s['id'],fill='white',font=font(15,True),anchor='ls')
+  im.save(out/('template-'+sid+'.png'))
+ # Asset Pack v2 templates: sparse panels plus an inner safe guide.
+ for pid,pk in KIT.get('packs',{}).items():
+  W,H=pk['size'];im=Image.new('RGB',(W,H),KEY);d=ImageDraw.Draw(im)
+  d.text((W//2,28),pk['title'],fill='white',font=font(23,True),anchor='mm')
+  inset=int(pk.get('safeInset',24))
+  for s in [x for x in KIT['slots'] if x.get('pack')==pid]:
+   x,y,w,h=s['packBox']
+   d.rectangle((x,y,x+w,y+h),outline='white',width=4)
+   d.rectangle((x+inset,y+inset,x+w-inset,y+h-inset),outline=(255,220,80),width=2)
+   d.text((x+8,y+20),s['id'],fill='white',font=font(15,True))
+  im.save(out/('template-pack-'+pid+'.png'))
+ print(out)
+
+def key_image(img):
+ im=img.convert('RGBA');pix=im.load()
+ for y in range(im.height):
+  for x in range(im.width):
+   r,g,b,a=pix[x,y]
+   dist=((r-255)**2+g*g+(b-255)**2)**0.5
+   if dist<85:pix[x,y]=(r,g,b,0)
+   elif dist<140:pix[x,y]=(r,g,b,int(a*(dist-85)/55))
+ return im
+
+def bbox_alpha(im):
+ a=im.getchannel('A');return a.getbbox()
+
+def fit(im,slot):
+ ow,oh=slot['output']
+ if slot['fit']=='fill':out=im.resize((ow,oh),Image.Resampling.LANCZOS)
+ else:
+  sc=min(ow/im.width,oh/im.height);tmp=im.resize((max(1,round(im.width*sc)),max(1,round(im.height*sc))),Image.Resampling.LANCZOS)
+  out=Image.new('RGBA',(ow,oh));out.alpha_composite(tmp,((ow-tmp.width)//2,(oh-tmp.height)//2))
+ if slot.get('opaque'):
+  a=out.getchannel('A');a.paste(255,(0,0,ow,oh));out.putalpha(a)
+ q=slot.get('missingQuadrant')
+ if q:
+  a=out.getchannel('A');hx,hy=ow//2,oh//2
+  box={'tl':(0,0,hx,hy),'tr':(hx,0,ow,hy),'bl':(0,hy,hx,oh),'br':(hx,hy,ow,oh)}[q];a.paste(0,box);out.putalpha(a)
+ if slot.get('hole'):
+  a=out.getchannel('A');a.paste(0,(ow//3,oh//3,2*ow//3,2*oh//3));out.putalpha(a)
+ if slot['role']=='frame':
+  b=slot['nineSlice']['outputSlice'];a=out.getchannel('A');a.paste(0,(b,b,ow-b,oh-b));out.putalpha(a)
+ return out
+
+def extract_packs(inp):
+ inp=Path(inp);derived=inp/'extracted';derived.mkdir(parents=True,exist_ok=True)
+ packs={}
+ for pid,pk in KIT.get('packs',{}).items():
+  p=resolve_input_file(inp,pk['file'],Path('source/packs')/pk['file'])
+  if p:packs[pid]=Image.open(p).convert('RGBA').resize(tuple(pk['size']),Image.Resampling.LANCZOS)
+ written=[]
+ for s in KIT['slots']:
+  pid=s.get('pack')
+  if not pid or pid not in packs:continue
+  x,y,w,h=s['packBox'];panel=key_image(packs[pid].crop((x,y,x+w,y+h)))
+  panel.save(derived/(s['id']+'.png'))
+  written.append(s['id'])
+ return written
+
+def slice_assets(inp,out):
+ inp=Path(inp);out=Path(out);ras=out/'raster';chk=out/'kit-check';ras.mkdir(parents=True,exist_ok=True);chk.mkdir(parents=True,exist_ok=True)
+ report={'format':'ggrid-theme-kit-report','formatVersion':3,'slots':{},'extras':{}}
+ extract_packs(inp)
+ sheets={}
+ for sid,sh in KIT['sheets'].items():
+  p=inp/sh['file']
+  if p.exists():sheets[sid]=Image.open(p).convert('RGBA').resize(tuple(sh['size']),Image.Resampling.LANCZOS)
+ for slot in KIT['slots']:
+  sid=slot['id']
+  single=next((p for e in ['.png','.webp','.jpg'] for p in [resolve_input_file(inp,Path('overrides')/(sid+e),sid+e)] if p),None)
+  derived=inp/'extracted'/(sid+'.png')
+  src=None
+  if single:im=key_image(Image.open(single));src='override'
+  elif derived.exists():im=key_image(Image.open(derived));src='pack'
+  elif slot['sheet'] in sheets:
+   x,y,w,h=slot['box'];im=key_image(sheets[slot['sheet']].crop((x,y,x+w,y+h)));src='legacy-sheet'
+  else:
+   report['slots'][sid]={'status':'missing','warnings':['nincs Asset Pack, override vagy legacy forrás'],'required':sid in REQUIRED};continue
+  bb=bbox_alpha(im)
+  if not bb:
+   report['slots'][sid]={'status':'missing','warnings':['nem található rajz a slotban'],'required':sid in REQUIRED};continue
+  crop=im.crop(bb);warnings=[]
+  if src=='pack':
+   px0,py0,px1,py1=bb;pw,ph=im.size;guard=max(4,round(min(pw,ph)*.025))
+   if px0<=guard or py0<=guard or px1>=pw-guard or py1>=ph-guard:
+    warnings.append('az artwork túl közel ér a pack panel széléhez; újragenerálás ajánlott')
+  sw,sh=slot['box'][2],slot['box'][3]
+  if src=='legacy-sheet' and crop.width*crop.height<.35*sw*sh:warnings.append('a rajz feltűnően kicsi a slothoz képest')
+  if slot['fit']=='fill' and abs((crop.width/max(1,crop.height))/(slot['output'][0]/slot['output'][1])-1)>.22:warnings.append('szokatlan képarány; torzulhat')
+  outim=fit(crop,slot);outim.save(ras/(sid+'.webp'),'WEBP',quality=96,method=6)
+  report['slots'][sid]={'status':'warn' if warnings else 'ok','warnings':warnings,'required':sid in REQUIRED,'source':src,'file':'raster/'+sid+'.webp'}
+ for eid,e in KIT['extras'].items():
+  rels=[e['file']]
+  if eid in ('bg-portrait','bg-landscape'):rels.insert(0,Path('source/backgrounds')/e['file'])
+  p=resolve_input_file(inp,*rels)
+  if not p:report['extras'][eid]={'status':'missing'};continue
+  im=Image.open(p).convert('RGB').resize(tuple(e['output']),Image.Resampling.LANCZOS);name='preview.webp' if eid=='target' else eid+'.webp';im.save(ras/name,'WEBP',quality=94,method=6);report['extras'][eid]={'status':'ok','file':'raster/'+name}
+ counts={k:sum(1 for v in report['slots'].values() if v['status']==k) for k in ['ok','warn','missing']}
+ counts['requiredMissing']=sum(1 for k,v in report['slots'].items() if v['required'] and v['status']=='missing')
+ counts['optionalMissing']=sum(1 for k,v in report['slots'].items() if not v['required'] and v['status']=='missing');report['summary']=counts
+ with open(out/'kit-report.json','w',encoding='utf-8',newline='\n') as fp:
+  json.dump(report,fp,ensure_ascii=False,indent=2)
+  fp.write('\n')
+ # contact sheet
+ W,H=1000,((len(KIT['slots'])+4)//5)*190;cs=Image.new('RGB',(W,H),(25,25,30));d=ImageDraw.Draw(cs)
+ for i,s in enumerate(KIT['slots']):
+  x=(i%5)*200;y=(i//5)*190;f=ras/(s['id']+'.webp');st=report['slots'][s['id']]['status'];col={'ok':'#42c878','warn':'#efa631','missing':'#e64b4b'}[st]
+  if f.exists():
+   t=Image.open(f).convert('RGBA');t.thumbnail((175,145));cs.paste(t,(x+(190-t.width)//2,y+5+(145-t.height)//2),t)
+  d.rectangle((x+4,y+4,x+190,y+153),outline=col,width=3);d.text((x+95,y+170),s['id'],fill=col,font=font(13,True),anchor='mm')
+ cs.save(chk/'check-elements.png')
+ return report
+
+def approval(inp):
+ return load_json(Path(inp)/'approval.json',{'format':'ggrid-theme-approval','formatVersion':1,'stages':{}})
+
+def cmd_approve(args):
+ inp=Path(args.input);meta=load_json(inp/'theme-kit.json');a=approval(inp);a['themeId']=meta['id'];st=a.setdefault('stages',{})
+ pre={'target':'mood','sheets':'target','backgrounds':'sheets','release':'backgrounds'}.get(args.stage)
+ if pre and st.get(pre,{}).get('status')!='approved':sys.exit(f'{args.stage} requires approved {pre}')
+ if args.stage=='mood':names=['mood.png']
+ elif args.stage=='target':names=['target.png']
+ elif args.stage=='sheets':
+  files=[]
+  for pk in KIT.get('packs',{}).values():
+   p=resolve_input_file(inp,pk['file'],Path('source/packs')/pk['file'])
+   if not p:sys.exit('missing: '+pk['file'])
+   files.append({'file':str(p.relative_to(inp)).replace('\\','/'),'sha256':sha(p)})
+  for s in KIT['slots']:
+   p=resolve_input_file(inp,Path('overrides')/(s['id']+'.png'),s['id']+'.png')
+   if p:files.append({'file':str(p.relative_to(inp)).replace('\\','/'),'sha256':sha(p)})
+  st[args.stage]={'status':'approved','actor':args.actor,'files':files,'mode':'asset-pack-v3'}
+  write_json_atomic(inp/'approval.json',a);print('approved',args.stage);return
+ elif args.stage=='backgrounds':
+  files=[]
+  for n in ('bg-portrait.png','bg-landscape.png'):
+   p=resolve_input_file(inp,Path('source/backgrounds')/n,n)
+   if not p:sys.exit('missing: '+n)
+   files.append({'file':str(p.relative_to(inp)).replace('\\','/'),'sha256':sha(p)})
+  st[args.stage]={'status':'approved','actor':args.actor,'files':files}
+  write_json_atomic(inp/'approval.json',a);print('approved',args.stage);return
+ else:names=['target.png','bg-portrait.png','bg-landscape.png']+[s['id']+'.png' for s in KIT['slots'] if s.get('required',True)]
+ miss=[n for n in names if not (inp/n).exists()]
+ if miss:sys.exit('missing: '+', '.join(miss))
+ st[args.stage]={'status':'approved','actor':args.actor,'files':[{'file':n,'sha256':sha(inp/n)} for n in names]}
+ if args.stage=='sheets':st[args.stage]['mode']='asset-pack-v3'
+ write_json_atomic(inp/'approval.json',a)
+ print('approved',args.stage)
+
+def verify_approval(inp):
+ a=approval(inp);err=[]
+ for stage in ('sheets','backgrounds'):
+  s=a.get('stages',{}).get(stage,{})
+  if s.get('status')!='approved':err.append(stage+' stage not approved')
+  if stage=='sheets' and s.get('mode') not in ('asset-pack-v2','asset-pack-v3'):err.append('sheets stage is not Asset Pack mode')
+  for r in s.get('files',[]):
+   p=Path(inp)/r['file']
+   if not p.exists():err.append(r['file']+' missing')
+   elif sha(p)!=r['sha256']:err.append(r['file']+' changed after approval')
+ return a,err
+
+def cmd_slice(args):
+ r=slice_assets(args.input,args.out);print(json.dumps(r['summary'],ensure_ascii=False))
+
+CSS='''body[data-theme="{{THEME}}"]{--freeze-edge:{{accent}};--freeze-glow:{{focus}}}
+body[data-theme="{{THEME}}"][data-ui-context="game"]{background:{{surface}}}
+body[data-theme="{{THEME}}"] .board-wrap.scene-artwork{border:0;background:{{surface}};box-shadow:0 18px 48px #000d}
+body[data-theme="{{THEME}}"] .scene-artwork .board{border:0!important;background:transparent;overflow:visible}
+body[data-theme="{{THEME}}"] .scene-artwork .cell{margin:1px;border:0;border-radius:4px;background:{{surfaceRaised}}}
+body[data-theme="{{THEME}}"] .scene-artwork .cell.sr-asset-visual{background-size:100% 100%!important}
+body[data-theme="{{THEME}}"] .scene-artwork .piece{border:0!important;background-color:transparent!important;box-shadow:none!important;filter:drop-shadow(0 5px 4px #0009)}
+body[data-theme="{{THEME}}"] .scene-artwork .piece.sr-asset-visual,body[data-theme="{{THEME}}"] .scene-artwork .sr-composite.sr-asset-visual{background-size:100% 100%!important;background-repeat:no-repeat!important;background-position:center!important}
+body[data-theme="{{THEME}}"] .scene-artwork .brick.sr-composite-source{opacity:0!important}
+body[data-theme="{{THEME}}"] .scene-artwork .exit{z-index:11;border:0!important;background-color:transparent!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important}
+body[data-theme="{{THEME}}"] .scene-artwork .edge-control{z-index:10!important;border:0;background:transparent;box-shadow:none;-webkit-tap-highlight-color:transparent!important}
+body[data-theme="{{THEME}}"] .scene-artwork .edge-control.art-control-zone{background-size:100% 100%!important;background-repeat:no-repeat!important}
+body[data-theme="{{THEME}}"] .scene-artwork .edge-control .emboss-arrow.sr-asset-visual{opacity:1!important;width:34px!important;height:34px!important;background-size:contain!important;background-repeat:no-repeat!important}
+body[data-theme="{{THEME}}"] .game-head,body[data-theme="{{THEME}}"] .hud-row{color:{{text}};background-color:{{surface}}}
+body[data-theme="{{THEME}}"] .play-action,body[data-theme="{{THEME}}"] .score-box{border:1px solid {{accent}};background:{{control}};color:{{text}}}
+'''
+
+def color(path,default):
+ try:
+  im=Image.open(path).convert('RGB').resize((1,1));return im.getpixel((0,0))
+ except:return default
+def hx(c):return '#%02x%02x%02x'%tuple(max(0,min(255,int(x))) for x in c)
+def mix(a,b,t):return tuple(a[i]*(1-t)+b[i]*t for i in range(3))
+
+def cmd_build(args):
+ inp=Path(args.input);meta=load_json(inp/'theme-kit.json');tid=meta['id']
+ if not re.fullmatch(r'[a-z0-9][a-z0-9-]{1,40}',tid):sys.exit('invalid theme id')
+ a,err=verify_approval(inp)
+ if err:sys.exit('approval validation failed: '+'; '.join(err))
+ tdir=ROOT/'content/themes'/tid
+ if (tdir/'raster').exists():shutil.rmtree(tdir/'raster')
+ report=slice_assets(inp,tdir)
+ if meta.get('strict',True):
+  miss=[k for k,v in report['slots'].items() if v['required'] and v['status']=='missing']
+  if miss:sys.exit('strict theme-kit missing required assets: '+', '.join(miss))
+ ras=tdir/'raster';have=lambda x:report['slots'].get(x,{}).get('status') in ('ok','warn');R=lambda x:'raster/'+x+'.webp'
+ dark=mix(color(ras/'hud.webp',(15,25,40)),(0,0,0),.45);accent=color(ras/'frame.webp',(225,185,100));text=mix(accent,(255,255,255),.62)
+ tok={'surface':hx(dark),'surfaceRaised':hx(mix(dark,accent,.12)),'control':hx(mix(dark,accent,.08)),'accent':hx(accent),'text':hx(text),'focus':hx(mix(accent,(255,255,255),.35))}
+ tok.update(meta.get('tokens',{}))
+ pieces={}
+ if have('ball'):pieces['ball']={'asset':R('ball')}
+ if have('wall'):pieces['wall']={'asset':R('wall')}
+ singles=[{'asset':R('brick-'+str(i))} for i in (1,2,3) if have('brick-'+str(i))]
+ if singles:pieces['brickSingle']={'variants':singles}
+ shapes={s['shape']:{'asset':R(s['id'])} for s in KIT['slots'] if s.get('shape') and have(s['id'])}
+ if shapes:pieces['rigidShapes']=shapes
+ if have('rigid-tiles-ring') and have('rigid-tiles-block'):pieces['rigidTiles']={'ring':R('rigid-tiles-ring'),'block':R('rigid-tiles-block')}
+ exits={d:R('exit-'+d) for d in ['up','right','down','left'] if have('exit-'+d)}
+ if exits:pieces['exit']={'directions':exits}
+ controls={}
+ for d in ['up','right','down','left']:
+  zone='zone-h' if d in ('up','down') else 'zone-v';sp={}
+  if have(zone):sp={'asset':R(zone),'target':'zone'}
+  if have('cue-'+d):sp['cue']={'asset':R('cue-'+d)}
+  controls[d]=sp
+ cells=[{'asset':R('cell-'+str(i))} for i in (1,2,3,4) if have('cell-'+str(i))]
+ board={'cellVariants':cells,'fitMode':{'portrait':'expand-height','landscape':'contain'}}
+ if have('frame'):board['frame']={'asset':R('frame'),'slice':[115]*4,'width':[22]*4,'expand':[16]*4}
+ layers={}
+ ex=report['extras']
+ if ex.get('bg-portrait',{}).get('status')=='ok' or ex.get('bg-landscape',{}).get('status')=='ok':
+  p=ex.get('bg-portrait',{}).get('file') or ex.get('bg-landscape',{}).get('file');l=ex.get('bg-landscape',{}).get('file') or p;layers['background']={'portrait':p,'landscape':l}
+ elif ex.get('target',{}).get('status')=='ok':
+  # Temporary generic fallback for Studio projects that have an approved target
+  # but no separately painted background yet. Dedicated backgrounds always win.
+  p=ex.get('target',{}).get('file');layers['background']={'portrait':p,'landscape':p}
+ ui={k:{'asset':R(k),'fit':'100% 100%'} for k in ['hud','header','victory'] if have(k)}
+ uiControls={}
+ for k in ['button-square','button-round','button-wide','button-menu','score-box']:
+  if have(k):uiControls[k]={'asset':R(k),'fit':'100% 100%'}
+ digest=hashlib.sha1(b''.join(open(ras/f,'rb').read() for f in sorted(os.listdir(ras)))).hexdigest()[:8]
+ preview=ex.get('showcase',{}).get('file') or ex.get('target',{}).get('file') or ex.get('bg-portrait',{}).get('file')
+ sem={'ball':'Golyó','brick':'Mozgó elem','wall':'Fal','exit':'Kijárat','freeze':'Freeze'};sem.update(meta.get('semantic',{}))
+ theme={'format':'ggrid-theme','formatVersion':2,'id':tid,'version':int(meta.get('version',1)),'name':meta['name'],'description':meta.get('description',''),'semantic':sem,'scene':{'type':tid,'tier':'showcase'},'pieces':{k:{'name':sem[k]} for k in ['ball','brick','wall','exit']},'abilities':{'freeze':{'name':sem['freeze']}},'preview':{'shortName':meta.get('shortName',meta['name']),'tag':meta.get('tag',''),'description':meta.get('description',''),'image':f'content/themes/{tid}/'+preview if preview else ''},'renderMode':'artwork','render':{'pieceInsetPx':.8,'rigidInsetPx':.4,'moveMs':190},'renderer':{'rigid':meta.get('renderer',{}).get('rigid','material')},'artwork':{'version':3,'landscapeMinAspect':1.18,'layouts':{'portrait':{'designSize':[540,610],'boxes':{'boardSafe':[46,68,448,448]},'controls':{'band':42,'gap':2,'extend':4}},'landscape':{'designSize':[900,520],'boxes':{'boardSafe':[165,70,570,360]},'controls':{'band':54,'gap':5,'extend':5}}},'layers':layers,'board':board,'pieces':pieces,'controls':controls,'ui':ui,'uiControls':uiControls,'layoutMode':'portrait'},'ui':{'skin':'full','sceneChrome':True,'tokens':tok},'themeKit':{'version':3,'report':'kit-report.json','approval':{'file':'approval.json','stage':'sheets','strict':meta.get('strict',True)},'assetsDigest':digest}}
+ with open(tdir/'theme.json','w',encoding='utf-8',newline='\n') as fp:
+  json.dump(theme,fp,ensure_ascii=False,indent=2)
+  fp.write('\n')
+ css=CSS.replace('{{THEME}}',tid)
+ for k,v in tok.items():css=css.replace('{{'+k+'}}',v)
+ if have('freeze-mark'):css+=f'\nbody[data-theme="{tid}"] .freeze-selection-marker{{background:url("raster/freeze-mark.webp") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;outline:0!important}}\n'
+ with open(tdir/'artwork.css','w',encoding='utf-8',newline='\n') as fp:
+  fp.write(css)
+ shutil.copy(inp/'theme-kit.json',tdir/'theme-kit.json');shutil.copy(inp/'approval.json',tdir/'approval.json')
+ idx=load_json(ROOT/'content/themes/index.json');entry={'id':tid,'version':theme['version'],'name':theme['name'],'description':theme['description'],'showcase':True,'preview':theme['preview'],'src':tid+'/theme.json','css':tid+'/artwork.css?v='+digest}
+ idx['themes']=[x for x in idx['themes'] if x['id']!=tid]+[entry]
+ with open(ROOT/'content/themes/index.json','w',encoding='utf-8',newline='\n') as fp:
+  json.dump(idx,fp,ensure_ascii=False,indent=2)
+  fp.write('\n')
+ os.system(f'cd "{ROOT}" && node tools/audit-theme-shapes.mjs >/dev/null 2>&1')
+ print('built',tid,report['summary'])
+
+SHOW={'label':'THEME-KIT-TARGET','width':5,'height':8,'exit':{'dir':'down','x':4,'y':7},'objects':[{'id':'ball1','type':'ball','x':2,'y':4,'cells':[{'x':0,'y':0}]},{'id':'W1','type':'wall','x':0,'y':2,'cells':[{'x':0,'y':0}]},{'id':'K1','type':'brick','x':1,'y':1,'cells':[{'x':0,'y':0},{'x':1,'y':0},{'x':2,'y':0}]},{'id':'K2','type':'brick','x':0,'y':3,'cells':[{'x':0,'y':0},{'x':0,'y':1}]},{'id':'K3','type':'brick','x':3,'y':2,'cells':[{'x':0,'y':0},{'x':1,'y':0},{'x':0,'y':1}]},{'id':'K4','type':'brick','x':1,'y':6,'cells':[{'x':0,'y':0}]},{'id':'K5','type':'brick','x':3,'y':5,'cells':[{'x':0,'y':0},{'x':0,'y':1},{'x':1,'y':1},{'x':1,'y':2}]}]}
+SHAPES={'label':'THEME-KIT-SHAPES','width':5,'height':8,'exit':{'dir':'down','x':4,'y':7},'objects':[{'id':'ball1','type':'ball','x':4,'y':2,'cells':[{'x':0,'y':0}]},{'id':'W1','type':'wall','x':0,'y':2,'cells':[{'x':0,'y':0}]},{'id':'K1','type':'brick','x':0,'y':0,'cells':[{'x':0,'y':0},{'x':1,'y':0},{'x':2,'y':0},{'x':1,'y':1}]},{'id':'K2','type':'brick','x':3,'y':0,'cells':[{'x':0,'y':0},{'x':1,'y':0},{'x':0,'y':1},{'x':1,'y':1}]},{'id':'K3','type':'brick','x':0,'y':3,'cells':[{'x':0,'y':0},{'x':2,'y':0},{'x':0,'y':1},{'x':1,'y':1},{'x':2,'y':1}]},{'id':'K4','type':'brick','x':3,'y':3,'cells':[{'x':0,'y':0},{'x':0,'y':1},{'x':1,'y':1},{'x':1,'y':2}]},{'id':'K5','type':'brick','x':1,'y':6,'cells':[{'x':0,'y':0},{'x':1,'y':0},{'x':2,'y':0},{'x':3,'y':0},{'x':0,'y':1},{'x':1,'y':1}]}]}
+LOAD="""s=>{const objects=s.objects.map(o=>({...o,exited:false,glueEdges:[],glued:o.cells.length>1}));const st={width:s.width,height:s.height,exit:s.exit,moves:0,won:false,objects};applyLibraryLevel({state:st,solution:[],code:s.label,level:{analysis:{testDifficultyClass:5}}});document.querySelectorAll('#toast,#motionNote').forEach(e=>e.textContent='')}"""
+
+def serve():
+ class Q(http.server.SimpleHTTPRequestHandler):
+  def log_message(self,*a):pass
+ h=functools.partial(Q,directory=ROOT);srv=socketserver.ThreadingTCPServer(('127.0.0.1',0),h);threading.Thread(target=srv.serve_forever,daemon=True).start();return srv,f'http://127.0.0.1:{srv.server_address[1]}/'
+def open_game(pw,base,theme,w,h):
+ b=pw.chromium.launch();p=b.new_page(viewport={'width':w,'height':h},device_scale_factor=2);errs=[];p.on('pageerror',lambda e:errs.append(str(e)));p.goto(base+'index.html',wait_until='networkidle');p.click('#homeFreePlay');p.wait_for_timeout(600);p.evaluate("t=>{document.querySelector('#freeTheme').value=t}",theme);p.click('#quickSize button[data-value="5x8"]');p.click('#freeSetupPlay');p.wait_for_timeout(900);return b,p,errs
+def cmd_scaffold(args):
+ from playwright.sync_api import sync_playwright
+ out=HERE/'templates';out.mkdir(exist_ok=True);srv,base=serve()
+ with sync_playwright() as pw:
+  b,p,e=open_game(pw,base,args.theme,512,768);p.evaluate(LOAD,SHOW);p.wait_for_timeout(500);raw=out/'_raw.png';p.screenshot(path=str(raw),full_page=True);b.close()
+ srv.shutdown();im=Image.open(raw).convert('RGB');raw.unlink();sc=min(1024/im.width,1536/im.height);sm=im.resize((round(im.width*sc),round(im.height*sc)),Image.Resampling.LANCZOS);cv=Image.new('RGB',(1024,1536),im.getpixel((2,2)));cv.paste(sm,((1024-sm.width)//2,(1536-sm.height)//2));cv.save(out/'target-base.png');cv.save(out/'target-base-labels.png');print(out)
+def cmd_capture(args):
+ from playwright.sync_api import sync_playwright
+ out=Path(args.out);out.mkdir(parents=True,exist_ok=True);srv,base=serve();errs=[]
+ with sync_playwright() as pw:
+  for name,(w,h) in {'phone':(390,844),'portrait':(512,768),'landscape':(1024,640)}.items():
+   b,p,e=open_game(pw,base,args.theme,w,h);errs+=e
+   for label,state in [('showcase',SHOW),('shapes-extra',SHAPES)]:
+    p.evaluate(LOAD,state);p.wait_for_timeout(500);p.screenshot(path=str(out/(label+'-'+name+'.png')),full_page=True)
+   b.close()
+ srv.shutdown()
+ if args.target and os.path.exists(args.target):
+  a=Image.open(args.target).convert('RGB').resize((1024,1536),Image.Resampling.LANCZOS);b=Image.open(out/'showcase-phone.png').convert('RGB');sc=min(1024/b.width,1536/b.height);bb=b.resize((round(b.width*sc),round(b.height*sc)),Image.Resampling.LANCZOS);canvas=Image.new('RGB',(2068,1600),(15,18,22));canvas.paste(a,(10,55));canvas.paste(bb,(1034+(1024-bb.width)//2,55+(1536-bb.height)//2));d=ImageDraw.Draw(canvas);d.text((10,12),'Jóváhagyott render-célkép',fill='#efd898',font=font(28,True));d.text((1034,12),'Valódi játék',fill='#efd898',font=font(28,True));canvas.save(out/'compare.png')
+ with open(out/'capture.json','w',encoding='utf-8',newline='\n') as fp:
+  json.dump({'theme':args.theme,'pageErrors':errs},fp,ensure_ascii=False,indent=2)
+  fp.write('\n')
+ if errs:sys.exit(1)
+
+def main():
+ p=argparse.ArgumentParser();sp=p.add_subparsers(dest='cmd',required=True)
+ sp.add_parser('templates')
+ a=sp.add_parser('approve');a.add_argument('--input',required=True);a.add_argument('--stage',required=True,choices=['mood','target','sheets','backgrounds','release']);a.add_argument('--actor',default='owner')
+ a=sp.add_parser('slice');a.add_argument('--input',required=True);a.add_argument('--out',required=True)
+ a=sp.add_parser('extract-packs');a.add_argument('--input',required=True)
+ a=sp.add_parser('build');a.add_argument('--input',required=True)
+ a=sp.add_parser('scaffold');a.add_argument('--theme',default='classic')
+ a=sp.add_parser('capture');a.add_argument('--theme',required=True);a.add_argument('--out',required=True);a.add_argument('--target')
+ x=p.parse_args()
+ if x.cmd=='extract-packs':print(json.dumps({'extracted':extract_packs(x.input)},ensure_ascii=False))
+ else:{'templates':cmd_templates,'approve':cmd_approve,'slice':cmd_slice,'build':cmd_build,'scaffold':cmd_scaffold,'capture':cmd_capture}[x.cmd](x)
+if __name__=='__main__':main()

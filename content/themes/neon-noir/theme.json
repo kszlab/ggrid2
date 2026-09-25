@@ -1,0 +1,112 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "neon-noir",
+  "version": 1,
+  "name": "NEON RAIN // Sector 9",
+  "description": "Esőáztatta jövőváros egy tetőn: futárdrón, lebegő cargók, holografikus útburkolat és pulzáló evakuációs kapu.",
+  "colors": {
+    "background": "#050612",
+    "wrap": "#090b18",
+    "board": "#0b1220",
+    "cell1": "#101c2b",
+    "cell2": "#080e18",
+    "accent": "#ff2bd6",
+    "ball1": "#ffffff",
+    "ball2": "#00f7ff",
+    "ball3": "#006b8b",
+    "brick1": "#562c76",
+    "brick2": "#251638",
+    "brickEdge": "#ff3adf",
+    "wall1": "#263d4d",
+    "wall2": "#101b25"
+  },
+  "pieces": {
+    "ball": {
+      "name": "K-7 futárdrón",
+      "markup": "<i class=\"drone-wing dw1\"></i><i class=\"drone-wing dw2\"></i><b class=\"drone-eye\"></b><em>K7</em>",
+      "className": "sr-piece"
+    },
+    "brick": {
+      "name": "Cargó pod",
+      "markup": "<i class=\"cargo-line\"></i><b>{{first:HEAVY|CARGO}}</b><em>{{multi:C-47|47}}</em>",
+      "className": "sr-piece"
+    },
+    "wall": {
+      "name": "Klímatorony",
+      "markup": "<i class=\"tower-light\"></i><b>HVAC</b>",
+      "className": "sr-piece"
+    },
+    "exit": {
+      "name": "Evakuációs lift",
+      "className": "sr-exit sr-evac",
+      "markup": "<b>09</b><small>EVAC</small>"
+    },
+    "rigidBody": {
+      "className": "sr-composite sr-composite-neon-noir",
+      "markup": "<i class=\"co-window cw1\"></i><i class=\"co-window cw2\"></i><i class=\"co-thruster\"></i><b>HEAVY CARGO</b><em>C-47</em>"
+    }
+  },
+  "abilities": {
+    "freeze": {
+      "name": "EMP-lock"
+    }
+  },
+  "scene": {
+    "type": "neon-noir",
+    "tier": "showcase",
+    "tagline": "SECTOR 9 // ACID RAIN",
+    "layers": [
+      "megacity",
+      "rain",
+      "holograms",
+      "rooftop",
+      "puddles",
+      "steam",
+      "foreground-signage"
+    ],
+    "exitStyle": "holo-elevator",
+    "markup": {
+      "back": "<i class=\"sr-city\"></i><i class=\"sr-holo\">九<small>SECTOR 9</small></i><i class=\"sr-glow\"></i>",
+      "front": "<i class=\"sr-rain\"></i><i class=\"sr-vapor\"></i><span class=\"sr-caption neon\">ACID RAIN // ROOFTOP 09 <b>EVAC</b></span>"
+    }
+  },
+  "audio": {
+    "profile": "neon",
+    "ambient": {
+      "type": "procedural",
+      "name": "Eső + városi basszus + távoli szirénák",
+      "enabled": true,
+      "volume": 0.024
+    },
+    "events": {
+      "move": "maglev",
+      "blocked": "metal-impact",
+      "freeze": "emp-drop",
+      "exit": "elevator-charge",
+      "win": "neon-resolve"
+    }
+  },
+  "preview": {
+    "markup": "<div class=\"cityline\"><i></i><i></i><i></i><i></i><i></i></div><div class=\"rain\"></div><div class=\"holo-sign\">九<br><b>SECTOR</b></div><div class=\"board showcase-board\">{{cells25}}<i class=\"piece hero courier\"><b></b><em></em></i><i class=\"piece object cargo ca1\"></i><i class=\"piece object cargo ca2\"></i><i class=\"piece object tower tw1\"></i><i class=\"piece object tower tw2\"></i><i class=\"piece object long-machine neon-bus\"></i><i class=\"exit holo-exit\"><b>09</b><em>EVAC</em></i></div><div class=\"scene-label neon-label\">ACID RAIN // ROOFTOP 09 <b>02:41</b></div>"
+  },
+  "assets": {
+    "css": "theme.css?v=0.12.57"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#04050f",
+      "surfaceRaised": "#1a202d",
+      "control": "#0a111d",
+      "controlRaised": "#303641",
+      "controlPressed": "#821874",
+      "accent": "#ff2bd6",
+      "text": "#f1f7f9",
+      "muted": "#eda7e2",
+      "border": "#ff2bd666",
+      "shadow": "#00000099",
+      "focus": "#ff2bd6",
+      "scrim": "#050612ed"
+    }
+  }
+}

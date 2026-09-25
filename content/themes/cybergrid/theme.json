@@ -1,0 +1,69 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "cybergrid",
+  "version": 1,
+  "name": "Neon Cybergrid",
+  "colors": {
+    "background": "#080719",
+    "board": "#10102b",
+    "wrap": "#151137",
+    "cell1": "#191945",
+    "cell2": "#0d0d28",
+    "accent": "#ff4df0",
+    "ball1": "#ffffff",
+    "ball2": "#55f7ff",
+    "ball3": "#126a88",
+    "brick1": "#9b36d1",
+    "brick2": "#511b87",
+    "brickEdge": "#ff72ef",
+    "wall1": "#293064",
+    "wall2": "#111636"
+  },
+  "pieces": {
+    "ball": {
+      "name": "Fénygömb"
+    },
+    "brick": {
+      "name": "Adatblokk"
+    },
+    "wall": {
+      "name": "Tűzfal"
+    },
+    "exit": {
+      "name": "Portál"
+    },
+    "rigidBody": {}
+  },
+  "abilities": {
+    "freeze": {
+      "name": "Rendszerfagyasztás"
+    }
+  },
+  "scene": {
+    "type": "cybergrid",
+    "markup": {
+      "back": "",
+      "front": ""
+    }
+  },
+  "assets": {
+    "css": "theme.css"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#070615",
+      "surfaceRaised": "#1e1e38",
+      "control": "#0f0f28",
+      "controlRaised": "#34344b",
+      "controlPressed": "#842a84",
+      "accent": "#ff4df0",
+      "text": "#f1f7f9",
+      "muted": "#edb2eb",
+      "border": "#ff4df066",
+      "shadow": "#00000099",
+      "focus": "#ff4df0",
+      "scrim": "#080719ed"
+    }
+  }
+}

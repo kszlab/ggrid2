@@ -1,0 +1,505 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 2,
+  "id": "celestial-library",
+  "version": 17,
+  "name": "Csillagkönyvtár",
+  "description": "Ősi könyvtár és csillagvizsgáló, ahol díszes kódexek és asztrolábiumok között vezetjük ki az asztrálgömböt.",
+  "semantic": {
+    "ball": "Asztrálgyöngy",
+    "brick": "Archívumkötet",
+    "wall": "Csillagtérkép-talapzat",
+    "exit": "Asztrolábium-kapu",
+    "freeze": "Időpecsét"
+  },
+  "colors": {
+    "background": "#040812",
+    "wrap": "#0a1727",
+    "board": "#efe4c7",
+    "cell1": "#f5edd6",
+    "cell2": "#d7c8a7",
+    "accent": "#e9c676",
+    "ball1": "#fffbe9",
+    "ball2": "#9fdcff",
+    "ball3": "#6b54d7",
+    "brick1": "#7f2837",
+    "brick2": "#163e69",
+    "brickEdge": "#efc979",
+    "wall1": "#c8b88e",
+    "wall2": "#4f596a"
+  },
+  "scene": {
+    "type": "celestial-library",
+    "tier": "showcase",
+    "tagline": "CELESTIAL ARCHIVE // GRAND ORRERY HALL",
+    "layers": [
+      "grand-library",
+      "arched-observatory",
+      "book-galleries",
+      "lamps",
+      "telescope",
+      "armillary",
+      "dust",
+      "filigree"
+    ],
+    "exitStyle": "astrolabe-door",
+    "markup": {
+      "back": "<i class=\"cl-vault-glow\"></i><i class=\"cl-arch-window\"></i><i class=\"cl-shelf cl-shelf-left\"></i><i class=\"cl-shelf cl-shelf-right\"></i><i class=\"cl-column cl-column-left\"></i><i class=\"cl-column cl-column-right\"></i><i class=\"cl-armillary\"></i><i class=\"cl-telescope\"></i><i class=\"cl-globe\"></i><i class=\"cl-lamp cl-lamp-a\"></i><i class=\"cl-lamp cl-lamp-b\"></i><i class=\"cl-lamp cl-lamp-c\"></i><i class=\"cl-lamp cl-lamp-d\"></i>",
+      "front": "<i class=\"cl-dust\"></i><i class=\"cl-sparkles\"></i><i class=\"cl-chart-stack\"></i><i class=\"cl-front-filigree\"></i><span class=\"sr-caption cl-caption\">CELESTIAL ARCHIVE <b>GRAND ORRERY HALL</b></span>"
+    },
+    "subtitle": "Az égi archívum"
+  },
+  "ui": {
+    "skin": "full",
+    "frame": "grand-brass-library-frame",
+    "controls": "engraved-astral-instruments",
+    "hud": "illuminated-navy-brass",
+    "sceneChrome": true,
+    "tokens": {
+      "surface": "#050d18",
+      "surfaceRaised": "#10263e",
+      "control": "#10253b",
+      "controlRaised": "#294866",
+      "controlPressed": "#6f5228",
+      "accent": "#efcc7c",
+      "text": "#fff2c9",
+      "muted": "#d8d0bd",
+      "border": "#e4bd6caa",
+      "shadow": "#01040bcc",
+      "focus": "#ffe39a",
+      "scrim": "#030812ee"
+    }
+  },
+  "pieces": {
+    "ball": {
+      "name": "Asztrálgyöngy",
+      "className": "sr-piece cl-orb",
+      "markup": "<i class=\"cl-orb-aura\"></i><i class=\"cl-orb-ring r1\"></i><i class=\"cl-orb-ring r2\"></i><i class=\"cl-orb-stars\"></i><b class=\"cl-orb-core\">✦</b>"
+    },
+    "brick": {
+      "name": "Archívumkötet",
+      "className": "sr-piece cl-volume",
+      "markup": "<i class=\"cl-book-leather\"></i><i class=\"cl-book-ribs\"></i><i class=\"cl-book-corners\"></i><i class=\"cl-page-edge\"></i><b class=\"cl-book-sigil\">✦</b>"
+    },
+    "wall": {
+      "name": "Csillagtérkép-talapzat",
+      "className": "sr-piece cl-pedestal",
+      "markup": "<i class=\"cl-stone-inlay\"></i><i class=\"cl-wall-ring\"></i><b>✧</b>"
+    },
+    "rigidBody": {
+      "className": "sr-composite cl-archive cl-book-blue",
+      "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+    },
+    "rigidBodyVariants": {
+      "2H": {
+        "className": "sr-composite cl-archive cl-book-green",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "2V": {
+        "className": "sr-composite cl-archive cl-book-red",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "3H": {
+        "className": "sr-composite cl-archive cl-book-blue",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "3V": {
+        "className": "sr-composite cl-archive cl-book-violet",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "L3-TL": {
+        "className": "sr-composite cl-archive cl-book-corner cl-book-red",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "L3-TR": {
+        "className": "sr-composite cl-archive cl-book-corner cl-book-green",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "L3-BL": {
+        "className": "sr-composite cl-archive cl-book-corner cl-book-blue",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      },
+      "L3-BR": {
+        "className": "sr-composite cl-archive cl-book-corner cl-book-violet",
+        "markup": "<i class=\"cl-archive-leather\"></i><i class=\"cl-archive-ribs\"></i><i class=\"cl-archive-corners\"></i><i class=\"cl-archive-emblem\"></i><i class=\"cl-page-gilt\"></i>"
+      }
+    },
+    "exit": {
+      "name": "Asztrolábium-kapu",
+      "className": "sr-exit cl-astrogate",
+      "markup": "<span class=\"cl-gate-label\">KIJÁRAT</span><i class=\"cl-gate-halo\"></i><i class=\"cl-gate-ring r1\"></i><i class=\"cl-gate-ring r2\"></i><i class=\"cl-gate-stars\"></i><b>✦</b>"
+    }
+  },
+  "abilities": {
+    "freeze": {
+      "name": "Időpecsét"
+    }
+  },
+  "audio": {
+    "profile": "clockwork",
+    "ambient": {
+      "type": "procedural",
+      "name": "Halk hárfa, üvegharang és csillagvizsgáló-drón",
+      "enabled": true,
+      "volume": 0.026
+    },
+    "music": {
+      "loopSeconds": 14,
+      "notes": [
+        {
+          "freq": 130.81,
+          "dur": 5.8,
+          "gain": 0.009,
+          "at": 0
+        },
+        {
+          "freq": 196,
+          "dur": 4.8,
+          "gain": 0.005,
+          "at": 4.4
+        },
+        {
+          "freq": 261.63,
+          "dur": 1.1,
+          "gain": 0.015,
+          "at": 0.5,
+          "instrument": "harp"
+        },
+        {
+          "freq": 329.63,
+          "dur": 1,
+          "gain": 0.012,
+          "at": 2.1,
+          "instrument": "harp"
+        },
+        {
+          "freq": 392,
+          "dur": 1.25,
+          "gain": 0.013,
+          "at": 4.1,
+          "instrument": "harp"
+        },
+        {
+          "freq": 523.25,
+          "dur": 1.5,
+          "gain": 0.006,
+          "at": 7.2,
+          "instrument": "bell"
+        },
+        {
+          "freq": 440,
+          "dur": 1,
+          "gain": 0.01,
+          "at": 9.5,
+          "instrument": "harp"
+        },
+        {
+          "freq": 659.25,
+          "dur": 1.8,
+          "gain": 0.005,
+          "at": 11.7,
+          "instrument": "bell"
+        }
+      ]
+    },
+    "synthesis": {
+      "events": {
+        "move": [
+          {
+            "freq": 294,
+            "dur": 0.17,
+            "gain": 0.017,
+            "instrument": "harp"
+          }
+        ],
+        "blocked": [
+          {
+            "freq": 147,
+            "dur": 0.18,
+            "gain": 0.018,
+            "wave": "triangle",
+            "endFreq": 118
+          }
+        ],
+        "freeze": [
+          {
+            "freq": 880,
+            "dur": 0.6,
+            "gain": 0.02,
+            "instrument": "bell"
+          },
+          {
+            "freq": 1174.66,
+            "dur": 0.8,
+            "gain": 0.009,
+            "at": 0.12,
+            "instrument": "bell"
+          }
+        ],
+        "exit": [
+          {
+            "freq": 392,
+            "dur": 0.42,
+            "gain": 0.02,
+            "instrument": "harp"
+          },
+          {
+            "freq": 783.99,
+            "dur": 0.65,
+            "gain": 0.016,
+            "at": 0.12,
+            "instrument": "bell"
+          }
+        ],
+        "win": [
+          {
+            "freq": 392,
+            "dur": 0.45,
+            "gain": 0.02,
+            "instrument": "harp"
+          },
+          {
+            "freq": 523.25,
+            "dur": 0.55,
+            "gain": 0.018,
+            "at": 0.14,
+            "instrument": "harp"
+          },
+          {
+            "freq": 783.99,
+            "dur": 0.9,
+            "gain": 0.018,
+            "at": 0.3,
+            "instrument": "bell"
+          }
+        ]
+      }
+    },
+    "events": {
+      "move": "page-glide",
+      "blocked": "book-stop",
+      "freeze": "time-seal",
+      "exit": "astrolabe-open",
+      "win": "archive-chime"
+    }
+  },
+  "preview": {
+    "markup": "<div class=\"cl-preview-window\"></div><div class=\"cl-preview-shelf ps-left\"></div><div class=\"cl-preview-shelf ps-right\"></div><div class=\"cl-preview-lamp pl-a\"></div><div class=\"cl-preview-lamp pl-b\"></div><div class=\"board showcase-board\">{{cells25}}<i class=\"piece hero cl-preview-orb\"></i><i class=\"piece object cl-preview-book b1\"></i><i class=\"piece object cl-preview-book b2\"></i><i class=\"piece object cl-preview-stone s1\"></i><i class=\"piece object long-machine cl-preview-atlas\"></i><i class=\"exit cl-preview-gate\">✦</i></div><div class=\"cl-preview-orrery\"></div><div class=\"scene-label\">CSILLAGKÖNYVTÁR <b>AZ ÉGI ARCHÍVUM</b></div>",
+    "shortName": "Csillagkönyvtár",
+    "tag": "Az égi archívum",
+    "description": "Ősi könyvtár és csillagvizsgáló, díszes kódexekkel, csillagtérképekkel és asztrolábiumokkal."
+  },
+  "assets": {
+    "css": "artwork.css?v=0.15.20",
+    "preload": [
+      "library-scene.svg"
+    ]
+  },
+  "render": {
+    "pieceInsetPx": 0.8,
+    "rigidInsetPx": 0.4,
+    "moveMs": 190
+  },
+  "renderMode": "artwork",
+  "textPolicy": {
+    "functionalText": "localized",
+    "themeIdentity": "theme-selector-only",
+    "diegeticText": "artwork-allowed"
+  },
+  "artwork": {
+    "version": 2,
+    "landscapeMinAspect": 1.18,
+    "layouts": {
+      "portrait": {
+        "designSize": [
+          540,
+          610
+        ],
+        "boxes": {
+          "boardSafe": [
+            46,
+            68,
+            448,
+            448
+          ]
+        },
+        "controls": {
+          "band": 42,
+          "gap": 2,
+          "extend": 4,
+          "cueInset": 0
+        }
+      },
+      "landscape": {
+        "designSize": [
+          900,
+          520
+        ],
+        "boxes": {
+          "boardSafe": [
+            165,
+            70,
+            570,
+            360
+          ]
+        },
+        "controls": {
+          "band": 54,
+          "gap": 5,
+          "extend": 5
+        }
+      }
+    },
+    "layers": {
+      "background": {
+        "portrait": "library-scene.svg",
+        "landscape": "library-scene.svg"
+      },
+      "environment": {
+        "portrait": "artwork/scene-lighting.svg",
+        "landscape": "artwork/scene-lighting.svg"
+      }
+    },
+    "board": {
+      "frame": {
+        "asset": "artwork/board-frame.svg",
+        "slice": [
+          96,
+          96,
+          96,
+          96
+        ],
+        "width": [
+          22,
+          22,
+          22,
+          22
+        ],
+        "expand": [
+          16,
+          16,
+          16,
+          16
+        ]
+      },
+      "cellVariants": [
+        {
+          "asset": "artwork/cell-star.svg"
+        },
+        {
+          "asset": "artwork/cell-moon.svg"
+        },
+        {
+          "asset": "artwork/cell-rosette.svg"
+        },
+        {
+          "asset": "artwork/cell-constellation.svg"
+        }
+      ],
+      "fitMode": {
+        "portrait": "expand-height",
+        "landscape": "contain"
+      }
+    },
+    "pieces": {
+      "ball": {
+        "asset": "artwork/ball.svg"
+      },
+      "wall": {
+        "asset": "artwork/wall.svg"
+      },
+      "brickSingle": {
+        "variants": [
+          {
+            "asset": "artwork/book-single-blue.svg"
+          },
+          {
+            "asset": "artwork/book-single-red.svg"
+          },
+          {
+            "asset": "artwork/book-single-green.svg"
+          }
+        ]
+      },
+      "rigidShapes": {
+        "2H": {
+          "asset": "artwork/codex-2h.svg"
+        },
+        "2V": {
+          "asset": "artwork/codex-2v.svg"
+        },
+        "3H": {
+          "asset": "artwork/codex-3h.svg"
+        },
+        "3V": {
+          "asset": "artwork/codex-3v.svg"
+        },
+        "L3-TL": {
+          "asset": "artwork/codex-l3-tl.svg"
+        },
+        "L3-TR": {
+          "asset": "artwork/codex-l3-tr.svg"
+        },
+        "L3-BL": {
+          "asset": "artwork/codex-l3-bl.svg"
+        },
+        "L3-BR": {
+          "asset": "artwork/codex-l3-br.svg"
+        }
+      },
+      "exit": {
+        "directions": {
+          "up": "artwork/exit-up.svg",
+          "right": "artwork/exit-right.svg",
+          "down": "artwork/exit-down.svg",
+          "left": "artwork/exit-left.svg"
+        }
+      }
+    },
+    "controls": {
+      "up": {
+        "asset": "artwork/control-zone-up.svg",
+        "target": "zone",
+        "cue": {
+          "asset": "artwork/control-up.svg"
+        }
+      },
+      "right": {
+        "asset": "artwork/control-zone-right.svg",
+        "target": "zone",
+        "cue": {
+          "asset": "artwork/control-right.svg"
+        }
+      },
+      "down": {
+        "asset": "artwork/control-zone-down.svg",
+        "target": "zone",
+        "cue": {
+          "asset": "artwork/control-down.svg"
+        }
+      },
+      "left": {
+        "asset": "artwork/control-zone-left.svg",
+        "target": "zone",
+        "cue": {
+          "asset": "artwork/control-left.svg"
+        }
+      }
+    },
+    "ui": {
+      "hud": {
+        "asset": "artwork/hud-frame.svg",
+        "fit": "100% 100%"
+      },
+      "victory": {
+        "asset": "artwork/victory-frame.svg",
+        "fit": "100% 100%"
+      },
+      "header": {
+        "asset": "artwork/header-frame.svg",
+        "fit": "100% 100%"
+      }
+    },
+    "layoutMode": "portrait"
+  }
+}

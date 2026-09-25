@@ -1,0 +1,69 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "ancient-temple",
+  "version": 1,
+  "name": "Ősi templom",
+  "colors": {
+    "background": "#2b1d10",
+    "board": "#665031",
+    "wrap": "#49331d",
+    "cell1": "#8a7047",
+    "cell2": "#59472d",
+    "accent": "#70f0d0",
+    "ball1": "#fff8c4",
+    "ball2": "#62e6c3",
+    "ball3": "#197b70",
+    "brick1": "#a77c43",
+    "brick2": "#76552f",
+    "brickEdge": "#e4c277",
+    "wall1": "#6b5b43",
+    "wall2": "#443928"
+  },
+  "pieces": {
+    "ball": {
+      "name": "Kristálygömb"
+    },
+    "brick": {
+      "name": "Kőtömb"
+    },
+    "wall": {
+      "name": "Templomfal"
+    },
+    "exit": {
+      "name": "Rúnakapu"
+    },
+    "rigidBody": {}
+  },
+  "abilities": {
+    "freeze": {
+      "name": "Rúnazár"
+    }
+  },
+  "scene": {
+    "type": "ancient-temple",
+    "markup": {
+      "back": "",
+      "front": ""
+    }
+  },
+  "assets": {
+    "css": "theme.css"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#24180d",
+      "surfaceRaised": "#6f5a3d",
+      "control": "#5e4a2d",
+      "controlRaised": "#7d6a50",
+      "controlPressed": "#4e8670",
+      "accent": "#70f0d0",
+      "text": "#f5f5ef",
+      "muted": "#bbebe0",
+      "border": "#70f0d066",
+      "shadow": "#00000099",
+      "focus": "#70f0d0",
+      "scrim": "#2b1d10ed"
+    }
+  }
+}

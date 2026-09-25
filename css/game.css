@@ -1,0 +1,590 @@
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#10283d;color:#fff}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;background:linear-gradient(#173a58,#0d2031)}
+main{width:min(96vw,520px);padding:12px;text-align:center}h1{font-size:1.35rem;margin:0 0 2px}.sub{opacity:.72;margin-bottom:8px;font-size:.86rem}
+.topbar{display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap;margin:0 0 8px}
+select,.codeinput,button{font:inherit}.topbar select,.codeinput{background:#e8f1f7;color:#16354e;border:0;border-radius:10px;padding:8px 9px;font-weight:700;min-height:42px}
+.board-wrap{padding:12px;background:#6f4a2b;border-radius:22px;box-shadow:0 12px 30px #0007}
+.board{--cols:4;--rows:4;position:relative;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);aspect-ratio:var(--cols)/var(--rows);background:#2b3034;border:3px solid #b17b45;border-radius:12px;overflow:visible}
+.cell{border:1px solid #ffffff22;background:linear-gradient(145deg,#60676b,#383e42);margin:2px;border-radius:8px}
+.piece{position:absolute;z-index:3;border:0;padding:0;transition:left var(--ggrid-piece-move,190ms) ease,top var(--ggrid-piece-move,190ms) ease,opacity .17s ease,transform .17s ease;will-change:left,top,transform,opacity}
+.ball{border-radius:50%;background:radial-gradient(circle at 32% 27%,#fff,#aab3ba 25%,#4c555d 68%,#1b2228);box-shadow:3px 5px 7px #0007}
+.brick{border-radius:7px;background:repeating-linear-gradient(90deg,#b9783e 0 5px,#c98a49 5px 11px);box-shadow:inset 0 0 0 2px #e0a866,3px 5px 7px #0007}/* Rigid body = one visual object. Each occupied cell keeps its own DOM hit area,
+   but joined edges are visually fused and only the true polyomino perimeter is strong. */
+.brick.glued{
+ --rigid-outline:#f1c15f;
+ --rigid-seam:transparent;
+ border-radius:0;
+ background:repeating-linear-gradient(90deg,#b9783e 0 5px,#c98a49 5px 11px);
+ box-shadow:none;
+ outline:none;
+}
+.brick.glued.edge-t{border-top:5px solid var(--rigid-outline)}
+.brick.glued.edge-r{border-right:5px solid var(--rigid-outline)}
+.brick.glued.edge-b{border-bottom:5px solid var(--rigid-outline)}
+.brick.glued.edge-l{border-left:5px solid var(--rigid-outline)}
+.brick.glued.join-t{border-top:0}
+.brick.glued.join-r{border-right:0}
+.brick.glued.join-b{border-bottom:0}
+.brick.glued.join-l{border-left:0}
+.brick.glued.edge-t.edge-l{border-top-left-radius:10px}
+.brick.glued.edge-t.edge-r{border-top-right-radius:10px}
+.brick.glued.edge-b.edge-l{border-bottom-left-radius:10px}
+.brick.glued.edge-b.edge-r{border-bottom-right-radius:10px}
+/* Joined-cell bridges are paint only: they fill the normal 3.6 px cell inset
+   without changing any cell's geometry. Therefore every cell of a rigid body keeps
+   exactly the same position/size and the whole body animates in lockstep. */
+.brick.glued{overflow:visible}
+.brick.glued.join-r::before,
+.brick.glued.join-b::after{
+ content:'';
+ position:absolute;
+ pointer-events:none;
+ background:inherit;
+ z-index:-1;
+}
+.brick.glued.join-r::before{
+ top:0;bottom:0;left:100%;width:4px;
+}
+.brick.glued.join-b::after{
+ left:0;right:0;top:100%;height:4px;
+}
+.wall{border-radius:8px;background:repeating-linear-gradient(135deg,#58636b 0 6px,#3b444b 6px 12px);box-shadow:inset 0 0 0 3px #8e9aa3,inset 0 0 0 5px #252c31,3px 5px 7px #0008;cursor:default}
+.selected{outline:4px solid #9ee9ff;filter:brightness(1.25)}
+.blocked{animation:bump .18s ease}.winner{animation:winpulse .55s ease}
+@keyframes bump{0%,100%{transform:translate(0)}35%{transform:translate(-3px)}70%{transform:translate(3px)}}
+@keyframes winpulse{50%{filter:brightness(1.18)}}
+.exit{z-index:5;pointer-events:none;align-self:center;justify-self:center;background:#071018;border:3px solid #e3b05b;box-shadow:0 0 12px #ffc65d;position:relative}
+.exit-right,.exit-left{width:18%;height:48%}.exit-up,.exit-down{width:48%;height:18%}
+.exit-right{justify-self:end;transform:translateX(65%);border-left:0;border-radius:0 999px 999px 0}.exit-left{justify-self:start;transform:translateX(-65%);border-right:0;border-radius:999px 0 0 999px}
+.exit-up{align-self:start;transform:translateY(-65%);border-bottom:0;border-radius:999px 999px 0 0}.exit-down{align-self:end;transform:translateY(65%);border-top:0;border-radius:0 0 999px 999px}
+.exit:after{position:absolute;font-weight:900;color:#ffd273;font-size:clamp(18px,6vw,34px)}
+.exit-right:after{content:'→';left:115%;top:50%;transform:translateY(-54%)}.exit-left:after{content:'←';right:115%;top:50%;transform:translateY(-54%)}
+.exit-up:after{content:'↑';bottom:115%;left:50%;transform:translateX(-50%)}.exit-down:after{content:'↓';top:115%;left:50%;transform:translateX(-50%)}
+.status{font-weight:700;min-height:26px;margin-top:7px}.meta{font-size:.82rem;opacity:.85;min-height:21px}.code{font-size:.78rem;opacity:.8;margin:2px 0 6px;user-select:all}
+.controls{display:grid;grid-template-columns:repeat(3,70px);justify-content:center;gap:6px;margin:10px auto}
+.controls button,.tools button,.mini-tools button{border:0;border-radius:14px;background:#315c7e;color:#fff;font-size:26px;min-height:49px;box-shadow:inset 0 1px #ffffff55,0 4px 8px #0005;touch-action:manipulation}
+.controls button:disabled,.tools button:disabled,.mini-tools button:disabled{opacity:.55}.controls .up{grid-column:2}.controls .left{grid-column:1;grid-row:2}.controls .down{grid-column:2;grid-row:2}.controls .right{grid-column:3;grid-row:2}
+.tools,.mini-tools{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}.tools button,.mini-tools button{font-size:14px;padding:0 12px}.tools .active,.mini-tools .active{background:#298bb5}
+.mini-tools{margin-top:7px}.mini-tools button{min-height:40px;background:#274d69}.loadrow{display:flex;justify-content:center;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px}.codeinput{width:150px;text-transform:uppercase}.loadrow button{min-height:42px;border:0;border-radius:10px;padding:0 11px;background:#274d69;color:#fff;font-weight:700}
+.hint{font-size:.74rem;opacity:.62;margin-top:8px}.toast{min-height:20px;font-size:.78rem;color:#ffd98a;margin-top:4px}.motion-note{font-size:.7rem;opacity:.68;min-height:17px}
+.motion-tune{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
+.tune-box{display:flex;align-items:center;gap:5px;background:#18364d;border-radius:10px;padding:4px 7px;font-size:.72rem}
+.tune-box button{border:0;border-radius:8px;background:#315c7e;color:#fff;min-width:34px;min-height:34px;font-size:18px;font-weight:800}
+.tune-value{min-width:50px;font-weight:800;color:#ffd98a}
+@media(max-height:760px){main{padding:6px}.board-wrap{padding:8px}.controls{margin:6px auto}.controls button{min-height:40px}.hint{display:none}}
+@media(prefers-reduced-motion:reduce){.piece{transition:none!important}.blocked,.winner{animation:none!important}}
+
+/* v0.5 – board-edge press controls + visual tilt */
+.board-wrap{position:relative;perspective:850px;padding:58px}
+.board{transform-style:preserve-3d;transform-origin:center;transition:transform .15s ease,filter .15s ease}
+.board.tilt-up{transform:rotateX(8deg) translateY(-2px);filter:brightness(1.04)}
+.board.tilt-down{transform:rotateX(-8deg) translateY(2px);filter:brightness(.98)}
+.board.tilt-left{transform:rotateY(-8deg) translateX(-2px);filter:brightness(.99)}
+.board.tilt-right{transform:rotateY(8deg) translateX(2px);filter:brightness(1.03)}
+.edge-control{position:absolute;z-index:20;border:1px solid #ffffff55;background:linear-gradient(#416f91,#284e6b);color:#fff;border-radius:15px;box-shadow:inset 0 1px #ffffff55,0 4px 9px #0006;touch-action:none;user-select:none;-webkit-user-select:none;font-weight:900;font-size:24px;display:grid;place-items:center}
+.edge-control:active,.edge-control.pressed{background:linear-gradient(#2d8bb7,#236987);box-shadow:inset 0 2px 5px #0006,0 2px 5px #0005}
+.edge-up,.edge-down{left:25%;width:50%;height:42px}
+.edge-left,.edge-right{top:25%;height:50%;width:42px}
+.edge-up{top:8px}.edge-down{bottom:8px}.edge-left{left:8px}.edge-right{right:8px}
+@media(max-height:760px){.board-wrap{padding:50px}.edge-up,.edge-down{height:38px}.edge-left,.edge-right{width:38px}}
+
+
+/* v0.10.1 startup loading overlay */
+.startup{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:linear-gradient(#173a58,#0d2031);transition:opacity .28s ease,visibility .28s ease}
+.startup.done{opacity:0;visibility:hidden;pointer-events:none}
+.startup-card{text-align:center}.startup-title{font-size:2rem;font-weight:900;letter-spacing:.04em;margin-bottom:14px}.startup-text{margin-top:13px;font-weight:700;opacity:.82}
+.startup-grid{width:94px;height:94px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:5px;border:3px solid #b17b45;border-radius:12px;background:#2b3034;animation:startupTilt 1.4s ease-in-out infinite}
+.startup-grid i{display:block;border-radius:5px;background:linear-gradient(145deg,#60676b,#383e42)}
+.startup-grid .startup-ball{border-radius:50%;background:radial-gradient(circle at 32% 27%,#fff,#aab3ba 25%,#4c555d 68%,#1b2228);animation:startupBall 1.4s ease-in-out infinite}
+.startup-grid .startup-brick{background:repeating-linear-gradient(90deg,#b9783e 0 4px,#c98a49 4px 8px);box-shadow:inset 0 0 0 2px #e0a866}
+@keyframes startupTilt{0%,100%{transform:rotate(0)}35%{transform:rotate(3deg)}70%{transform:rotate(-2deg)}}
+@keyframes startupBall{0%,100%{transform:translate(0,0)}35%{transform:translate(8px,0)}70%{transform:translate(0,8px)}}
+@media(prefers-reduced-motion:reduce){.startup-grid,.startup-grid .startup-ball{animation:none!important}}
+
+/* v0.10.4 Motion Calibration Lab */
+.calibration{position:fixed;inset:0;z-index:940;background:#07131ddd;display:grid;place-items:center;padding:14px}
+.calibration[hidden]{display:none}.cal-card{width:min(94vw,500px);max-height:94dvh;overflow:auto;background:#173a58;border:1px solid #ffffff33;border-radius:18px;padding:16px;box-shadow:0 18px 50px #000b}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.cal-head strong{font-size:1.05rem}.cal-head button,.cal-actions button{border:0;border-radius:10px;background:#315c7e;color:#fff;padding:9px 12px;font-weight:800}
+.cal-phase{margin-top:12px;font-size:.78rem;opacity:.72}.cal-arrow{font-size:72px;line-height:1.1;font-weight:900;color:#ffd98a;margin:7px 0}.cal-instruction{font-size:1.05rem;font-weight:800;min-height:52px}
+.cal-progress{height:9px;background:#0b2234;border-radius:99px;overflow:hidden;margin:13px 0}.cal-progress i{display:block;height:100%;width:0;background:#8fd7f4;transition:width .15s linear}
+.cal-stats{font-size:.78rem;line-height:1.5;min-height:56px;white-space:pre-line}.cal-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}.cal-actions button:disabled{opacity:.45}.cal-small{font-size:.7rem;opacity:.65;margin-top:11px}
+.calibration.is-measuring .cal-instruction,.calibration.is-measuring .cal-stats,.calibration.is-measuring .cal-small{display:none}
+.calibration.is-measuring .cal-arrow{display:grid;place-items:center;min-height:125px;font-size:92px}
+.calibration.is-measuring .cal-arrow.cal-word{font-size:clamp(29px,9vw,52px);letter-spacing:.03em}
+.calibration.is-measuring .cal-arrow.cal-slide{font-size:clamp(21px,6vw,34px);text-align:center;line-height:1.2}
+.settings-checkbox{flex:0 0 auto;width:29px;height:29px;margin:0 7px;accent-color:#91cfea;cursor:pointer}
+.settings-checkbox:focus-visible{outline:3px solid #ffd58a;outline-offset:3px}
+
+/* v0.11.0 Scenario / Theme prototype */
+.scenario-info{min-height:20px;font-size:.78rem;font-weight:800;color:#ffd98a;margin:3px 0}
+.scenario-panel{position:fixed;inset:0;z-index:920;background:#07131ddd;display:grid;place-items:center;padding:14px}
+.scenario-panel[hidden]{display:none}.scenario-card{width:min(94vw,500px);max-height:90dvh;overflow:auto;background:#173a58;border:1px solid #ffffff33;border-radius:18px;padding:16px;box-shadow:0 18px 50px #000b;text-align:left}
+.scenario-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.scenario-head strong{font-size:1.15rem}.scenario-head button,.scenario-actions button{border:0;border-radius:10px;background:#315c7e;color:#fff;padding:9px 12px;font-weight:800}
+.scenario-desc{font-size:.85rem;opacity:.8;margin:8px 0 12px}.scenario-list{display:grid;gap:8px}.scenario-choice{display:grid;text-align:left;gap:3px;border:1px solid #ffffff33;border-radius:12px;background:#244c69;color:#fff;padding:11px}.scenario-choice span{font-size:.76rem;opacity:.75}.scenario-choice.selected{outline:3px solid #8fd7f4;background:#2d6589}.scenario-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:13px}.scenario-actions button:disabled{opacity:.45}
+
+/* v0.11.3: a komponensek saját display szabályai ne írják felül a hidden attribútumot */
+[hidden]{display:none!important}
+
+
+/* v0.12.0 – letisztult alkalmazás-héj */
+body{display:block}
+main{margin:0 auto;padding:8px 10px 12px;width:min(100vw,520px)}
+.home-screen{position:fixed;inset:0;z-index:800;display:grid;place-items:center;background:linear-gradient(#173a58,#0d2031);padding:18px}
+.home-card{width:min(88vw,360px);display:grid;gap:12px;text-align:center}
+.home-logo{font-size:3rem;font-weight:950;letter-spacing:.05em}.home-version{font-size:.78rem;opacity:.65;margin-top:-8px;margin-bottom:14px}
+.home-card button,.ui-card>button{border:0;border-radius:14px;background:#315c7e;color:#fff;min-height:50px;padding:10px 14px;font-weight:800;font-size:1rem}
+.home-card .primary-home{background:#298bb5;font-size:1.08rem}
+.game-head{height:38px;display:grid;grid-template-columns:1fr 42px;align-items:center;gap:6px;margin-bottom:2px}
+.game-head .scenario-info{margin:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:0}
+.icon-menu{border:0;border-radius:10px;background:#274d69;color:#fff;width:42px;height:36px;font-size:22px;font-weight:900}
+.hud-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;min-height:44px}
+.hud-row .status{margin:0;text-align:left;min-height:0}
+#freeze{border:0;border-radius:12px;background:#315c7e;color:#fff;min-height:40px;padding:0 13px;font-weight:800}
+#freeze.active{background:#298bb5}
+.dev-detail,.legacy-tools,.settings-only{display:none!important}
+.ui-panel{position:fixed;inset:0;z-index:910;background:#07131ddd;display:grid;place-items:center;padding:14px}
+.ui-card{width:min(92vw,420px);max-height:92dvh;overflow:auto;background:#173a58;border:1px solid #ffffff33;border-radius:18px;padding:16px;box-shadow:0 18px 50px #000b;display:grid;gap:9px;text-align:left}
+.ui-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:2px}.ui-head strong{font-size:1.15rem}.ui-head button{border:0;border-radius:10px;background:#315c7e;color:#fff;width:40px;height:38px;font-weight:900}
+.ui-sub{font-size:.82rem;color:#ffd98a;min-height:18px;margin-bottom:4px}
+.ui-card section{border-top:1px solid #ffffff22;padding-top:10px}.ui-card h3{font-size:.83rem;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin:0 0 8px}
+#settingsControls,#settingsFree,#settingsCode{display:grid;gap:9px}
+#settingsControls .mini-tools,#settingsControls .motion-tune,#settingsFree .topbar,#settingsCode .loadrow{display:flex!important;margin:0}
+#settingsFree .topbar{justify-content:flex-start;flex-direction:column;align-items:stretch}
+#settingsFree .topbar label{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#settingsCode .loadrow{justify-content:flex-start}
+.panel-version{text-align:center;font-size:.72rem;opacity:.5;margin-top:7px}
+body.scenario-mode #freeSettings,body.scenario-mode #codeSettings{display:none}
+body.scenario-mode #menuNew{display:none}
+body:not(.scenario-mode) #scenarioInfo:empty:before{content:'Szabad játék';opacity:.7}
+@media(max-height:760px){main{padding:4px 8px}.game-head{height:34px}.board-wrap{padding:48px}.hud-row{min-height:38px}.toast{margin-top:1px}}
+
+/* v0.12.12 – Scene Renderer 2 */
+.board-wrap.scene-showcase{overflow:hidden;isolation:isolate;min-height:0;background:#071017;border:1px solid #ffffff18;box-shadow:0 16px 42px #000a,inset 0 0 70px #0008}
+.scene-layer,.scene-frame{position:absolute;inset:0;pointer-events:none}.scene-back{z-index:0}.scene-frame{z-index:1}.scene-front{z-index:12;overflow:hidden;border-radius:inherit}.scene-showcase .board,.scene-showcase .edge-control{z-index:4}.scene-showcase .board{box-shadow:0 14px 28px #000a}
+.sr-caption{position:absolute;left:8px;bottom:5px;font:700 7px/1.2 ui-monospace,monospace;letter-spacing:.11em;color:#e8b85c;text-shadow:0 1px 5px #000}.sr-caption b{color:#8eeeff;margin-left:8px}.sr-caption.neon{color:#00efff}.sr-caption.neon b{color:#ff4bdd}.rivet{position:absolute;width:5px;height:5px;border-radius:50%;background:#f2cf83;box-shadow:0 0 2px #000}.piece-glyph{position:absolute;inset:0;display:grid;place-items:center;color:#e9c473;text-shadow:0 1px 3px #000;font-size:clamp(13px,5vw,26px)}.ball.sr-piece em{position:absolute;bottom:7%;left:0;right:0;font:700 7px monospace;color:#ff6ce5;font-style:normal}.brick.sr-piece b{position:absolute;left:6%;bottom:8%;font:5px monospace;color:#ff83e9}.brick.sr-piece em{position:absolute;right:6%;bottom:8%;font:700 6px monospace;color:#8ff;font-style:normal}.wall.sr-piece b{position:absolute;inset:auto 0 7%;font:5px monospace;color:#93d9e9}
+.scene-showcase.fx-blocked .board{animation:bump .18s ease}.scene-showcase.fx-freeze .board{filter:brightness(1.35) saturate(.55);box-shadow:0 0 28px #aef}.scene-showcase.fx-exit .exit{filter:brightness(2);transform:scale(1.18)!important}.scene-showcase.fx-win{animation:srWin .85s ease}
+@keyframes srSpin{to{transform:rotate(360deg)}}@keyframes srSteam{to{transform:translate(35px,-9px) scale(1.2);opacity:.25}}@keyframes srRain{to{transform:translate(-12px,30px)}}@keyframes srWin{50%{filter:brightness(1.3) saturate(1.25)}}
+.scene-showcase.fx-exit .exit-right{transform:translateX(58%) scale(1.18)!important}.scene-showcase.fx-exit .exit-left{transform:translateX(-58%) scale(1.18)!important}.scene-showcase.fx-exit .exit-up{transform:translateY(-58%) scale(1.18)!important}.scene-showcase.fx-exit .exit-down{transform:translateY(58%) scale(1.18)!important}
+
+/* v0.12.13 – connected-object skins, depth and directional reactions */
+.scene-showcase .brick.sr-component{margin:0!important;border-radius:0;box-shadow:none!important;z-index:5}
+.scene-showcase .brick.sr-component:not(.sr-open-left){border-left-color:transparent!important}
+.scene-showcase .brick.sr-component:not(.sr-open-right){border-right-color:transparent!important}
+.scene-showcase .brick.sr-component:not(.sr-open-top){border-top-color:transparent!important}
+.scene-showcase .brick.sr-component:not(.sr-open-bottom){border-bottom-color:transparent!important}
+.scene-showcase .brick.sr-component.sr-open-left{border-top-left-radius:8px;border-bottom-left-radius:8px}
+.scene-showcase .brick.sr-component.sr-open-right{border-top-right-radius:8px;border-bottom-right-radius:8px}
+.scene-showcase .brick.sr-component.sr-open-top{border-top-left-radius:8px;border-top-right-radius:8px}
+.scene-showcase .brick.sr-component.sr-open-bottom{border-bottom-left-radius:8px;border-bottom-right-radius:8px}.scene-showcase .brick.sr-component em{z-index:3}
+.scene-showcase .piece{filter:drop-shadow(0 5px 4px #0007)}
+.scene-showcase .cell:nth-child(odd){filter:brightness(.96)}.scene-showcase .cell:nth-child(5n+1){box-shadow:inset 3px 0 #ffffff05}
+.scene-showcase.fx-freeze .selected{outline-color:#eaffff;box-shadow:0 0 0 3px #8df6ff,0 0 24px #8df6ff!important}
+@keyframes srScan{to{transform:translateY(8px)}}
+
+/* v0.12.14 – true unified polyomino overlays + richer scene depth */
+.sr-composite{position:absolute;z-index:7;pointer-events:none;box-sizing:border-box;transition:left var(--ggrid-piece-move,190ms) ease,top var(--ggrid-piece-move,190ms) ease;overflow:visible}
+.scene-showcase .brick.sr-component{opacity:.16}
+.scene-showcase.fx-freeze .sr-composite{filter:brightness(1.5) saturate(.45);box-shadow:0 0 22px #aef}
+@keyframes srBreathe{to{opacity:.45;transform:scale(1.03)}}@keyframes srPulse{50%{opacity:.2}}@keyframes srHolo{0%,91%,100%{opacity:1;transform:skewY(-4deg)}92%{opacity:.35;transform:skewY(-4deg) translateX(2px)}94%{opacity:.8;transform:skewY(-4deg) translateX(-1px)}}
+
+/* v0.12.15 – rigid composite synchronization
+   Same 140 ms positional interpolation as the underlying logical cells. */
+.sr-composite{transition:left var(--ggrid-piece-move,190ms) ease,top var(--ggrid-piece-move,190ms) ease!important;will-change:left,top}
+.scene-showcase .piece{will-change:left,top}.sr-caption.circuit{color:#62ff91}.sr-caption.circuit b{color:#f0c36a}
+@keyframes srSignal{0%{left:4%;top:12%}45%{left:82%;top:12%}50%{left:82%;top:78%}95%,100%{left:4%;top:78%}}@keyframes srMist{to{transform:translateX(45px);opacity:.35}}
+
+
+/* v0.12.20 – cinematic Free Play setup */
+.free-setup{position:fixed;inset:0;z-index:190;background:radial-gradient(circle at 50% 12%,#21435a,#071019 72%);display:grid;place-items:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));overflow:auto}
+.free-setup[hidden]{display:none}.free-setup-card{width:min(96vw,540px);min-height:min(94dvh,760px);display:flex;flex-direction:column;gap:9px}
+.free-setup-head{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;letter-spacing:.16em;font-size:.82rem}.free-setup-head button{width:40px;height:40px;border:0;border-radius:50%;background:#ffffff12;color:#fff;font-size:18px}.free-setup-head span{width:40px}
+.theme-cinema{position:relative;height:clamp(330px,57dvh,500px);border-radius:26px;overflow:hidden;background:#06101a;box-shadow:0 22px 55px #000b,inset 0 0 0 1px #ffffff20;touch-action:pan-y}
+.theme-preview{position:absolute;inset:0;overflow:hidden;transition:opacity .18s ease,transform .22s ease;background:#13283a}
+.theme-preview-art{position:absolute;inset:0;transform:scale(1.03);transition:background .3s ease}
+.theme-vignette{position:absolute;inset:0;background:linear-gradient(180deg,#00000008 35%,#000000d9 100%),radial-gradient(circle at 50% 42%,transparent 35%,#0008 100%);pointer-events:none}
+.theme-preview-label{position:absolute;left:25px;right:25px;bottom:24px;text-align:left;text-shadow:0 3px 12px #000}.theme-preview-label strong{display:block;font-size:clamp(24px,8vw,42px);line-height:.95;letter-spacing:.04em}.theme-preview-label small{display:block;margin-top:7px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;opacity:.72}
+.theme-nav{position:absolute;z-index:4;top:43%;width:46px;height:64px;border:0;background:#050b12a8;color:#fff;font-size:42px;line-height:1;border-radius:14px;backdrop-filter:blur(7px);box-shadow:0 5px 18px #0007}.theme-prev{left:9px}.theme-next{right:9px}
+.theme-dots{display:flex;justify-content:center;gap:5px;min-height:10px}.theme-dots i{width:5px;height:5px;border-radius:9px;background:#ffffff42;transition:.2s}.theme-dots i.active{width:19px;background:#fff}
+.free-quick{display:grid;gap:6px;background:#ffffff0b;border:1px solid #ffffff10;border-radius:18px;padding:8px}.quick-row{display:grid;grid-template-columns:80px 1fr;gap:7px;align-items:center}.quick-row>span{text-align:left;font-size:.7rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.segmented.compact{grid-template-columns:repeat(5,1fr)}.segmented button{min-height:34px;border:0;border-radius:9px;background:#ffffff0c;color:#d9e8f3;font-size:.72rem;font-weight:700}.segmented button.active{background:#e8f5ff;color:#10273a;box-shadow:0 2px 8px #0005}
+.free-play-launch{border:0;border-radius:16px;min-height:54px;background:linear-gradient(135deg,#f5d16b,#ff9f43);color:#17212a;font-weight:900;letter-spacing:.08em;box-shadow:0 8px 24px #0007,inset 0 1px #fff9}
+.free-setup .panel-version{text-align:center;font-size:.64rem;opacity:.42}
+@keyframes freeRain{to{transform:translate(-28px,70px)}}@media(max-height:700px){.theme-cinema{height:42dvh;min-height:260px}.free-setup-card{gap:6px}.free-play-launch{min-height:48px}}
+
+
+/* v0.12.21 – recognizable miniature GGrid scene inside every cinema card */
+.theme-preview-art{display:grid;place-items:center}.mini-board{position:absolute;left:50%;top:46%;width:min(66%,300px);aspect-ratio:1;transform:translate(-50%,-50%) perspective(650px) rotateX(8deg);display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);padding:7px;gap:3px;border:2px solid #ffffff5c;border-radius:13px;background:#07111bbd;box-shadow:0 18px 35px #000b,inset 0 0 25px #fff1;z-index:2}
+.mini-cell{display:grid;place-items:center;min-width:0;border:1px solid #ffffff14;border-radius:6px;background:#ffffff09;color:#fff;font:800 clamp(7px,2vw,12px)/1 ui-monospace,monospace;text-shadow:0 1px 5px #000;overflow:visible}.mini-cell.block{background:linear-gradient(145deg,#d99b4c,#72431e);border-color:#ffe1a0;box-shadow:0 3px 7px #0009}.mini-cell.target{border-radius:50%;margin:14%;background:radial-gradient(circle at 35% 30%,#fff,#6deaff 25%,#1973c8 68%,#082c59);box-shadow:0 0 13px #70eaff}.mini-cell.gate{background:#0c1720;border:2px solid #a6efff;box-shadow:inset 0 0 9px #68eaff,0 0 10px #68eaff88}.mini-exit{position:absolute;z-index:3;right:12%;top:37%;font-size:32px;color:#fff;text-shadow:0 0 12px #8ff}
+@media(max-width:380px){.mini-board{width:62%}.mini-exit{right:10%}}
+
+
+/* v0.12.22 – compact board action strip */
+.hud-row{justify-content:center!important;margin-top:7px;min-height:42px}.hud-row .status:empty{display:none}.hud-row .status:not(:empty){position:absolute;left:50%;transform:translateY(-34px) translateX(-50%);z-index:8;width:max-content;max-width:80%;padding:5px 10px;border-radius:12px;background:#071019d9;text-align:center}
+.play-actions{display:flex;align-items:center;justify-content:center;gap:7px;width:100%}.play-action,#freeze.play-action{box-sizing:border-box;width:44px;height:40px;min-height:40px;padding:0;border:1px solid #ffffff1c;border-radius:12px;background:#162737;color:#eef8ff;font-size:20px;font-weight:800;line-height:1;display:inline-flex;align-items:center;justify-content:center;gap:3px;box-shadow:0 3px 9px #0005}.play-action:active{transform:translateY(1px)}#freeze.freeze-action{width:auto;min-width:58px;padding:0 9px;background:#315c7e;font-size:18px}#freeze.freeze-action.active{background:#298bb5;box-shadow:0 0 12px #61d8ff66}#freeze.freeze-action:disabled{opacity:.42}.play-action[hidden]{display:none!important}
+.legacy-tools{display:none!important}
+body.scenario-mode #playChoose{display:none!important}
+
+
+/* v0.12.23 – 20% larger, left-aligned play controls + reserved score field */
+.hud-row{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px;min-height:50px;width:100%}
+.play-actions{width:auto!important;flex:0 0 auto;justify-content:flex-start!important;gap:7px}
+.play-action,#freeze.play-action{width:53px;height:48px;min-height:48px;border-radius:14px;font-size:24px}
+#playHint{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#freeze.freeze-action{width:47px;min-width:47px;height:48px;padding:0;font-size:22px}
+.score-box{margin-left:auto;height:48px;min-width:90px;box-sizing:border-box;padding:5px 8px;border:1px solid #ffffff1c;border-radius:14px;background:#101d29b8;box-shadow:inset 0 1px #ffffff0b,0 3px 9px #0004;display:flex;align-items:center;justify-content:center;text-align:center}
+.score-box strong{display:block;max-width:100%;font-size:26px;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:visible;text-overflow:clip}
+.score-box strong[data-size="md"]{font-size:23px}.score-box strong[data-size="sm"]{font-size:20px}.score-box strong[data-size="xs"]{font-size:18px}.score-box strong[data-size="xxs"]{font-size:14px}
+@media(max-width:430px){
+ .hud-row{display:grid!important;grid-template-columns:minmax(0,1fr) clamp(72px,22vw,86px);gap:5px;box-sizing:border-box;max-width:100%}
+ .hud-row .play-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;min-width:0;width:100%!important}
+ .hud-row .play-actions .play-action,.hud-row .play-actions #freeze.play-action{width:100%!important;min-width:0!important;padding:0}
+ .hud-row .score-box{width:100%;min-width:0!important;margin:0;padding:4px}
+}
+
+
+/* v0.12.24 – rectangular mobile boards + six-option size picker */
+.size-picker{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.size-picker button{min-width:0;min-height:34px;padding:0 3px;border:0;border-radius:9px;background:#ffffff0c;color:#d9e8f3;font-size:.69rem;font-weight:800}.size-picker button.active{background:#e8f5ff;color:#10273a;box-shadow:0 2px 8px #0005}
+@media(max-width:430px){.quick-row:has(.size-picker){grid-template-columns:62px 1fr}.size-picker{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,34px)}}
+.board[style*="5 / 6"],.board[style*="5 / 7"],.board[style*="5 / 8"]{width:100%;height:auto}
+
+
+/* v0.12.26 – integrated embossed edge controls, based on the hand sketch */
+.edge-control{overflow:visible;border:1px solid #ffffff16;background:linear-gradient(145deg,#ffffff0b,#00000013);color:inherit;box-shadow:inset 1px 1px 1px #ffffff18,inset -2px -2px 4px #0005,0 2px 5px #0003;border-radius:22px;opacity:.72;transition:opacity .12s,filter .12s,transform .12s}
+.edge-up,.edge-down{left:18%;width:64%;height:42px;border-radius:50% / 75%}
+.edge-left,.edge-right{top:18%;height:64%;width:42px;border-radius:75% / 50%}
+.edge-up{top:8px}.edge-down{bottom:8px}.edge-left{left:8px}.edge-right{right:8px}
+.emboss-arrow{position:relative;display:block;width:20px;height:20px;filter:drop-shadow(1px 2px 1px #0008) drop-shadow(-1px -1px 1px #ffffff3d)}
+.emboss-arrow::before{content:"";position:absolute;left:7px;top:7px;width:7px;height:12px;border-radius:2px;background:linear-gradient(145deg,#ffffff55,#00000032);box-shadow:inset 1px 1px 1px #ffffff66,inset -1px -1px 1px #0008}
+.emboss-arrow::after{content:"";position:absolute;left:2px;top:0;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid #ffffff35;filter:drop-shadow(0 -1px 0 #ffffff42)}
+.edge-right .emboss-arrow{transform:rotate(90deg)}.edge-down .emboss-arrow{transform:rotate(180deg)}.edge-left .emboss-arrow{transform:rotate(-90deg)}
+.edge-control:active,.edge-control.pressed{opacity:1;background:linear-gradient(145deg,#ffffff12,#0000001e);box-shadow:inset 2px 2px 5px #0007,inset -1px -1px 2px #ffffff20;filter:brightness(1.22)}
+.edge-control:active .emboss-arrow,.edge-control.pressed .emboss-arrow{filter:drop-shadow(0 1px 1px #0008);transform:translateY(1px)}
+.edge-right:active .emboss-arrow,.edge-right.pressed .emboss-arrow{transform:rotate(90deg) translateY(1px)}.edge-down:active .emboss-arrow,.edge-down.pressed .emboss-arrow{transform:rotate(180deg) translateY(1px)}.edge-left:active .emboss-arrow,.edge-left.pressed .emboss-arrow{transform:rotate(-90deg) translateY(1px)}
+@media(max-height:760px){.edge-up,.edge-down{height:38px}.edge-left,.edge-right{width:38px}}
+
+
+/* v0.12.28 – HOLDKERT full-screen skin composition pass */
+.skin-scene-title{display:none}
+
+/* v0.12.39 - D1..D10 calibration picker */
+.difficulty-picker{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%}
+.difficulty-picker button{min-width:0;min-height:34px;padding:0 4px;border:0;border-radius:9px;background:#ffffff0c;color:#d9e8f3;font-weight:800}
+.difficulty-picker button.active{background:#e8f5ff;color:#10273a;box-shadow:0 2px 8px #0005}
+
+/* v0.12.43 - compact level reference on Free Play */
+.home-level-id{display:block;margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.04em;opacity:.72;text-transform:none}
+
+/* v0.12.44 - stable in-game level reference and HOLDKERT header clearance */
+.game-head .scenario-info{display:flex;align-items:baseline;gap:8px;min-width:0;font-weight:800}
+.game-head .play-level-id{font:700 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;opacity:.72;overflow:hidden;text-overflow:ellipsis}
+.game-head .play-level-id.completed,.home-level-id.completed{color:var(--ui-accent,#9ee0a9);opacity:1}
+
+
+/* v0.12.52 – irregular showcase rigid bodies keep one visual identity.
+   Only cells actually covered by a rectangular composite are dimmed. */
+.scene-showcase .brick.sr-component{opacity:1}
+.scene-showcase .brick.sr-component.sr-composite-source{opacity:.16}
+
+/* Freeze states and the selected object remain legible above every theme's artwork. */
+body[data-ui-context="game"] main #freeze.freeze-action[data-freeze-state="active"]{position:relative;background:#087d9e!important;border:3px solid #fff2b0!important;color:#fff!important;box-shadow:inset 0 0 0 2px #003c52,0 0 0 3px #82ecff,0 0 18px #75f3ff!important;opacity:1!important}
+body[data-ui-context="game"] main #freeze.freeze-action[data-freeze-state="active"]::after{content:"✓";position:absolute;right:1px;bottom:1px;font:900 13px/1 system-ui;color:#fff2b0;text-shadow:0 1px 2px #003845}
+body[data-ui-context="game"] main #freeze.freeze-action[data-freeze-state="unavailable"]{background:#273b42!important;border:2px dashed #85979a!important;color:#c6d0d0!important;box-shadow:none!important;opacity:.6!important;filter:grayscale(1)!important}
+.freeze-selection-marker{position:absolute;z-index:40;pointer-events:none;box-sizing:border-box;border:4px solid #f4feff;border-radius:10px;background:linear-gradient(135deg,#b6f6ff70,#45c9ee52);box-shadow:inset 0 0 0 2px var(--freeze-edge,#078bb6),0 0 0 2px #006386,0 0 18px 4px var(--freeze-glow,#9bf4ff);filter:drop-shadow(0 1px 2px #052d43)}
+.freeze-selection-marker::after{content:"❄";position:absolute;top:-8px;right:-7px;display:grid;place-items:center;width:22px;height:22px;border:2px solid #fff;border-radius:50%;background:#08799c;color:white;font:800 15px/1 system-ui;text-shadow:0 1px 2px #004966;box-shadow:0 1px 7px #023947}
+#settingsPanel .settings-calibrate{flex:0 0 auto;min-height:42px;padding:8px 11px;border:1px solid #e6c982;border-radius:10px;background:#315638;color:#fff4d7;font-weight:700;cursor:pointer}
+#settingsPanel .settings-calibrate:focus-visible{outline:3px solid #f9d88a;outline-offset:2px}
+
+/* v0.12.94 – unavailable motion controls */
+#motionSettingsSection.motion-unavailable .settings-row:not(:first-child){opacity:.48}
+#settingsPanel #motion:disabled,
+#settingsPanel .settings-stepper button:disabled,
+#settingsPanel .settings-checkbox:disabled,
+#settingsPanel .settings-calibrate:disabled{opacity:.42;cursor:not-allowed;filter:saturate(.25)}
+
+/* v0.12.97 – separate two-ball library launcher/state */
+.multiball-test-launch{border:1px solid #8fd7f466;border-radius:14px;min-height:46px;background:linear-gradient(135deg,#17394e,#235d72);color:#eafaff;font-weight:850;letter-spacing:.045em;box-shadow:0 5px 16px #0005,inset 0 1px #ffffff20}
+.multiball-test-launch:active{transform:translateY(1px)}
+.multiball-test-note{text-align:center;font-size:.67rem;line-height:1.3;color:#c9dce7;opacity:.72;padding:0 8px}
+body.multiball-test-mode .score-box{border-color:#78d8ef55;background:#102b38d6}
+body.multiball-test-mode .score-box strong{font-size:16px!important;letter-spacing:.06em}
+
+
+/* v0.15.0 – Artwork Theme Renderer foundation */
+.scene-artwork{isolation:isolate;position:relative}
+.scene-artwork-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.scene-artwork-layer[hidden]{display:none!important}
+.scene-artwork-layer>img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none}
+.scene-artwork-background{z-index:0}
+.scene-artwork-environment{z-index:1}
+.scene-artwork-board-back{z-index:3}
+.scene-artwork .board{z-index:6}
+.scene-artwork-board-front{z-index:8}
+.scene-artwork-foreground{z-index:12}
+.scene-artwork-effects{z-index:14}
+.scene-artwork .skin-scene-title{display:none!important}
+
+/* Artwork pieces are image assets; CSS is responsible only for geometry/state. */
+.sr-asset-visual{
+ background-image:var(--sr-asset-image)!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+ background-size:contain!important;
+}
+.cell.sr-asset-visual{background-size:cover!important}
+
+/* The whole perimeter zone remains interactive, while the artwork may show only
+   sparse ornaments and a central direction cue instead of a long solid button. */
+.scene-artwork .edge-control{
+ background:transparent;
+ border-color:transparent;
+ box-shadow:none;
+ opacity:1;
+}
+.scene-artwork .edge-control::before{
+ content:"";
+ position:absolute;
+ inset:5px;
+ pointer-events:none;
+ opacity:.62;
+ border:1px solid color-mix(in srgb,currentColor 38%,transparent);
+ border-radius:inherit;
+ mask-image:linear-gradient(90deg,transparent 0,black 13%,black 38%,transparent 46% 54%,black 62%,black 87%,transparent 100%);
+}
+.scene-artwork .edge-left::before,.scene-artwork .edge-right::before{
+ mask-image:linear-gradient(180deg,transparent 0,black 13%,black 38%,transparent 46% 54%,black 62%,black 87%,transparent 100%);
+}
+.scene-artwork .edge-control:hover,.scene-artwork .edge-control.pressed,.scene-artwork .edge-control:active{
+ background:radial-gradient(circle at center,#ffffff13,transparent 65%);
+ box-shadow:none;
+}
+
+/* Theme selector may carry localized descriptive copy; gameplay carries no theme title. */
+.theme-preview-label p{
+ margin:8px 0 0;
+ max-width:34em;
+ font-size:clamp(11px,2.6vw,14px);
+ line-height:1.3;
+ letter-spacing:0;
+ text-transform:none;
+ opacity:.82;
+}
+
+
+/* v0.15.1 – artwork safe-area geometry */
+.scene-artwork{
+ padding:0!important;
+ width:100%;
+ aspect-ratio:var(--art-design-width,1) / var(--art-design-height,1);
+ overflow:hidden;
+}
+.scene-artwork .board{
+ position:absolute!important;
+ margin:0!important;
+ transform-origin:center;
+}
+.scene-artwork .edge-control{
+ position:absolute!important;
+ margin:0!important;
+ right:auto!important;
+ bottom:auto!important;
+ display:grid;
+ place-items:center;
+ cursor:pointer;
+}
+.scene-artwork .edge-control .emboss-arrow{
+ position:relative;
+ z-index:2;
+ pointer-events:none;
+}
+
+
+/* v0.15.2 – artwork 9-slice frame */
+.scene-artwork-frame{
+ position:absolute;
+ z-index:9;
+ box-sizing:border-box;
+ background:transparent;
+ pointer-events:none;
+}
+.scene-artwork-frame[hidden]{display:none!important}
+
+
+/* v0.15.4 – artwork UI chrome and directional cue assets */
+.art-chrome-asset{
+ background-image:var(--art-chrome-image)!important;
+ background-size:var(--art-chrome-fit,100% 100%)!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+}
+.scene-artwork .emboss-arrow.sr-asset-visual{
+ width:clamp(26px,7vw,42px);
+ height:clamp(26px,7vw,42px);
+}
+.scene-artwork .emboss-arrow.sr-asset-visual::before,
+.scene-artwork .emboss-arrow.sr-asset-visual::after{display:none!important}
+
+
+/* v0.15.6 – theme selector artwork previews */
+.theme-preview-art.has-theme-image{
+ background-size:cover;
+ background-position:center;
+ background-repeat:no-repeat;
+}
+.theme-preview-art.has-theme-image::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ background:linear-gradient(180deg,#02060b05 35%,#02060b9a 100%);
+ pointer-events:none;
+}
+.theme-preview-art.has-theme-image .mini-board{background:#06111bc4}
+
+
+/* v0.15.7 – mobile theme selector navigation stays inside the artwork area,
+   leaving the localized theme title/description unobstructed. */
+@media(max-width:600px){
+ .theme-cinema .theme-nav{
+  top:27%;
+  transform:translateY(-50%);
+  width:42px;
+  height:54px;
+  font-size:36px;
+  border-radius:13px;
+ }
+ .theme-cinema .theme-prev{left:8px}
+ .theme-cinema .theme-next{right:8px}
+ .theme-preview-label{
+  left:20px;
+  right:20px;
+  bottom:18px;
+ }
+ .theme-preview-label strong{
+  font-size:clamp(23px,8vw,34px);
+  line-height:1;
+  overflow-wrap:anywhere;
+ }
+ .theme-preview-label p{
+  max-width:none;
+  margin-top:7px;
+ }
+}
+
+
+/* v0.15.8 – one silhouette-aware Freeze marker for each rigid body */
+.freeze-selection-marker.freeze-selection-composite{
+ border:0;
+ border-radius:0;
+ background:none;
+ box-shadow:none;
+ filter:none;
+}
+.freeze-selection-marker.freeze-selection-composite::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:10px;
+ background:linear-gradient(135deg,#b6f6ff70,#45c9ee52);
+ clip-path:var(--freeze-clip,inset(0 round 10px));
+ box-shadow:inset 0 0 0 3px var(--freeze-edge,#078bb6);
+ filter:drop-shadow(0 0 3px #f4feff) drop-shadow(0 0 9px var(--freeze-glow,#9bf4ff));
+}
+.freeze-selection-marker.freeze-selection-composite::after{
+ top:6px;
+ right:6px;
+}
+.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-tl::after{left:6px;right:auto;top:6px;bottom:auto}
+.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-tr::after{right:6px;left:auto;top:6px;bottom:auto}
+.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-bl::after{left:6px;right:auto;bottom:6px;top:auto}
+.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-br::after{right:6px;left:auto;bottom:6px;top:auto}
+
+/* Theme Pipeline v1: arbitrary rigid-body autotile quarters. */
+.piece.sr-autotile{background:transparent!important;overflow:visible}
+.piece.sr-autotile>.sr-q{position:absolute;display:block!important;opacity:1!important;background-size:600% 600%;background-repeat:no-repeat;pointer-events:none}
+.piece.sr-autotile>.sr-q-tl{left:0;top:0;right:50%;bottom:50%}
+.piece.sr-autotile>.sr-q-tr{left:50%;top:0;right:0;bottom:50%}
+.piece.sr-autotile>.sr-q-bl{left:0;top:50%;right:50%;bottom:0}
+.piece.sr-autotile>.sr-q-br{left:50%;top:50%;right:0;bottom:0}
+.piece.sr-autotile.join-l>.sr-q-tl,.piece.sr-autotile.join-l>.sr-q-bl{left:calc(-1*var(--sr-join,2px))}
+.piece.sr-autotile.join-r>.sr-q-tr,.piece.sr-autotile.join-r>.sr-q-br{right:calc(-1*var(--sr-join,2px))}
+.piece.sr-autotile.join-t>.sr-q-tl,.piece.sr-autotile.join-t>.sr-q-tr{top:calc(-1*var(--sr-join,2px))}
+.piece.sr-autotile.join-b>.sr-q-bl,.piece.sr-autotile.join-b>.sr-q-br{bottom:calc(-1*var(--sr-join,2px))}
+
+
+/* v0.15.50 – painted artwork cues are already direction-specific.
+   Do not apply the legacy generic-arrow rotation or pressed-state transform. */
+.scene-artwork .emboss-arrow.art-directional-cue,
+.scene-artwork .edge-control:active .emboss-arrow.art-directional-cue,
+.scene-artwork .edge-control.pressed .emboss-arrow.art-directional-cue{
+ transform:none!important;
+}
+
+
+/* v0.15.53 – unified rigid silhouette renderer
+   Multi-cell artwork rigid bodies are drawn once across the complete polyomino.
+   No internal cell seams; outline follows only the true external contour. */
+.sr-composite.sr-rigid-silhouette{
+ overflow:visible;
+ filter:drop-shadow(0 5px 4px #0009);
+}
+.sr-composite.sr-rigid-silhouette.sr-asset-visual{
+ background:none!important;
+}
+.sr-rigid-svg{
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ overflow:visible;
+ pointer-events:none;
+}
+.sr-rigid-svg .sr-rigid-fill{
+ opacity:1;
+}
+.sr-rigid-svg .sr-rigid-outline-shadow{
+ stroke:#261300;
+ stroke-width:8px;
+ stroke-linejoin:round;
+ stroke-linecap:round;
+ opacity:.95;
+}
+.sr-rigid-svg .sr-rigid-outline{
+ stroke-width:5px;
+ stroke-linejoin:round;
+ stroke-linecap:round;
+ filter:drop-shadow(0 0 1px #ffd976) drop-shadow(0 1px 1px #000a);
+}
+.scene-artwork .brick.sr-composite-source{
+ opacity:0!important;
+}
+
+
+/* v0.15.54 – theme UI primitive states.
+   One painted control body is reused for runtime roles; interaction states are
+   generated programmatically so a theme does not need 5 PNGs per button. */
+.scene-artwork .play-action.art-chrome-asset,
+.scene-artwork #gameMenu.art-chrome-asset,
+.scene-artwork .score-box.art-chrome-asset,
+.scene-artwork .victory-actions button.art-chrome-asset{
+ border-color:transparent!important;
+ background-color:transparent!important;
+ background-repeat:no-repeat!important;
+ background-position:center!important;
+ color:var(--ui-text,#fff)!important;
+ text-shadow:0 1px 3px #000c;
+ transition:transform .08s ease,filter .08s ease,opacity .12s ease;
+}
+.scene-artwork .play-action.art-chrome-asset:active,
+.scene-artwork #gameMenu.art-chrome-asset:active,
+.scene-artwork .victory-actions button.art-chrome-asset:active{
+ transform:translateY(2px) scale(.98);
+ filter:brightness(.82);
+}
+.scene-artwork .play-action.art-chrome-asset:disabled,
+.scene-artwork .victory-actions button.art-chrome-asset:disabled{
+ filter:saturate(.15) brightness(.72);
+ opacity:.48;
+}
+.scene-artwork .play-action.art-chrome-asset.active,
+.scene-artwork .play-action.art-chrome-asset[aria-pressed="true"]{
+ filter:brightness(1.12) drop-shadow(0 0 7px var(--ui-focus,#fff));
+}
+body.theme-studio-preview .dev-detail{display:none!important}

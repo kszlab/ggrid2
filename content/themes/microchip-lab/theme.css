@@ -1,0 +1,49 @@
+/* v0.12.16 – MICROCORE + MOON GARDEN showcase scenes */
+body[data-scene="microchip-lab"]{background:radial-gradient(circle at 50% 20%,#123521,#020806 72%)}
+
+body[data-scene="microchip-lab"] .board-wrap{background:#04140c;border-color:#2eff7a55;box-shadow:0 0 30px #00ff6620,inset 0 0 50px #000}
+
+body[data-scene="microchip-lab"] .board{background:#052216;border:4px solid #b88745;border-radius:5px;box-shadow:0 0 0 3px #102a1b,0 12px 25px #000a}
+
+body[data-scene="microchip-lab"] .cell{background:linear-gradient(135deg,#0a311e,#062416);border:1px solid #46ff7c18;box-shadow:inset 0 0 0 1px #0005}
+
+body[data-scene="microchip-lab"] .ball.sr-piece{overflow:visible;border-radius:50%;background:#07120c;border:2px solid #70ffa0;box-shadow:0 0 16px #43ff82}
+
+body[data-scene="microchip-lab"] .brick.sr-piece{background:#080d10;border:1px solid #8b9da1;border-radius:3px;box-shadow:inset 0 0 0 2px #1f2c31,0 5px 8px #000}
+
+body[data-scene="microchip-lab"] .wall.sr-piece{background:repeating-linear-gradient(90deg,#71817b 0 5px,#26332f 6px 10px);border:1px solid #a8b5ae;box-shadow:4px 5px 7px #000}
+
+body[data-scene="microchip-lab"] .sr-socket{background:#050807;border:3px solid #d8ad5d!important;border-radius:4px!important;box-shadow:0 0 18px #52ff8a!important;width:38px!important;height:38px!important;display:grid;place-items:center}
+
+.theme-preview[data-theme="microchip-lab"] .theme-preview-art{background:radial-gradient(circle at 72% 25%,#54ff8d55 0 2%,transparent 3% 8%),repeating-linear-gradient(90deg,transparent 0 31px,#3cff7928 32px 34px),repeating-linear-gradient(0deg,transparent 0 42px,#d3a64d22 43px 45px),#062418}
+
+.theme-preview[data-theme="microchip-lab"] .mini-board{background:repeating-linear-gradient(90deg,#082819 0 19%,#17442b 20% 20.5%);border:4px solid #b78c49}
+.theme-preview[data-theme="microchip-lab"] .mini-cell.block{border-radius:3px;background:#090d0f;border-color:#c9a65f;box-shadow:inset 0 0 0 2px #344}
+.theme-preview[data-theme="microchip-lab"] .mini-cell.target{background:radial-gradient(circle,#eafff0,#53ff8a 25%,#07150d 30%);border-color:#5cff91}
+.theme-preview[data-theme="microchip-lab"] .mini-cell.gate{border-color:#d4a955;color:#7dff9f}
+
+
+.sr-pcb{position:absolute;inset:3%;background:repeating-linear-gradient(90deg,transparent 0 22px,#2aff7320 23px 24px,transparent 25px 45px),repeating-linear-gradient(0deg,transparent 0 31px,#d8a85718 32px 33px,transparent 34px 54px)}
+
+.sr-trace{position:absolute;height:3px;background:#d6a44d;box-shadow:0 0 5px #f2c66a}
+.tr1{left:2%;right:55%;top:18%}
+.tr2{left:62%;right:2%;bottom:17%}
+.sr-capacitor{position:absolute;right:7%;top:7%;width:25px;height:36px;border-radius:5px;background:linear-gradient(90deg,#16282b,#557278,#17292d);box-shadow:0 4px 7px #000}
+
+.sr-signal{position:absolute;width:7px;height:7px;border-radius:50%;background:#9affba;box-shadow:0 0 12px #4cff85;animation:srSignal 3.4s linear infinite}
+.electron-orbit{position:absolute;inset:-18%;border:1px solid #baffcd;border-radius:50%;border-left-color:transparent;animation:srSpin 1.7s linear infinite}
+.electron-core{position:absolute;inset:0;display:grid;place-items:center;color:#eafff0;text-shadow:0 0 7px #64ff95}
+.chip-pins{position:absolute;inset:-3px;background:repeating-linear-gradient(90deg,#d5b36a 0 3px,transparent 3px 9px);z-index:-1}
+.chip-label{position:absolute;inset:0;display:grid;place-items:center;font:700 7px monospace;color:#9effba}
+.wall.sr-piece .sink-fins{position:absolute;inset:10%;border-top:2px solid #c4d2ca}
+.sr-socket b{font:700 6px monospace;color:#8fffb1}
+.sr-socket i{position:absolute;inset:5px;border:1px dashed #55ff8a;animation:srPulse 1s infinite}
+
+.sr-composite-microchip-lab{border:2px solid #c7a65f;border-radius:5px;background:#080d10;box-shadow:inset 0 0 0 3px #202b30,0 7px 10px #000a}
+.sr-composite-microchip-lab:before,.sr-composite-microchip-lab:after{content:"";position:absolute;left:4%;right:4%;height:5px;background:repeating-linear-gradient(90deg,#d6b66c 0 5px,transparent 5px 12px)}
+.sr-composite-microchip-lab:before{top:-6px}
+.sr-composite-microchip-lab:after{bottom:-6px}
+.sr-composite-microchip-lab b{position:absolute;inset:20% 8% auto;text-align:center;font:700 8px monospace;color:#a7ffbd}
+.sr-composite-microchip-lab em{position:absolute;inset:auto 8% 17%;text-align:center;font:5px monospace;color:#809a91;font-style:normal}
+
+@media(prefers-reduced-motion:reduce){.sr-signal,.sr-mist,.sr-fireflies,.electron-orbit{animation:none!important}}

@@ -1,0 +1,102 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "microchip-lab",
+  "version": 1,
+  "name": "MICROCORE // Circuit Lab",
+  "description": "SHOWCASE: egy nyomtatott áramköri lap belseje, elektronokkal, IC-tokokkal és fénylő adatporttal.",
+  "semantic": {
+    "ball": "Elektron-mag",
+    "brick": "IC modul",
+    "wall": "Hűtőborda",
+    "exit": "Adatport",
+    "freeze": "Clock Hold"
+  },
+  "colors": {
+    "background": "#020d09",
+    "board": "#061a12",
+    "cell1": "#0b2b1b",
+    "cell2": "#082316",
+    "accent": "#68ff8c",
+    "ball1": "#d9fff0",
+    "ball2": "#36ff88",
+    "brick1": "#17222a",
+    "brick2": "#05090c",
+    "wall1": "#7a8b82",
+    "wall2": "#26332d"
+  },
+  "scene": {
+    "type": "microchip-lab",
+    "tier": "showcase",
+    "tagline": "MICROCORE // BUS 16",
+    "layers": [
+      "pcb",
+      "traces",
+      "components",
+      "signal-pulses",
+      "solder-mask"
+    ],
+    "exitStyle": "data-socket",
+    "markup": {
+      "back": "<i class=\"sr-pcb\"></i><i class=\"sr-trace tr1\"></i><i class=\"sr-trace tr2\"></i><i class=\"sr-capacitor\"></i>",
+      "front": "<i class=\"sr-signal\"></i><span class=\"sr-caption circuit\">MICROCORE // BUS 16 <b>CLK 4.77</b></span>"
+    }
+  },
+  "audio": {
+    "profile": "microchip",
+    "ambient": {
+      "type": "procedural",
+      "name": "Digitális arpeggio",
+      "enabled": true,
+      "volume": 0.055
+    },
+    "events": {
+      "move": "clock-tick",
+      "blocked": "error-bit",
+      "freeze": "clock-hold",
+      "exit": "data-lock",
+      "win": "boot-chime"
+    }
+  },
+  "pieces": {
+    "ball": {
+      "markup": "<i class=\"electron-orbit\"></i><b class=\"electron-core\">e−</b>",
+      "className": "sr-piece"
+    },
+    "brick": {
+      "markup": "<i class=\"chip-pins\"></i><b class=\"chip-label\">IC</b>",
+      "className": "sr-piece"
+    },
+    "wall": {
+      "markup": "<i class=\"sink-fins\"></i><b>HS</b>",
+      "className": "sr-piece"
+    },
+    "rigidBody": {
+      "className": "sr-composite sr-composite-microchip-lab",
+      "markup": "<i class=\"co-chip-pins\"></i><b>74GGRID</b><em>LOGIC ARRAY</em>"
+    },
+    "exit": {
+      "className": "sr-exit sr-socket",
+      "markup": "<b>DATA</b><i></i>"
+    }
+  },
+  "assets": {
+    "css": "theme.css?v=0.12.57"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#020b07",
+      "surfaceRaised": "#152820",
+      "control": "#061811",
+      "controlRaised": "#2b3c36",
+      "controlPressed": "#35864a",
+      "accent": "#68ff8c",
+      "text": "#f1f7f9",
+      "muted": "#b9f1c8",
+      "border": "#68ff8c66",
+      "shadow": "#00000099",
+      "focus": "#68ff8c",
+      "scrim": "#020d09ed"
+    }
+  }
+}

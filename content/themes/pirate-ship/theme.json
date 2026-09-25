@@ -1,0 +1,69 @@
+{
+  "format": "ggrid-theme",
+  "formatVersion": 1,
+  "id": "pirate-ship",
+  "version": 1,
+  "name": "Kalózhajó",
+  "colors": {
+    "background": "#17100b",
+    "board": "#6b4427",
+    "wrap": "#3b2719",
+    "cell1": "#8a5a31",
+    "cell2": "#5b371f",
+    "accent": "#f1c35e",
+    "ball1": "#d8d8d8",
+    "ball2": "#5d6265",
+    "ball3": "#202326",
+    "brick1": "#9a5a29",
+    "brick2": "#6d391a",
+    "brickEdge": "#d6a453",
+    "wall1": "#59402c",
+    "wall2": "#322419"
+  },
+  "pieces": {
+    "ball": {
+      "name": "Ágyúgolyó"
+    },
+    "brick": {
+      "name": "Faláda"
+    },
+    "wall": {
+      "name": "Hajófal"
+    },
+    "exit": {
+      "name": "Rakodónyílás"
+    },
+    "rigidBody": {}
+  },
+  "abilities": {
+    "freeze": {
+      "name": "Horgony"
+    }
+  },
+  "scene": {
+    "type": "pirate-ship",
+    "markup": {
+      "back": "",
+      "front": ""
+    }
+  },
+  "assets": {
+    "css": "theme.css"
+  },
+  "ui": {
+    "tokens": {
+      "surface": "#130d09",
+      "surfaceRaised": "#744f34",
+      "control": "#623f24",
+      "controlRaised": "#816047",
+      "controlPressed": "#846a34",
+      "accent": "#f1c35e",
+      "text": "#f5f5ef",
+      "muted": "#e9dcb8",
+      "border": "#f1c35e66",
+      "shadow": "#00000099",
+      "focus": "#f1c35e",
+      "scrim": "#17100bed"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+/* GGrid Pad Layout v1 – controller-style game screen (body.layout-pad).
+   Theme colours come from the shared --ui-* tokens where a theme defines them;
+   the action buttons keep fixed semantic colours so they read the same in every theme. */
+body.layout-pad[data-ui-context="game"]{--pad-gap:8px;--pad-top-h:56px;--pad-deck-h:196px;--pad-panel:var(--ui-control,#0f2346);--pad-edge:var(--ui-border,#3f6db5)}
+body.layout-pad[data-ui-context="game"] main{display:flex;flex-direction:column;justify-content:center;gap:var(--pad-gap);min-height:100dvh;box-sizing:border-box;padding:max(8px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))}
+body.layout-pad main .game-head,
+body.layout-pad main .edge-control,
+body.layout-pad main .hud-row{display:none!important}
+
+/* ---------- top bar ---------- */
+body.layout-pad .pad-top{display:grid;grid-template-columns:auto minmax(0,1.25fr) minmax(0,1fr) minmax(0,.9fr);gap:6px;align-items:stretch;height:var(--pad-top-h)}
+body.layout-pad .pad-top[hidden]{display:none}
+body.layout-pad .pad-top-menu{display:flex}
+body.layout-pad .pad-top-menu #gameMenu{position:static;width:auto;height:100%;min-width:0;padding:0 12px;display:flex;align-items:center;gap:6px;border-radius:12px;font:800 15px/1 system-ui,sans-serif;color:#fff;
+ background:linear-gradient(#2f7de0,#1a55b4)!important;border:2px solid #6fb0ff!important;box-shadow:inset 0 1px #ffffff55,0 3px 8px #0007!important}
+body.layout-pad .pad-top-menu #gameMenu .pad-ico{font-size:20px}
+body.layout-pad .pad-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;border-radius:12px;background:linear-gradient(#ffffff10,#00000026),var(--pad-panel);border:2px solid var(--pad-edge);box-shadow:inset 0 1px #ffffff22,0 3px 8px #0006;color:var(--ui-text,#eef4ff);overflow:hidden}
+body.layout-pad .pad-stat small{font:700 11px/1.1 system-ui,sans-serif;letter-spacing:.02em;opacity:.8}
+body.layout-pad .pad-stat strong{font:900 22px/1.1 system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.layout-pad .pad-stat strong em{font-style:normal;font-weight:800;opacity:.7}
+body.layout-pad .pad-stat strong.over-par em{color:#ffb35c;opacity:1}
+body.layout-pad .pad-stat-level strong{font-size:15px}
+body.layout-pad .pad-score-slot[hidden]{display:none}
+body.layout-pad .pad-score-slot{display:flex;align-items:center;justify-content:center;min-width:0}
+body.layout-pad .pad-score-slot #scoreBox{height:auto;min-width:0;width:auto;margin:0;padding:0;border:0!important;background:none!important;box-shadow:none!important}
+body.layout-pad .pad-score-slot #scoreBox strong{font-size:20px!important;color:var(--ui-accent,#ffd76a)}
+
+/* ---------- board ---------- */
+body.layout-pad main .board-wrap{flex:0 1 auto;display:flex;align-items:center;justify-content:center;min-height:0;padding:10px!important;border-radius:18px}
+body.layout-pad main .board-wrap:not(.scene-artwork) .board{--pad-board-h:calc(100dvh - var(--pad-top-h) - var(--pad-deck-h) - 3*var(--pad-gap) - 44px);
+ width:min(100%,calc(var(--pad-board-h) * var(--cols) / var(--rows)));max-height:var(--pad-board-h);margin:0 auto;flex:0 0 auto}
+
+/* Painted artwork scenes keep their design ratio, limited to the free height. */
+body.layout-pad main .board-wrap.scene-artwork{padding:0!important;display:block;flex:0 0 auto;align-self:center;
+ width:min(100%,calc((100dvh - var(--pad-top-h) - var(--pad-deck-h) - 3*var(--pad-gap) - 24px) * var(--art-design-ratio,1)))}
+body.layout-pad[data-ui-context="game"] main{height:100dvh;position:relative}
+/* Messages float above the controls instead of pushing the layout. */
+body.layout-pad main #toast,body.layout-pad main #motionNote{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--pad-deck-h) + 16px);z-index:40;max-width:92%;margin:0;pointer-events:none;
+ padding:6px 12px;border-radius:12px;background:#000c;color:#fff;font:700 13px/1.3 system-ui,sans-serif;box-shadow:0 4px 12px #0008}
+body.layout-pad main #motionNote{bottom:calc(var(--pad-deck-h) + 52px);font-weight:600;font-size:12px;opacity:.9}
+body.layout-pad main #toast:empty,body.layout-pad main #motionNote:empty{display:none}
+
+/* ---------- control deck ---------- */
+body.layout-pad .pad-deck{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;height:var(--pad-deck-h);flex:0 0 auto}
+body.layout-pad .pad-deck[hidden]{display:none}
+body.layout-pad .pad-col{display:flex;flex-direction:column;gap:7px;justify-content:center;min-width:0;height:100%}
+body.layout-pad .pad-col .play-action,
+body.layout-pad .pad-col #freeze.play-action{position:relative;flex:1 1 0;width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:62px;padding:3px 4px!important;margin:0;border-radius:14px!important;
+ display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff!important;text-shadow:0 1px 2px #0008;letter-spacing:0!important;white-space:nowrap;
+ background:linear-gradient(180deg,var(--pad-c1),var(--pad-c2))!important;border:2px solid var(--pad-c3)!important;box-shadow:inset 0 2px 0 #ffffff45,inset 0 -3px 0 #0000002e,0 4px 8px #0007!important;opacity:1;filter:none}
+body.layout-pad .pad-col .play-action:active,body.layout-pad .pad-col .play-action.pressed{transform:translateY(2px);box-shadow:inset 0 2px 5px #0006,0 2px 4px #0006!important;filter:brightness(1.1)}
+body.layout-pad .pad-col .play-action:disabled{opacity:.45!important;filter:saturate(.35)!important}
+body.layout-pad .pad-col .play-action[hidden]{display:none!important}
+body.layout-pad .pad-ico{font-size:21px;line-height:1}
+body.layout-pad .pad-short{display:none}
+body.layout-pad .pad-label{font:800 11px/1.3 system-ui,sans-serif;letter-spacing:-.15px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+body.layout-pad #freeze{--pad-c1:#3b8cf0;--pad-c2:#1b58c4;--pad-c3:#8cc2ff}
+body.layout-pad #playHint{--pad-c1:#35c16f;--pad-c2:#17884a;--pad-c3:#8ce6ae}
+body.layout-pad #playFreezeHint{--pad-c1:#27b3c9;--pad-c2:#127a96;--pad-c3:#87e1ee}
+body.layout-pad #playRestart{--pad-c1:#f47a3a;--pad-c2:#cf4a1c;--pad-c3:#ffb68a}
+body.layout-pad #playNext{--pad-c1:#8a5cf0;--pad-c2:#5a2fc4;--pad-c3:#bfa3ff}
+body.layout-pad #playChoose{--pad-c1:#f0b33a;--pad-c2:#c8801a;--pad-c3:#ffdc8f}
+body.layout-pad #playFreezeHint .pad-ico{font-size:17px;letter-spacing:-3px}
+/* Freeze states stay readable in the new frame. */
+body.layout-pad[data-ui-context="game"] main .pad-col #freeze.freeze-action[data-freeze-state="active"]{--pad-c1:#12b6e0;--pad-c2:#067a9e;--pad-c3:#fff2b0;box-shadow:0 0 0 3px #82ecff,0 0 16px #75f3ff!important}
+body.layout-pad[data-ui-context="game"] main .pad-col #freeze.freeze-action[data-freeze-state="unavailable"]{--pad-c1:#4b5a66;--pad-c2:#2c3843;--pad-c3:#8d9aa3;border-style:dashed!important}
+
+/* D-pad */
+body.layout-pad .pad-dpad{--s:54px;position:relative;width:calc(var(--s)*3 + 8px);height:calc(var(--s)*3 + 8px);border-radius:50%;
+ background:radial-gradient(circle at 50% 50%,#ffffff14 0 34%,transparent 35%),radial-gradient(circle,var(--pad-panel) 0 68%,#00000055 70%,transparent 71%);box-shadow:0 0 0 2px #ffffff14}
+body.layout-pad .pad-dir{position:absolute;width:var(--s);height:var(--s);padding:0;border-radius:16px;border:2px solid #9fd0ff;touch-action:none;user-select:none;-webkit-user-select:none;
+ background:linear-gradient(180deg,#4aa3ff,#1c63d6);box-shadow:inset 0 3px 0 #ffffff55,inset 0 -4px 0 #0003,0 5px 10px #0008;display:grid;place-items:center;cursor:pointer}
+body.layout-pad .pad-dir span{width:46%;height:46%;background:#fff;filter:drop-shadow(0 1px 1px #0007);clip-path:polygon(50% 0,100% 52%,68% 52%,68% 100%,32% 100%,32% 52%,0 52%)}
+body.layout-pad .pad-up{left:calc(var(--s) + 4px);top:0}
+body.layout-pad .pad-down{left:calc(var(--s) + 4px);bottom:0}.pad-down span{transform:rotate(180deg)}
+body.layout-pad .pad-left-dir{left:0;top:calc(var(--s) + 4px)}.pad-left-dir span{transform:rotate(-90deg)}
+body.layout-pad .pad-right-dir{right:0;top:calc(var(--s) + 4px)}.pad-right-dir span{transform:rotate(90deg)}
+body.layout-pad .pad-dir:active,body.layout-pad .pad-dir.pressed{transform:translateY(2px);background:linear-gradient(180deg,#6ab6ff,#2a74e6);box-shadow:inset 0 2px 6px #0006,0 2px 5px #0007}
+body.layout-pad .pad-dir:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* Small / short screens */
+@media(max-width:379px){body.layout-pad .pad-long{display:none}body.layout-pad .pad-short{display:inline}body.layout-pad .pad-top-menu #gameMenu .pad-label{display:none}body.layout-pad .pad-top-menu #gameMenu{padding:0 11px}body.layout-pad .pad-stat strong{font-size:19px}body.layout-pad .pad-stat-level strong{font-size:14px}}
+@media(max-width:360px){body.layout-pad .pad-dpad{--s:50px}body.layout-pad .pad-label{font-size:11px}body.layout-pad[data-ui-context="game"]{--pad-deck-h:176px}}
+@media(max-height:700px){body.layout-pad[data-ui-context="game"]{--pad-top-h:48px;--pad-deck-h:168px}body.layout-pad .pad-dpad{--s:50px}body.layout-pad .pad-col .play-action{max-height:50px}body.layout-pad .pad-ico{font-size:18px}}
+body.layout-pad #playChoose .pad-long{font-size:10px;letter-spacing:-.3px}

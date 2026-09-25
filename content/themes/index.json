@@ -1,0 +1,335 @@
+{
+  "format": "ggrid-theme-index",
+  "formatVersion": 1,
+  "themes": [
+    {
+      "id": "classic",
+      "version": 1,
+      "name": "GGrid Classic",
+      "description": "Az eredeti GGrid megjelenés.",
+      "src": "classic/theme.json",
+      "preview": {
+        "shortName": "CLASSIC",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "●",
+          "▣",
+          "▣",
+          "◆"
+        ]
+      },
+      "css": "classic/theme.css?v=0.12.56"
+    },
+    {
+      "id": "mine",
+      "version": 1,
+      "name": "Elhagyott bánya",
+      "description": "Sötét tárnák, sziklák és faládák.",
+      "src": "mine/theme.json",
+      "preview": {
+        "shortName": "BÁNYA",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "●",
+          "▤",
+          "▤",
+          "▥"
+        ]
+      },
+      "css": "mine/theme.css?v=0.12.56"
+    },
+    {
+      "id": "space-station",
+      "version": 1,
+      "name": "Űrállomás",
+      "description": "Energiagömbök, teherkonténerek és légzsilip.",
+      "src": "space-station/theme.json",
+      "preview": {
+        "shortName": "ORBITAL",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "◉",
+          "▰",
+          "▰",
+          "◎"
+        ]
+      },
+      "css": "space-station/theme.css?v=0.12.56"
+    },
+    {
+      "id": "ancient-temple",
+      "version": 1,
+      "name": "Ősi templom",
+      "description": "Kristálygömbök, faragott kőtömbök és rúnakapuk.",
+      "src": "ancient-temple/theme.json",
+      "preview": {
+        "shortName": "TEMPLOM",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "✦",
+          "▧",
+          "▧",
+          "◇"
+        ]
+      },
+      "css": "ancient-temple/theme.css?v=0.12.56"
+    },
+    {
+      "id": "ice-cavern",
+      "version": 1,
+      "name": "Jéglabirintus",
+      "description": "Jéggömbök és fagyott akadályok egy kék barlangban.",
+      "src": "ice-cavern/theme.json",
+      "preview": {
+        "shortName": "JÉGBARLANG",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "❄",
+          "◆",
+          "◆",
+          "◈"
+        ]
+      },
+      "css": "ice-cavern/theme.css?v=0.12.56"
+    },
+    {
+      "id": "cybergrid",
+      "version": 1,
+      "name": "Neon Cybergrid",
+      "description": "Fénygömbök, adatblokkok és digitális portálok.",
+      "src": "cybergrid/theme.json",
+      "preview": {
+        "shortName": "CYBERGRID",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "●",
+          "▣",
+          "▣",
+          "◇"
+        ]
+      },
+      "css": "cybergrid/theme.css?v=0.12.56"
+    },
+    {
+      "id": "pirate-ship",
+      "version": 1,
+      "name": "Kalózhajó",
+      "description": "Ágyúgolyók, faládák és egy öreg hajó raktere.",
+      "src": "pirate-ship/theme.json",
+      "preview": {
+        "shortName": "KALÓZHAJÓ",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "●",
+          "▤",
+          "▤",
+          "⚓"
+        ]
+      },
+      "css": "pirate-ship/theme.css?v=0.12.56"
+    },
+    {
+      "id": "ghost-manor",
+      "version": 1,
+      "name": "Éjféli kastély",
+      "description": "Kísértetjárta kastély szellemmel, bútorokkal, köddel és túlvilági kapuval.",
+      "src": "ghost-manor/theme.json",
+      "experimental": true,
+      "preview": {
+        "shortName": "ÉJFÉLI KASTÉLY",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "◉",
+          "▥",
+          "▥",
+          "✧"
+        ]
+      },
+      "css": "ghost-manor/theme.css?v=0.12.56",
+      "previewCss": "ghost-manor/preview.css?v=0.12.58"
+    },
+    {
+      "id": "traffic-rescue",
+      "version": 1,
+      "name": "Városi mentőakció",
+      "description": "Forgalmi puzzle: mentőautó, autók, buszok és városi úthálózat.",
+      "src": "traffic-rescue/theme.json",
+      "experimental": true,
+      "preview": {
+        "shortName": "MENTŐAKCIÓ",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "✚",
+          "▰",
+          "▰",
+          "▥"
+        ]
+      },
+      "css": "traffic-rescue/theme.css?v=0.12.56",
+      "previewCss": "traffic-rescue/preview.css?v=0.12.58"
+    },
+    {
+      "id": "orbital-breach",
+      "version": 1,
+      "name": "ORBITAL // BREACH",
+      "description": "Filmszerű sci-fi vészhelyzet sérült űrállomáson.",
+      "src": "orbital-breach/theme.json",
+      "experimental": true,
+      "preview": {
+        "shortName": "ORBITAL // BREACH",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "◉",
+          "▰",
+          "▰",
+          "◎"
+        ]
+      },
+      "css": "orbital-breach/theme.css?v=0.12.56",
+      "previewCss": "orbital-breach/preview.css?v=0.12.58"
+    },
+    {
+      "id": "abyssal-lab",
+      "version": 1,
+      "name": "ABYSS // Mélytengeri labor",
+      "description": "Biolumineszcens mélytengeri kutatóállomás az óceánfenéken.",
+      "src": "abyssal-lab/theme.json",
+      "experimental": true,
+      "preview": {
+        "shortName": "ABYSS",
+        "tag": "GGRID WORLD",
+        "symbols": [
+          "◉",
+          "▣",
+          "▣",
+          "◌"
+        ]
+      },
+      "css": "abyssal-lab/theme.css?v=0.12.56",
+      "previewCss": "abyssal-lab/preview.css?v=0.12.58"
+    },
+    {
+      "id": "clockwork-sanctum",
+      "version": 1,
+      "name": "Aetherium Óramű",
+      "description": "SHOWCASE: lebegő viktoriánus csillagvizsgáló, óraművek és mechanikus csillagkapu.",
+      "src": "clockwork-sanctum/theme.json",
+      "experimental": true,
+      "showcase": true,
+      "preview": {
+        "shortName": "AETHERIUM",
+        "tag": "SHOWCASE WORLD",
+        "symbols": [
+          "✦",
+          "⚙",
+          "⚙",
+          "◉"
+        ]
+      },
+      "css": "clockwork-sanctum/theme.css?v=0.12.57",
+      "previewCss": "clockwork-sanctum/preview.css?v=0.12.58"
+    },
+    {
+      "id": "neon-noir",
+      "version": 1,
+      "name": "NEON RAIN // Sector 9",
+      "description": "SHOWCASE: esőáztatta jövővárosi tető, futárdrón és holografikus evakuációs lift.",
+      "src": "neon-noir/theme.json",
+      "experimental": true,
+      "showcase": true,
+      "preview": {
+        "shortName": "NEON RAIN",
+        "tag": "SHOWCASE WORLD",
+        "symbols": [
+          "K7",
+          "CARGO",
+          "C-47",
+          "EVAC"
+        ]
+      },
+      "css": "neon-noir/theme.css?v=0.12.57",
+      "previewCss": "neon-noir/preview.css?v=0.12.58"
+    },
+    {
+      "id": "microchip-lab",
+      "version": 1,
+      "name": "MICROCORE // Circuit Lab",
+      "description": "SHOWCASE: nyomtatott áramköri lap világa, elektron-maggal és IC modulokkal.",
+      "src": "microchip-lab/theme.json",
+      "experimental": true,
+      "showcase": true,
+      "preview": {
+        "shortName": "MICROCORE",
+        "tag": "SHOWCASE WORLD",
+        "symbols": [
+          "e−",
+          "IC",
+          "74G",
+          "DATA"
+        ]
+      },
+      "css": "microchip-lab/theme.css?v=0.12.57"
+    },
+    {
+      "id": "moonlit-zen",
+      "version": 1,
+      "name": "HOLDKERT // Koi szentély",
+      "description": "SHOWCASE: holdfényes japán vízikert koi szellemmel és torii-kapuval.",
+      "src": "moonlit-zen/theme.json",
+      "experimental": true,
+      "showcase": true,
+      "preview": {
+        "shortName": "HOLDKERT",
+        "tag": "SHOWCASE WORLD",
+        "symbols": [
+          "◉",
+          "✿",
+          "浮島",
+          "鳥居"
+        ]
+      },
+      "css": "moonlit-zen/theme.css?v=0.12.57"
+    },
+    {
+      "id": "sunlit-greenhouse",
+      "version": 3,
+      "name": "NAPÜVEGHÁZ // Az aranymag kertje",
+      "description": "SHOWCASE V2: napfényes üvegház, aranymag és alakzatonként egybefüggő terrakotta növénytartók.",
+      "showcase": true,
+      "preview": {
+        "shortName": "NAPÜVEGHÁZ",
+        "tag": "THE GOLDEN SEED",
+        "symbols": [
+          "✦",
+          "❧",
+          "❧",
+          "✧"
+        ]
+      },
+      "src": "sunlit-greenhouse/theme.json",
+      "css": "sunlit-greenhouse/theme.css?v=0.14.2"
+    },
+    {
+      "id": "celestial-library",
+      "version": 17,
+      "name": "Csillagkönyvtár",
+      "description": "Ősi könyvtár és csillagvizsgáló, ahol díszes kódexek és asztrolábiumok között vezetjük ki az asztrálgömböt.",
+      "showcase": true,
+      "preview": {
+        "shortName": "Csillagkönyvtár",
+        "tag": "Az égi archívum",
+        "symbols": [
+          "✦",
+          "☾",
+          "◌",
+          "✧"
+        ],
+        "description": "Díszes kódexek, csillagtérképek és asztrolábiumok egy éjszakai égi archívumban.",
+        "image": "content/themes/celestial-library/library-scene.svg"
+      },
+      "src": "celestial-library/theme.json",
+      "css": "celestial-library/artwork.css?v=0.15.20",
+      "previewCss": "celestial-library/preview.css?v=0.13.1"
+    }
+  ]
+}
