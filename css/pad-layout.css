@@ -10,7 +10,7 @@ body.layout-pad main .edge-control,
 body.layout-pad main .hud-row{display:none!important}
 
 /* ---------- top bar ---------- */
-body.layout-pad .pad-top{display:grid;grid-template-columns:auto minmax(0,1.25fr) minmax(0,1fr) minmax(0,.9fr);gap:6px;align-items:stretch;height:var(--pad-top-h)}
+body.layout-pad .pad-top{display:grid;grid-template-columns:auto minmax(0,.8fr) minmax(0,1fr) minmax(0,1.45fr);gap:6px;align-items:stretch;height:var(--pad-top-h)}
 body.layout-pad .pad-top[hidden]{display:none}
 body.layout-pad .pad-top-menu{display:flex}
 body.layout-pad .pad-top-menu #gameMenu{position:static;width:auto;height:100%;min-width:0;padding:0 12px;display:flex;align-items:center;gap:6px;border-radius:12px;font:800 15px/1 system-ui,sans-serif;color:#fff;
@@ -22,10 +22,11 @@ body.layout-pad .pad-stat strong{font:900 22px/1.1 system-ui,sans-serif;font-var
 body.layout-pad .pad-stat strong em{font-style:normal;font-weight:800;opacity:.7}
 body.layout-pad .pad-stat strong.over-par em{color:#ffb35c;opacity:1}
 body.layout-pad .pad-stat-level strong{font-size:15px}
+body.layout-pad .pad-stat-moves strong{font-size:19px}
 body.layout-pad .pad-score-slot[hidden]{display:none}
 body.layout-pad .pad-score-slot{display:flex;align-items:center;justify-content:center;min-width:0}
 body.layout-pad .pad-score-slot #scoreBox{height:auto;min-width:0;width:auto;margin:0;padding:0;border:0!important;background:none!important;box-shadow:none!important}
-body.layout-pad .pad-score-slot #scoreBox strong{font-size:20px!important;color:var(--ui-accent,#ffd76a)}
+body.layout-pad .pad-score-slot #scoreBox strong{font-size:24px!important;color:var(--ui-accent,#ffd76a)}
 
 /* ---------- board ---------- */
 body.layout-pad main .board-wrap{flex:0 1 auto;display:flex;align-items:center;justify-content:center;min-height:0;padding:4px!important;border-radius:18px}
@@ -43,11 +44,12 @@ body.layout-pad main #motionNote{bottom:calc(var(--pad-deck-h) + 52px);font-weig
 body.layout-pad main #toast:empty,body.layout-pad main #motionNote:empty{display:none}
 
 /* ---------- control deck ---------- */
-body.layout-pad .pad-deck{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;height:var(--pad-deck-h);flex:0 0 auto}
+/* Narrow icon-only columns on the sides; the arrow keys take every remaining pixel. */
+body.layout-pad .pad-deck{--pad-side:48px;display:grid;grid-template-columns:var(--pad-side) minmax(0,1fr) var(--pad-side);gap:6px;align-items:stretch;height:var(--pad-deck-h);flex:0 0 auto}
 body.layout-pad .pad-deck[hidden]{display:none}
-body.layout-pad .pad-col{display:flex;flex-direction:column;gap:7px;justify-content:center;min-width:0;height:100%}
+body.layout-pad .pad-col{display:flex;flex-direction:column;gap:6px;justify-content:center;min-width:0;height:100%}
 body.layout-pad .pad-col .play-action,
-body.layout-pad .pad-col #freeze.play-action{position:relative;flex:1 1 0;width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:62px;padding:3px 4px!important;margin:0;border-radius:14px!important;
+body.layout-pad .pad-col #freeze.play-action{position:relative;flex:1 1 0;width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:56px;padding:0!important;margin:0;border-radius:12px!important;
  display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--pad-text)!important;text-shadow:0 1px 2px #0008;letter-spacing:0!important;white-space:nowrap;
  background:linear-gradient(180deg,color-mix(in srgb,var(--pad-raised) 80%,var(--pad-hue)),color-mix(in srgb,var(--pad-base) 86%,var(--pad-hue)))!important;
  border:2px solid color-mix(in srgb,var(--pad-accent) 45%,var(--pad-hue))!important;box-shadow:inset 0 1px 0 #ffffff30,inset 0 -3px 0 #00000030,0 4px 8px #0007!important;opacity:1;filter:none}
@@ -57,32 +59,36 @@ body.layout-pad .pad-col .play-action[hidden]{display:none!important}
 body.layout-pad .pad-ico{font-size:21px;line-height:1}
 body.layout-pad .pad-short{display:none}
 body.layout-pad .pad-label{font:800 11px/1.3 system-ui,sans-serif;letter-spacing:-.15px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+/* Side buttons show only their icon; the buttons' aria-label keeps the name for screen readers. */
+body.layout-pad .pad-col .pad-label{display:none}
 body.layout-pad #freeze{--pad-hue:#4b9cff}
 body.layout-pad #playHint{--pad-hue:#3fc27a}
 body.layout-pad #playFreezeHint{--pad-hue:#2fb8cc}
 body.layout-pad #playRestart{--pad-hue:#f07a3c}
 body.layout-pad #playNext{--pad-hue:#9a6cf2}
 body.layout-pad #playChoose{--pad-hue:#eab440}
-body.layout-pad #playFreezeHint .pad-ico{font-size:17px;letter-spacing:-3px}
+body.layout-pad #playFreezeHint .pad-ico{font-size:15px;letter-spacing:-3px}
 /* Freeze states stay readable in the new frame. */
 body.layout-pad[data-ui-context="game"] main .pad-col #freeze.freeze-action[data-freeze-state="active"]{--pad-hue:#12b6e0;background:linear-gradient(180deg,#12b6e0,#067a9e)!important;border-color:#fff2b0!important;box-shadow:0 0 0 3px #82ecff,0 0 16px #75f3ff!important}
 body.layout-pad[data-ui-context="game"] main .pad-col #freeze.freeze-action[data-freeze-state="unavailable"]{--pad-hue:#6b7780;border-style:dashed!important}
 
-/* D-pad */
-body.layout-pad .pad-dpad{--s:48px;position:relative;width:calc(var(--s)*3 + 8px);height:calc(var(--s)*3 + 8px);border-radius:50%;
- background:radial-gradient(circle at 50% 50%,#ffffff14 0 34%,transparent 35%),radial-gradient(circle,var(--pad-panel) 0 68%,#00000055 70%,transparent 71%);box-shadow:0 0 0 2px #ffffff14}
-body.layout-pad .pad-dir{position:absolute;width:var(--s);height:var(--s);padding:0;border-radius:16px;border:2px solid color-mix(in srgb,var(--pad-accent) 70%,transparent);touch-action:none;user-select:none;-webkit-user-select:none;
- background:linear-gradient(180deg,var(--pad-raised),var(--pad-base));box-shadow:inset 0 2px 0 #ffffff30,inset 0 -4px 0 #0003,0 5px 10px #0008;display:grid;place-items:center;cursor:pointer}
-body.layout-pad .pad-dir span{width:46%;height:46%;background:var(--pad-text);filter:drop-shadow(0 1px 1px #0007);clip-path:polygon(50% 0,100% 52%,68% 52%,68% 100%,32% 100%,32% 52%,0 52%)}
-body.layout-pad .pad-up{left:calc(var(--s) + 4px);top:0}
-body.layout-pad .pad-down{left:calc(var(--s) + 4px);bottom:0}.pad-down span{transform:rotate(180deg)}
-body.layout-pad .pad-left-dir{left:0;top:calc(var(--s) + 4px)}.pad-left-dir span{transform:rotate(-90deg)}
-body.layout-pad .pad-right-dir{right:0;top:calc(var(--s) + 4px)}.pad-right-dir span{transform:rotate(90deg)}
+/* D-pad: fills the whole middle of the deck. Left and right are tall keys, up and
+   down share the centre column – the largest touch targets the space allows. */
+body.layout-pad .pad-dpad{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+ grid-template-areas:"l u r" "l d r";gap:6px;width:100%;height:100%;min-width:0}
+body.layout-pad .pad-dir{position:relative;min-width:0;min-height:0;padding:0;border-radius:18px;border:3px solid color-mix(in srgb,var(--pad-accent) 85%,transparent);touch-action:none;user-select:none;-webkit-user-select:none;
+ background:linear-gradient(180deg,color-mix(in srgb,var(--pad-raised) 78%,var(--pad-accent)),color-mix(in srgb,var(--pad-base) 88%,var(--pad-accent)));
+ box-shadow:inset 0 2px 0 #ffffff40,inset 0 -4px 0 #0003,0 5px 12px #0009,0 0 12px color-mix(in srgb,var(--pad-accent) 25%,transparent);display:grid;place-items:center;cursor:pointer}
+body.layout-pad .pad-dir span{width:min(44px,60%);aspect-ratio:1;height:auto;background:var(--pad-text);filter:drop-shadow(0 2px 2px #0008);clip-path:polygon(50% 0,100% 52%,68% 52%,68% 100%,32% 100%,32% 52%,0 52%)}
+body.layout-pad .pad-up{grid-area:u}
+body.layout-pad .pad-down{grid-area:d}.pad-down span{transform:rotate(180deg)}
+body.layout-pad .pad-left-dir{grid-area:l}.pad-left-dir span{transform:rotate(-90deg)}
+body.layout-pad .pad-right-dir{grid-area:r}.pad-right-dir span{transform:rotate(90deg)}
 body.layout-pad .pad-dir:active,body.layout-pad .pad-dir.pressed{transform:translateY(2px);background:linear-gradient(180deg,var(--ui-control-pressed,var(--pad-raised)),var(--pad-base));box-shadow:inset 0 2px 6px #0006,0 2px 5px #0007}
 body.layout-pad .pad-dir:focus-visible{outline:3px solid #fff;outline-offset:2px}
 
 /* Small / short screens */
-@media(max-width:379px){body.layout-pad .pad-long{display:none}body.layout-pad .pad-short{display:inline}body.layout-pad .pad-top-menu #gameMenu .pad-label{display:none}body.layout-pad .pad-top-menu #gameMenu{padding:0 11px}body.layout-pad .pad-stat strong{font-size:19px}body.layout-pad .pad-stat-level strong{font-size:14px}}
-@media(max-width:360px){body.layout-pad .pad-dpad{--s:46px}body.layout-pad .pad-label{font-size:11px}body.layout-pad[data-ui-context="game"]{--pad-deck-h:156px}}
-@media(max-height:700px){body.layout-pad[data-ui-context="game"]{--pad-top-h:44px;--pad-deck-h:152px}body.layout-pad .pad-dpad{--s:44px}body.layout-pad .pad-col .play-action{max-height:50px}body.layout-pad .pad-ico{font-size:18px}}
+@media(max-width:379px){body.layout-pad .pad-long{display:none}body.layout-pad .pad-short{display:inline}body.layout-pad .pad-top-menu #gameMenu .pad-label{display:none}body.layout-pad .pad-top-menu #gameMenu{padding:0 11px}body.layout-pad .pad-stat strong{font-size:19px}body.layout-pad .pad-stat-level strong{font-size:14px}body.layout-pad .pad-stat-moves strong{font-size:17px}}
+@media(max-width:360px){body.layout-pad .pad-deck{--pad-side:44px}body.layout-pad[data-ui-context="game"]{--pad-deck-h:156px}}
+@media(max-height:700px){body.layout-pad[data-ui-context="game"]{--pad-top-h:44px;--pad-deck-h:152px}body.layout-pad .pad-ico{font-size:18px}}
 body.layout-pad #playChoose .pad-long{font-size:10px;letter-spacing:-.3px}

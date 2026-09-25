@@ -15,6 +15,13 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.57 — 2026-09-25
+
+### Kontroller-elrendezés: nagy iránygombok
+- Az iránygombok kitöltik a vezérlősáv teljes közepét: balra és jobbra teljes magasságú gomb, középen egymás alatt fel és le. 412 px széles képernyőn a fel/le gomb 105×79 px, a bal/jobb gomb 87×164 px (korábban mind 48×48 px volt). Téma-akcentusú, vastagabb keret és nagyobb nyíl emeli ki őket.
+- Az oldalsó gombok (Freeze, Súgó, Freeze-súgó, Újra, Új pálya, Pályák) keskeny, 48 px-es oszlopba kerültek, felirat nélkül, csak ikonnal. Az akadálymentes nevük (`aria-label`) megmaradt.
+- Felső sor: a Lépések mező keskenyebb, a Pont mező szélesebb, a pontszám nagyobb betűvel látszik.
+
 ## v0.15.56 — 2026-09-25
 
 ### Kontroller-elrendezés: témához illő, nagyobb pálya
