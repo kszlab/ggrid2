@@ -15,6 +15,13 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.59 — 2026-09-25
+
+### Nehézségválasztás kapcsolókkal
+- A nehézség ugyanúgy működik, mint a méret: minden D-szint külön kapcsoló, bármilyen kombináció kijelölhető (pl. csak D2 és D9); legalább egy mindig kijelölve marad.
+- Az összesítő sor összevonva mutatja a választást, pl. „D3–D5, D9”.
+- A v0.15.58-ban elmentett tartomány (pl. D7–D9) ugyanazokként a szintekként töltődik be.
+
 ## v0.15.58 — 2026-09-25
 
 ### Egységes szabad játék: egy indítógomb, tartományos válogatás

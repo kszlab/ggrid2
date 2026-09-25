@@ -804,7 +804,7 @@ function changeLevelProfile(){
  newLevel();
 }
 // The settings-panel selects pick a single size/D: narrow the pool to exactly that.
-function pinRangeToSelects(){LevelPool.setRange({sizes:[String(sizeEl.value)],min:+difficultyEl.value,max:+difficultyEl.value});changeLevelProfile()}
+function pinRangeToSelects(){LevelPool.setRange({sizes:[String(sizeEl.value)],diffs:[+difficultyEl.value]});changeLevelProfile()}
 difficultyEl.addEventListener('change',pinRangeToSelects);sizeEl.addEventListener('change',pinRangeToSelects);
 freezeLimitEl.addEventListener('change',()=>{freezeUsed=0;freezeArmed=false;freezeId=null;render({preservePieces:true});});
 /* Billentyűzet: a kurzornyíl lenyomásakor ugyanaz a térbeli billenés látszik.

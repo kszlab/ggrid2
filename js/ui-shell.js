@@ -63,30 +63,31 @@ const AppUI=(()=>{
   dots.innerHTML='';a.forEach((_,i)=>{const d=document.createElement('i');if(i===themeIndex)d.className='active';dots.append(d)});
  }
  function selectTheme(delta){themeIndex+=delta;paintTheme()}
- /* v0.15.58 range picker: sizes toggle individually (at least one stays on);
-    difficulty is a range – the first tap starts it, the second tap closes it. */
+ /* v0.15.59 picker: sizes and difficulty classes both toggle individually, in any
+    combination; at least one of each always stays selected. */
  const sizeBox=document.querySelector('#quickSize'),diffBox=document.querySelector('#quickDifficulty'),rangeSummary=document.querySelector('#freeRangeSummary');
- let diffAnchor=null;
+ // [3,4,5,9] -> "D3–D5, D9"
+ function diffLabel(diffs){const parts=[];for(let i=0;i<diffs.length;){let j=i;while(j+1<diffs.length&&diffs[j+1]===diffs[j]+1)j++;parts.push(j>i?`D${diffs[i]}–D${diffs[j]}`:`D${diffs[i]}`);i=j+1}return parts.join(', ')}
  function paintRange(){
   const r=LevelPool.range;
   sizeBox.querySelectorAll('button[data-value]').forEach(b=>{const on=r.sizes.includes(b.dataset.value),ok=LevelPool.hasSize(b.dataset.value);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=!ok;b.classList.toggle('unavailable',!ok)});
-  diffBox.querySelectorAll('button[data-value]').forEach(b=>{const d=+b.dataset.value,on=d>=r.min&&d<=r.max;b.classList.toggle('active',on);b.classList.toggle('range-edge',d===r.min||d===r.max);b.classList.toggle('range-anchor',diffAnchor===d);b.setAttribute('aria-pressed',String(on))});
+  diffBox.querySelectorAll('button[data-value]').forEach(b=>{const on=r.diffs.includes(+b.dataset.value);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
   const c=LevelPool.candidates(),two=c.filter(x=>x.balls===2).length;
-  if(rangeSummary)rangeSummary.textContent=!c.length?'Nincs pálya ebben a tartományban':`${c.length} pálya · D${r.min}${r.max>r.min?'–D'+r.max:''}${two?` · ebből ${two} kétgolyós`:''}${diffAnchor!=null?' · tartományhoz koppints egy másik nehézségre':''}`;
+  if(rangeSummary)rangeSummary.textContent=!c.length?'Nincs pálya a kiválasztott méretekhez és nehézségekhez':`${c.length} pálya · ${diffLabel(r.diffs)}${two?` · ebből ${two} kétgolyós`:''}`;
   document.querySelector('#freeSetupPlay').disabled=!c.length;
  }
- sizeBox.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b||b.disabled)return;const r=LevelPool.range,v=b.dataset.value;
-  const sizes=r.sizes.includes(v)?r.sizes.filter(s=>s!==v):[...r.sizes,v];if(!sizes.length)return;LevelPool.setRange({sizes});paintRange()});
- diffBox.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b)return;const d=+b.dataset.value;
-  if(diffAnchor==null){diffAnchor=d;LevelPool.setRange({min:d,max:d})}else{LevelPool.setRange({min:Math.min(diffAnchor,d),max:Math.max(diffAnchor,d)});diffAnchor=null}
-  paintRange()});
+ function toggleIn(list,v){return list.includes(v)?list.filter(x=>x!==v):[...list,v]}
+ sizeBox.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b||b.disabled)return;
+  const sizes=toggleIn(LevelPool.range.sizes,b.dataset.value);if(!sizes.length)return;LevelPool.setRange({sizes});paintRange()});
+ diffBox.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b)return;
+  const diffs=toggleIn(LevelPool.range.diffs,+b.dataset.value);if(!diffs.length)return;LevelPool.setRange({diffs});paintRange()});
  async function openFreeSetup(){
   cancelFreezeSelection();
   await LevelPool.init();
   if(ScenarioMode?.active){document.querySelector('#exitScenario').click()}
   document.body.dataset.uiContext='shell';home.hidden=true;menu.hidden=true;settings.hidden=true;freeSetup.hidden=false;AudioManager?.stopAmbient?.();MotionControl?.pause?.();
   for(let i=0;i<20&&!themes().length;i++)await new Promise(r=>setTimeout(r,50));
-  const a=themes(),saved=themeEl.value||'classic',idx=a.findIndex(t=>t.id===saved);themeIndex=idx>=0?idx:0;diffAnchor=null;paintTheme();paintRange();
+  const a=themes(),saved=themeEl.value||'classic',idx=a.findIndex(t=>t.id===saved);themeIndex=idx>=0?idx:0;paintTheme();paintRange();
  }
  async function launchFreePlay(){
   document.body.classList.remove('scenario-mode');await ScenarioMode?.loadFreeTheme?.(themeEl.value);changeLevelProfile();enterGame();
@@ -119,7 +120,7 @@ const AppUI=(()=>{
   if(sz&&[...sizeEl.options].some(o=>o.value===sz))sizeEl.value=sz;
   if(d&&[...difficultyEl.options].some(o=>o.value===d))difficultyEl.value=d;
   // Theme Studio previews one exact size/D; not saved as the player's range.
-  LevelPool.setRange({sizes:[String(sizeEl.value)],min:+difficultyEl.value,max:+difficultyEl.value},false);
+  LevelPool.setRange({sizes:[String(sizeEl.value)],diffs:[+difficultyEl.value]},false);
   await openFreeSetup();
   const a=themes(),idx=a.findIndex(t=>t.id===id);
   if(idx<0)throw new Error('Theme Studio preview theme not found: '+id);
