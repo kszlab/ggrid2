@@ -187,72 +187,14 @@ function applyMultiBallLevel(g){
  if(optimal.length)rememberSolverRoute(state,optimal);
  render();MotionControl?.onNewLevel?.();
 }
-function requestMultiBallLevel(){
- const d=selectedDims(),difficulty=Math.max(1,Math.min(10,parseInt(difficultyEl.value,10)||1));
- try{
-  const l=MultiBallLibrary.next(d.w,d.h,difficulty);if(!l)throw Error('NO_MULTIBALL_LEVEL');
-  applyMultiBallLevel(MultiBallLibrary.toGame(l));return true;
- }catch(e){
-  console.error('Multi-ball library',e);toast.textContent='Nincs kétgolyós pálya ehhez a mérethez és nehézséghez.';return false;
- }
-}
-async function startMultiBallGame(){
- cancelAutoSolve();clearSolverCache();resetWinState();
- await MultiBallLibrary.init();
- return requestMultiBallLevel();
-}
 function leaveMultiBallTest(){
  document.body.classList.remove('multiball-test-mode');
  const modeLabel=document.querySelector('#playModeLabel');if(modeLabel)modeLabel.textContent='Szabad játék';
  if(scoreValue)scoreValue.title='';
 }
-globalThis.startMultiBallGame=startMultiBallGame;
-globalThis.startMultiBallTest=startMultiBallGame;
 globalThis.inMultiBallTest=inMultiBallTest;
 
-/* ===== FAST GENERATOR V2 ISOLATED TEST LIBRARY ===== */
-function applyGeneratedTestLevel(g,label='Generátor teszt',benchmark=false){
- cancelAutoSolve();clearSolverCache();resetWinState();document.body.classList.remove('multiball-test-mode');document.body.classList.add('generated-test-mode');document.body.classList.toggle('v3-d10-benchmark-mode',!!benchmark);
- state=g.state;validateLevel(state);initial=cloneState(state);optimal=g.solution||[];currentLevelId=g.code;currentLevelRecord=g.level||null;
- freezeLimitEl.value='inf';freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;rewardedThisRun=true;solverUsedThisRun=false;toast.textContent='';
- if(optimal.length)rememberSolverRoute(state,optimal);
- const modeLabel=document.querySelector('#playModeLabel');if(modeLabel)modeLabel.textContent=label;
- render();MotionControl?.onNewLevel?.();
-}
-function requestGeneratedTestLevel(){
- const d=selectedDims(),difficulty=Math.max(1,Math.min(10,parseInt(difficultyEl.value,10)||1));
- try{const l=GeneratedTestLibrary.next(d.w,d.h,difficulty);if(!l)throw Error('NO_GENERATED_TEST_LEVEL');applyGeneratedTestLevel(GeneratedTestLibrary.toGame(l));return true}
- catch(e){console.error('Generated test library',e);toast.textContent='Nincs generált tesztpálya ehhez a mérethez és nehézséghez.';return false}
-}
-async function startGeneratedTestGame(){
- cancelAutoSolve();clearSolverCache();resetWinState();await GeneratedTestLibrary.init();
- if(!GeneratedTestLibrary.has(selectedDims().w,selectedDims().h,Math.max(1,Math.min(10,parseInt(difficultyEl.value,10)||1)))){
-  const first=GeneratedTestLibrary.firstAvailable();if(!first){toast.textContent='Nincs generált tesztpálya.';return false}
-  sizeEl.value=first.w===first.h?String(first.w):first.w+'x'+first.h;difficultyEl.value=String(first.d);
- }
- return requestGeneratedTestLevel()
-}
-const V3_D10_BENCHMARK_PACK='fastgen-v3-d10-benchmark';
-function requestV3D10BenchmarkLevel(){
- const d=selectedDims();
- try{
-  const l=GeneratedTestLibrary.nextPack(V3_D10_BENCHMARK_PACK,d.w,d.h,10);if(!l)throw Error('NO_V3_D10_BENCHMARK_LEVEL');
-  difficultyEl.value='10';applyGeneratedTestLevel(GeneratedTestLibrary.toGame(l),'V3 D10 teszt',true);return true;
- }catch(e){console.error('V3 D10 benchmark',e);toast.textContent='Nincs V3 D10 tesztpálya ehhez a mérethez.';return false}
-}
-async function startV3D10BenchmarkGame(){
- cancelAutoSolve();clearSolverCache();resetWinState();await GeneratedTestLibrary.init();
- const d=selectedDims();
- if(!GeneratedTestLibrary.hasPack(V3_D10_BENCHMARK_PACK,d.w,d.h,10)){
-  const first=GeneratedTestLibrary.firstPackAvailable(V3_D10_BENCHMARK_PACK);if(!first){toast.textContent='Nincs V3 D10 benchmarkpálya.';return false}
-  sizeEl.value=first.w===first.h?String(first.w):first.w+'x'+first.h;
- }
- difficultyEl.value='10';
- return requestV3D10BenchmarkLevel();
-}
 function leaveGeneratedTest(){document.body.classList.remove('generated-test-mode','v3-d10-benchmark-mode')}
-globalThis.startGeneratedTestGame=startGeneratedTestGame;
-globalThis.startV3D10BenchmarkGame=startV3D10BenchmarkGame;
 globalThis.inGeneratedTest=inGeneratedTest;
 globalThis.inV3D10Benchmark=inV3D10Benchmark;
 
@@ -267,16 +209,21 @@ function applyLibraryLevel(g){
  freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;toast.textContent='';
  render();MotionControl?.onNewLevel?.();
 }
-function requestLibraryLevel(){
- const d=selectedDims(),difficulty=Math.max(1,Math.min(10,parseInt(difficultyEl.value,10)||1));
+/* v0.15.58: unified free play. LevelPool draws a random level from every
+   library inside the chosen size set and D range; the level decides the mode:
+   two-ball levels run unscored (as before), single-ball levels are scored. */
+function requestPoolLevel(){
  try{
-  const l=LevelLibrary.next(d.w,d.h,difficulty,id=>Number(scoreData.best[id])>0);if(!l)throw Error('NO_LIBRARY_LEVEL');
-  applyLibraryLevel(LevelLibrary.toGame(l));return true;
+  const c=LevelPool.pick(id=>Number(scoreData.best[id])>0);if(!c)throw Error('NO_POOL_LEVEL');
+  sizeEl.value=LevelPool.sizeValue(c.level.board.width,c.level.board.height);difficultyEl.value=String(c.level.analysis.testDifficultyClass);
+  const g=c.lib.toGame(c.level);
+  if(c.balls===2)applyMultiBallLevel(g);else applyLibraryLevel(g);
+  return true;
  }catch(e){
-  console.error('Level library',e);toast.textContent='Nincs kompatibilis pálya ehhez a mérethez és nehézséghez.';return false;
+  console.error('Level pool',e);toast.textContent='Nincs pálya a kiválasztott méretekhez és nehézséghez.';return false;
  }
 }
-function newLevel(){return inV3D10Benchmark()?requestV3D10BenchmarkLevel():inGeneratedTest()?requestGeneratedTestLevel():inMultiBallTest()?requestMultiBallLevel():requestLibraryLevel()}
+function newLevel(){return requestPoolLevel()}
 function playEvents(events){
  const moves=events.filter(e=>e.type==='move').length,blocked=events.some(e=>e.type==='blocked'),exited=events.some(e=>e.type==='exit'),won=events.some(e=>e.type==='win');
  if(blocked){AudioManager.blocked();SceneRenderer?.event?.('blocked')}else if(moves){AudioManager.move(moves);SceneRenderer?.event?.('move')}
@@ -851,16 +798,14 @@ soundBtn.addEventListener('click',async()=>{await AudioManager.toggleEffects();s
 ambientBtn.addEventListener('click',async()=>{await AudioManager.toggleAmbient();syncSoundControls()});
 syncSoundControls();
 function changeLevelProfile(){
- cancelAutoSolve();clearSolverCache();leaveMultiBallTest();
- 
- /* A régi pálya ne maradjon látható, miközben az új méret készül. */
- state=null;initial=null;optimal=[];currentLevelId='';
- board.innerHTML='';board.style.setProperty('--cols',selectedDims().w);board.style.setProperty('--rows',selectedDims().h);
- board.style.aspectRatio=`${selectedDims().w}/${selectedDims().h}`;
- toast.textContent=`Tesztpálya betöltése: ${selectedDims().w}×${selectedDims().h} · D${difficultyEl.value}…`;
+ cancelAutoSolve();clearSolverCache();leaveMultiBallTest();leaveGeneratedTest();
+ /* A régi pálya ne maradjon látható, miközben az új pálya betöltődik. */
+ state=null;initial=null;optimal=[];currentLevelId='';board.innerHTML='';
  newLevel();
 }
-difficultyEl.addEventListener('change',changeLevelProfile);sizeEl.addEventListener('change',changeLevelProfile);
+// The settings-panel selects pick a single size/D: narrow the pool to exactly that.
+function pinRangeToSelects(){LevelPool.setRange({sizes:[String(sizeEl.value)],min:+difficultyEl.value,max:+difficultyEl.value});changeLevelProfile()}
+difficultyEl.addEventListener('change',pinRangeToSelects);sizeEl.addEventListener('change',pinRangeToSelects);
 freezeLimitEl.addEventListener('change',()=>{freezeUsed=0;freezeArmed=false;freezeId=null;render({preservePieces:true});});
 /* Billentyűzet: a kurzornyíl lenyomásakor ugyanaz a térbeli billenés látszik.
    Az operációs rendszer key-repeatje továbbra is ismételt egycellás move()-okat ad. */

@@ -23,9 +23,9 @@ const AppUI=(()=>{
   cancelAutoSolve();
   cancelFreezeSelection();
   menu.hidden=false;MotionControl?.pause?.();
-  const active=!!ScenarioMode?.active,test=!!globalThis.inMultiBallTest?.(),benchmark=!!globalThis.inV3D10Benchmark?.(),generated=!!globalThis.inGeneratedTest?.();
-  document.querySelector('#menuTitle').textContent=active?'Játék':benchmark?'V3 D10 teszt':generated?'Generátor teszt':test?'Kétgolyós játék':'Szabad játék';
-  document.querySelector('#menuStage').textContent=active?(document.querySelector('#scenarioInfo').textContent||'Forgatókönyv'):(test||generated)?`${sizeEl.value} · D${difficultyEl.value} · pontozás nélkül`:'Aktuális pálya';
+  const active=!!ScenarioMode?.active,test=!!globalThis.inMultiBallTest?.();
+  document.querySelector('#menuTitle').textContent=active?'Játék':'Szabad játék';
+  document.querySelector('#menuStage').textContent=active?(document.querySelector('#scenarioInfo').textContent||'Forgatókönyv'):test?`Kétgolyós pálya · D${difficultyEl.value} · pontozás nélkül`:'Aktuális pálya';
   document.querySelector('#menuNew').hidden=active;
  }
  function closeMenu(){menu.hidden=true;MotionControl?.resume?.()}
@@ -63,53 +63,33 @@ const AppUI=(()=>{
   dots.innerHTML='';a.forEach((_,i)=>{const d=document.createElement('i');if(i===themeIndex)d.className='active';dots.append(d)});
  }
  function selectTheme(delta){themeIndex+=delta;paintTheme()}
- function syncLevelAvailability(){
-  const d=selectedDims(),box=document.querySelector('#quickDifficulty');let any=false;
-  box.querySelectorAll('button[data-value]').forEach(b=>{const diff=+b.dataset.value,ok=LevelLibrary.has(d.w,d.h,diff)||MultiBallLibrary.has(d.w,d.h,diff)||GeneratedTestLibrary.has(d.w,d.h,diff);b.disabled=!ok;b.classList.toggle('unavailable',!ok);if(ok)any=true;});
-  const chosen=box.querySelector('button[data-value="'+difficultyEl.value+'"]');if(chosen?.disabled){const first=[...box.querySelectorAll('button[data-value]')].find(b=>!b.disabled);if(first)difficultyEl.value=first.dataset.value;}
-  document.querySelector('#freeSetupPlay').disabled=!any||!LevelLibrary.has(d.w,d.h,+difficultyEl.value);
-  const multi=document.querySelector('#freeSetupMultiBall');if(multi)multi.disabled=!MultiBallLibrary.has(d.w,d.h,+difficultyEl.value);
-  const generated=document.querySelector('#freeSetupGenerated');if(generated){const exact=GeneratedTestLibrary.has(d.w,d.h,+difficultyEl.value),any=GeneratedTestLibrary.hasAny();generated.disabled=!any;generated.classList.toggle('unavailable',!any);generated.title=exact?'Generátor teszt az aktuális méret és nehézség szerint':any?'Az aktuális kombinációhoz nincs tesztpálya; indításkor az első elérhető generált tesztprofilra vált.':'Nincs generált tesztpálya.'}
-  const v3=document.querySelector('#freeSetupV3D10');if(v3){const ok=GeneratedTestLibrary.hasPack('fastgen-v3-d10-benchmark',d.w,d.h,10),any=!!GeneratedTestLibrary.firstPackAvailable('fastgen-v3-d10-benchmark');v3.disabled=!any;v3.classList.toggle('unavailable',!any);v3.title=ok?'FastGen v3 D10 benchmark az aktuális méreten':any?'D10-re vált és az első elérhető benchmarkméretet használja.':'Nincs FastGen v3 D10 benchmarkpálya.'}
+ /* v0.15.58 range picker: sizes toggle individually (at least one stays on);
+    difficulty is a range – the first tap starts it, the second tap closes it. */
+ const sizeBox=document.querySelector('#quickSize'),diffBox=document.querySelector('#quickDifficulty'),rangeSummary=document.querySelector('#freeRangeSummary');
+ let diffAnchor=null;
+ function paintRange(){
+  const r=LevelPool.range;
+  sizeBox.querySelectorAll('button[data-value]').forEach(b=>{const on=r.sizes.includes(b.dataset.value),ok=LevelPool.hasSize(b.dataset.value);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=!ok;b.classList.toggle('unavailable',!ok)});
+  diffBox.querySelectorAll('button[data-value]').forEach(b=>{const d=+b.dataset.value,on=d>=r.min&&d<=r.max;b.classList.toggle('active',on);b.classList.toggle('range-edge',d===r.min||d===r.max);b.classList.toggle('range-anchor',diffAnchor===d);b.setAttribute('aria-pressed',String(on))});
+  const c=LevelPool.candidates(),two=c.filter(x=>x.balls===2).length;
+  if(rangeSummary)rangeSummary.textContent=!c.length?'Nincs pálya ebben a tartományban':`${c.length} pálya · D${r.min}${r.max>r.min?'–D'+r.max:''}${two?` · ebből ${two} kétgolyós`:''}${diffAnchor!=null?' · tartományhoz koppints egy másik nehézségre':''}`;
+  document.querySelector('#freeSetupPlay').disabled=!c.length;
  }
- function bindSegments(id,select,onChange){
-  const box=document.querySelector(id),paint=()=>{box.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.value===select.value));onChange?.()};
-  box.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b||b.disabled)return;select.value=b.dataset.value;paint()});paint();return paint;
- }
- const paintSize=bindSegments('#quickSize',sizeEl,syncLevelAvailability),paintDiff=bindSegments('#quickDifficulty',difficultyEl,syncLevelAvailability);
+ sizeBox.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b||b.disabled)return;const r=LevelPool.range,v=b.dataset.value;
+  const sizes=r.sizes.includes(v)?r.sizes.filter(s=>s!==v):[...r.sizes,v];if(!sizes.length)return;LevelPool.setRange({sizes});paintRange()});
+ diffBox.addEventListener('click',e=>{const b=e.target.closest('button[data-value]');if(!b)return;const d=+b.dataset.value;
+  if(diffAnchor==null){diffAnchor=d;LevelPool.setRange({min:d,max:d})}else{LevelPool.setRange({min:Math.min(diffAnchor,d),max:Math.max(diffAnchor,d)});diffAnchor=null}
+  paintRange()});
  async function openFreeSetup(){
   cancelFreezeSelection();
-  await Promise.all([LevelLibrary.init(),MultiBallLibrary.init(),GeneratedTestLibrary.init()]);
+  await LevelPool.init();
   if(ScenarioMode?.active){document.querySelector('#exitScenario').click()}
   document.body.dataset.uiContext='shell';home.hidden=true;menu.hidden=true;settings.hidden=true;freeSetup.hidden=false;AudioManager?.stopAmbient?.();MotionControl?.pause?.();
   for(let i=0;i<20&&!themes().length;i++)await new Promise(r=>setTimeout(r,50));
-  const a=themes(),saved=themeEl.value||'classic',idx=a.findIndex(t=>t.id===saved);themeIndex=idx>=0?idx:0;paintTheme();paintSize();paintDiff();syncLevelAvailability();
+  const a=themes(),saved=themeEl.value||'classic',idx=a.findIndex(t=>t.id===saved);themeIndex=idx>=0?idx:0;diffAnchor=null;paintTheme();paintRange();
  }
  async function launchFreePlay(){
   document.body.classList.remove('scenario-mode');await ScenarioMode?.loadFreeTheme?.(themeEl.value);changeLevelProfile();enterGame();
- }
- async function launchMultiBallGame(){
-  document.body.classList.remove('scenario-mode');
-  await ScenarioMode?.loadFreeTheme?.(themeEl.value);
-  if(await globalThis.startMultiBallGame?.())enterGame();
- }
- async function launchGeneratedTest(){
-  document.body.classList.remove('scenario-mode');
-  if(!GeneratedTestLibrary.has(selectedDims().w,selectedDims().h,+difficultyEl.value)){
-   const first=GeneratedTestLibrary.firstAvailable();
-   if(first){sizeEl.value=first.w===first.h?String(first.w):`${first.w}x${first.h}`;difficultyEl.value=String(first.d);paintSize();paintDiff();syncLevelAvailability();}
-  }
-  await ScenarioMode?.loadFreeTheme?.(themeEl.value);
-  if(await globalThis.startGeneratedTestGame?.())enterGame();
- }
- async function launchV3D10Benchmark(){
-  document.body.classList.remove('scenario-mode');
-  const d=selectedDims();if(!GeneratedTestLibrary.hasPack('fastgen-v3-d10-benchmark',d.w,d.h,10)){
-   const first=GeneratedTestLibrary.firstPackAvailable('fastgen-v3-d10-benchmark');if(first)sizeEl.value=first.w===first.h?String(first.w):`${first.w}x${first.h}`;
-  }
-  difficultyEl.value='10';paintSize();paintDiff();syncLevelAvailability();
-  await ScenarioMode?.loadFreeTheme?.(themeEl.value);
-  if(await globalThis.startV3D10BenchmarkGame?.())enterGame();
  }
  document.querySelector('#playHint').addEventListener('click',()=>document.querySelector('#hint').click());
  document.querySelector('#playRestart').addEventListener('click',()=>document.querySelector('#restart').click());
@@ -117,7 +97,7 @@ const AppUI=(()=>{
  document.querySelector('#playChoose').addEventListener('click',openFreeSetup);
  document.querySelector('#themePrev').addEventListener('click',()=>selectTheme(-1));document.querySelector('#themeNext').addEventListener('click',()=>selectTheme(1));
  preview.addEventListener('pointerdown',e=>{touchX=e.clientX});preview.addEventListener('pointerup',e=>{if(touchX==null)return;const dx=e.clientX-touchX;touchX=null;if(Math.abs(dx)>42)selectTheme(dx<0?1:-1)});
- document.querySelector('#freeSetupClose').addEventListener('click',showHome);document.querySelector('#freeSetupPlay').addEventListener('click',launchFreePlay);document.querySelector('#freeSetupMultiBall').addEventListener('click',launchMultiBallGame);document.querySelector('#freeSetupGenerated').addEventListener('click',launchGeneratedTest);document.querySelector('#freeSetupV3D10').addEventListener('click',launchV3D10Benchmark);
+ document.querySelector('#freeSetupClose').addEventListener('click',showHome);document.querySelector('#freeSetupPlay').addEventListener('click',launchFreePlay);
  document.querySelector('#homeFreePlay').addEventListener('click',openFreeSetup);
  document.querySelector('#homeSettings').addEventListener('click',openSettings);
  document.querySelector('#homeHelp').addEventListener('click',()=>openHelp());
@@ -138,6 +118,8 @@ const AppUI=(()=>{
   const sz=q.get('themeStudioSize'),d=q.get('themeStudioD');
   if(sz&&[...sizeEl.options].some(o=>o.value===sz))sizeEl.value=sz;
   if(d&&[...difficultyEl.options].some(o=>o.value===d))difficultyEl.value=d;
+  // Theme Studio previews one exact size/D; not saved as the player's range.
+  LevelPool.setRange({sizes:[String(sizeEl.value)],min:+difficultyEl.value,max:+difficultyEl.value},false);
   await openFreeSetup();
   const a=themes(),idx=a.findIndex(t=>t.id===id);
   if(idx<0)throw new Error('Theme Studio preview theme not found: '+id);

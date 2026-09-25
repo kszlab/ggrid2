@@ -15,6 +15,18 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.58 — 2026-09-25
+
+### Egységes szabad játék: egy indítógomb, tartományos válogatás
+- A szabad játék képernyőn egyetlen „Játék indítása” gomb maradt. A külön „2 golyós játék”, „Generátor teszt” és „V3 D10 teszt” indító megszűnt.
+- A méretből több is kijelölhető (legalább egy mindig marad), a nehézség tartomány: első koppintás a kezdete, második a vége. Az összesítő sor mutatja, hány pálya és ebből hány kétgolyós esik a tartományba. A választás böngészőnként megmarad.
+- Az új `js/level-pool.js` mindhárom könyvtárból (alap, kétgolyós, generált) véletlenszerűen választ a tartományon belül. Előnyben részesíti a még nem teljesített pályákat, és rövid távon nem ismétel.
+- A pálya típusát a pálya maga dönti el: a kétgolyós pályák továbbra is pontozás nélkül futnak (a Pont helyén a golyók száma), az egygolyós pályák pontozottak, a generált egygolyós pályák is.
+- A 4×8-as méret kikerült a választható méretek közül: nem volt hozzá pálya és nehézségi kalibráció sem.
+
+### Kontroller-elrendezés
+- Az oldalsó hat gomb 48 px helyett 68 px széles, nagyobb ikonnal. Az iránygombok ennek megfelelően kisebbek: fel/le 90×79 px, bal/jobb 75×164 px (412 px széles képernyőn).
+
 ## v0.15.57 — 2026-09-25
 
 ### Kontroller-elrendezés: nagy iránygombok
