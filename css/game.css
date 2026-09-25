@@ -586,3 +586,10 @@ body.multiball-test-mode .score-box strong{font-size:16px!important;letter-spaci
  filter:brightness(1.12) drop-shadow(0 0 7px var(--ui-focus,#fff));
 }
 body.theme-studio-preview .dev-detail{display:none!important}
+
+/* v0.15.60: in-game controls never start a text selection or the long-press
+   callout (Android selected the glyph of a held button). */
+body[data-ui-context="game"] main,body[data-ui-context="game"] main *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+/* Gesture control: the game area belongs to the swipes – no browser pan, zoom or pull-to-refresh. */
+body.gesture-control[data-ui-context="game"] .board-wrap,body.gesture-control[data-ui-context="game"] .board-wrap *{touch-action:none}
+html:has(body.gesture-control[data-ui-context="game"]),body.gesture-control[data-ui-context="game"]{overscroll-behavior:none}

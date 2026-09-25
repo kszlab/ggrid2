@@ -15,6 +15,17 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.60 — 2026-09-25
+
+### Gesztusvezérlés (simítás)
+- Új `js/touch-swipe.js`: a játéktéren jobbra, balra, fel vagy le simítva az adott nyíl lép. Egy simítás mindig egy lépés; a lépés már a mozdulat közben jön (kb. 28 px, egyértelmű irány), nem kell az ujjat felemelni. Az animáció közben érkező simítás nem vész el, utána végrehajtódik.
+- Koppintás a pálya elemeire (Freeze-kijelölés) továbbra is működik; a simítás nem jelöl ki elemet.
+- Beállítások → Gesztusvezérlés, a Mozgásvezérlés fölött. Csak érintőképernyős eszközön kapcsolható, ott alapból be van kapcsolva.
+- Bekapcsolt állapotban a játéktéren a böngésző görgetése, nagyítása és lehúzásos frissítése le van tiltva (`touch-action`, `overscroll-behavior`, iOS-en `touchmove`/`gesturestart`). A telefon rendszergesztusait weboldal nem tudja letiltani.
+
+### Javítás
+- Hosszú nyomásra Androidon nem jelölődik ki többé a gombok szövege, és nem jön fel a böngésző menüje a játékképernyőn.
+
 ## v0.15.59 — 2026-09-25
 
 ### Nehézségválasztás kapcsolókkal

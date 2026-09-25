@@ -794,6 +794,8 @@ playFreezeHintBtn.addEventListener('click',e=>{
  freezeHint();
 });
 playFreezeHintBtn.addEventListener('contextmenu',e=>e.preventDefault());
+// Long-press on any in-game button must not open the browser's context menu.
+document.querySelector('#game').addEventListener('contextmenu',e=>{if(document.body.dataset.uiContext==='game'&&e.target.closest('button'))e.preventDefault()});
 soundBtn.addEventListener('click',async()=>{await AudioManager.toggleEffects();syncSoundControls()});
 ambientBtn.addEventListener('click',async()=>{await AudioManager.toggleAmbient();syncSoundControls()});
 syncSoundControls();
