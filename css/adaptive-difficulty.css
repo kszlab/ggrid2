@@ -1,0 +1,9 @@
+/* v0.15.64 adaptive difficulty (js/adaptive-difficulty.js): switch and current
+   player level under the free-play summary, change note on the victory card. */
+.adaptive-row{display:flex;width:100%;box-sizing:border-box;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;font-size:.74rem;color:#c9dce7;padding:0 8px}
+.adaptive-switch{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:#e8f5ff;cursor:pointer}
+.adaptive-switch input{width:20px;height:20px;margin:0;accent-color:#f5d16b}
+#adaptiveLevel{opacity:.9}
+#adaptiveReset{min-height:26px;padding:0 10px;border:0;border-radius:8px;background:#ffffff14;color:#e8f5ff;font-weight:800;font-size:.7rem;cursor:pointer}
+#adaptiveReset[hidden]{display:none}
+.adaptive-note{margin-top:4px;font-size:.8em;font-weight:800;opacity:.9}

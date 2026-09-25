@@ -1,0 +1,81 @@
+/* GGrid v0.15.64 – adaptive difficulty for free play (self-contained, easy to remove).
+   A player level ("szint", a continuous D value) per ball count follows the
+   results: every finished level scores 0..1 (optimum/moves, −0.15 per step hint,
+   0 after auto-solve; a level left after ≥5 moves counts as 0). The level moves
+   Elo-style against the expected result for that D: up by at most ~0.4, down
+   gently (~0.2 for a failure at the player's own level). LevelPool then draws
+   the selected D classes weighted around "level + 0.5".
+   It observes main.js by wrapping global functions (like pad-layout.js does
+   with render), so the game code stays untouched. To remove it: delete this
+   file, css/adaptive-difficulty.css, their tags in index.html and the weigher
+   line in level-pool.js pick(). */
+const AdaptiveDifficulty=(()=>{
+ const KEY='ggrid.adaptive.v1',STRETCH=.5,SPREAD=.9,FLOOR=.03,UP=1.6,DOWN=.28,MAX_STEP=.5,HINT_COST=.15,ABANDON_MOVES=5;
+ let data={enabled:true,ratings:{}};
+ try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object'){data.enabled=s.enabled!==false;if(s.ratings&&typeof s.ratings==='object')data.ratings=s.ratings}}catch(_){}
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(_){}};
+ const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+ const minSelected=()=>Math.min(...(LevelPool?.range?.diffs||[1]));
+ function rating(balls){const r=Number(data.ratings[balls]);return Number.isFinite(r)?r:minSelected()}
+ function active(){return data.enabled&&(LevelPool?.range?.diffs?.length||0)>1}
+ // Expected result on a level of class d for a player at level r: ~0.95 far below, 0.725 at r, 0.5 far above.
+ const expected=(d,r)=>.5+.45/(1+Math.exp((d-r)/.9));
+
+ // ---- selection weights (used by LevelPool.pick) ----
+ // Each D class gets exp(-(d-target)²/2σ²) (+ a small floor), shared among its levels,
+ // so the class mix follows the curve regardless of how many levels a class has.
+ function weigher(cands){
+  if(!active())return null;
+  const perClass=new Map();for(const c of cands){const k=c.balls+'|'+c.level.analysis.testDifficultyClass;perClass.set(k,(perClass.get(k)||0)+1)}
+  return c=>{const d=c.level.analysis.testDifficultyClass,t=rating(c.balls)+STRETCH;return(Math.exp(-((d-t)**2)/(2*SPREAD*SPREAD))+FLOOR)/perClass.get(c.balls+'|'+d)};
+ }
+
+ // ---- result tracking ----
+ let cur=null,lastChange=null;
+ function begin(g){
+  const l=g?.level,d=l?.analysis?.testDifficultyClass;
+  cur=Number.isInteger(d)?{id:g.code,d,balls:(g.state?.objects||[]).filter(o=>o.type==='ball').length||1,hints:0,attempted:false,done:false}:null;
+ }
+ function record(p){
+  if(!cur||cur.done)return null;cur.done=true;
+  if(!active())return null;
+  const before=rating(cur.balls),delta=p-expected(cur.d,before);
+  const after=clamp(before+clamp(delta*(delta>0?UP:DOWN),-MAX_STEP,MAX_STEP),1,10);
+  data.ratings[cur.balls]=Math.round(after*100)/100;save();paint();
+  return lastChange={balls:cur.balls,before,after:data.ratings[cur.balls]};
+ }
+ // A level left without winning counts as a failure only after a real attempt.
+ function finishOpen(){if(cur&&!cur.done&&!state?.won&&(cur.attempted||solverUsedThisRun))record(0)}
+ function wrap(name,fn){const base=globalThis[name];if(typeof base!=='function')return;globalThis[name]=function(...a){return fn(base,this,a)}}
+ for(const name of ['applyLibraryLevel','applyMultiBallLevel'])wrap(name,(base,self,a)=>{if(!ScenarioMode?.active)finishOpen();const r=base.apply(self,a);if(!ScenarioMode?.active)begin(a[0]);return r});
+ wrap('move',(base,self,a)=>{const r=base.apply(self,a);if(cur&&state&&state.moves>=ABANDON_MOVES)cur.attempted=true;return r});
+ wrap('spendScore',(base,self,a)=>{const ok=base.apply(self,a);if(ok&&a[0]===1&&cur)cur.hints++;return ok});
+ wrap('enterVictory',(base,self,a)=>{
+  const wasShown=!document.querySelector('#victoryOverlay')?.hidden||victoryPending,r=base.apply(self,a);
+  if(wasShown||!cur||cur.done||ScenarioMode?.active)return r;
+  const automatic=!!a[0],p=automatic||solverUsedThisRun?0:clamp(Math.max(1,optimal.length)/Math.max(1,state.moves,optimal.length)-HINT_COST*cur.hints,0,1);
+  const ch=record(p),box=document.querySelector('#victoryScore');
+  if(ch&&box){const n=document.createElement('div');n.className='adaptive-note';const f=x=>x.toFixed(1).replace('.',',');
+   n.textContent=`${ch.balls===2?'Kétgolyós szinted':'Szinted'}: D${f(ch.before)} → D${f(ch.after)} ${ch.after>ch.before+.005?'↑':ch.after<ch.before-.005?'↓':'→'}`;box.append(n)}
+  return r;
+ });
+
+ // ---- setup screen: switch, current levels, reset ----
+ const summary=document.querySelector('#freeRangeSummary'),row=document.createElement('div');row.className='adaptive-row';
+ row.innerHTML='<label class="adaptive-switch"><input type="checkbox" id="adaptiveToggle"> Alkalmazkodó nehézség</label><span id="adaptiveLevel"></span><button type="button" id="adaptiveReset">Nullázás</button>';
+ summary?.after(row);
+ const toggle=row.querySelector('#adaptiveToggle'),levelText=row.querySelector('#adaptiveLevel'),reset=row.querySelector('#adaptiveReset');
+ function paint(){
+  toggle.checked=data.enabled;const f=x=>x.toFixed(1).replace('.',',');
+  const one=data.ratings[1]!=null?`D${f(+data.ratings[1])}`:'',two=data.ratings[2]!=null?`●● D${f(+data.ratings[2])}`:'';
+  levelText.textContent=!data.enabled?'':(LevelPool?.range?.diffs?.length||0)<2?'több nehézség kijelölésével működik':(one||two)?`Szinted: ${[one,two].filter(Boolean).join(' · ')}`:`Kezdés: D${minSelected()}`;
+  reset.hidden=!data.enabled||(data.ratings[1]==null&&data.ratings[2]==null);
+ }
+ toggle.addEventListener('change',()=>{data.enabled=toggle.checked;save();paint()});
+ reset.addEventListener('click',()=>{data.ratings={};save();paint()});
+ document.querySelector('#quickDifficulty')?.addEventListener('click',()=>setTimeout(paint,0));
+ document.querySelector('#homeFreePlay')?.addEventListener('click',()=>setTimeout(paint,50));
+ document.querySelector('#playChoose')?.addEventListener('click',()=>setTimeout(paint,50));
+ paint();
+ return{weigher,rating,expected,paint,get active(){return active()},get lastChange(){return lastChange}};
+})();

@@ -15,6 +15,16 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.64 — 2026-09-25
+
+### Alkalmazkodó nehézség
+- Új `js/adaptive-difficulty.js`: egy- és kétgolyós pályákhoz külön „szint” (folytonos D-érték), amely a teljesítményed szerint mozog. Első használatkor a legkisebb kijelölt nehézségről indul.
+- Pálya eredménye 0–1: optimum ÷ megtett lépések, lépéssúgónként −0,15; automatikus megoldás után 0. Érdemi próbálkozás (legalább 5 lépés) után megoldás nélkül kihagyott pálya 0-nak számít; rövid ránézés utáni kihagyás és újrakezdés nem számít.
+- Élő-szerű frissítés az adott D-n várható eredményhez képest: felfelé legfeljebb kb. +0,4–0,5, lefelé finoman (saját szintű kudarcnál kb. −0,2).
+- A kijelölt nehézségek közül a „szint + 0,5” körüli osztályok kapnak nagy súlyt, a távoliak csak ritkán jönnek; ezen belül továbbra is a még nem teljesített pályák az elsők.
+- Pályaválasztó: „Alkalmazkodó nehézség” kapcsoló (alapból bekapcsolva; több kijelölt nehézségnél hat), a jelenlegi szint és „Nullázás” gomb. A győzelmi ablak mutatja a változást, pl. „Szinted: D4,0 → D4,5 ↑”.
+- Önálló modul (`js/adaptive-difficulty.js`, `css/adaptive-difficulty.css`); a meglévő kódban csak a `LevelPool.pick()` súlyozási sora változott, így a funkció egy commit visszavonásával eltávolítható.
+
 ## v0.15.63 — 2026-09-25
 
 ### Kétgolyós pályák pontozása

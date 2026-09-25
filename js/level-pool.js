@@ -44,7 +44,10 @@ const LevelPool=(()=>{
   const base=fresh.length?fresh:all.filter(c=>c.level.levelId!==recent[recent.length-1]);
   const open=base.filter(c=>!isDone(c.level.levelId));
   const pool=open.length?open:(base.length?base:all);
-  const c=pool[Math.floor(Math.random()*pool.length)];
+  // Adaptive difficulty (js/adaptive-difficulty.js) may weight the draw by D class.
+  const w=typeof AdaptiveDifficulty!=='undefined'?AdaptiveDifficulty.weigher(pool):null;
+  let c=pool[Math.floor(Math.random()*pool.length)];
+  if(w){const ws=pool.map(w),total=ws.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<pool.length;i++){r-=ws[i];if(r<=0){c=pool[i];break}}}
   recent.push(c.level.levelId);if(recent.length>Math.min(40,Math.floor(all.length/2)))recent.shift();
   return c;
  }
