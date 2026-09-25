@@ -15,6 +15,13 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.61 — 2026-09-25
+
+### Automatikus megoldás: saját állapotsáv, leállítás
+- Az automatikus megoldás (és a Freeze-es változata) állapota külön sávban látszik a pálya alatt, a vezérlősáv tetején; nem takarja a játékmezőt. A számítás alatt is megjelenik.
+- Piros ✕ gomb állítja le: nem jön több lépés, a kijelölt, de még nem végrehajtott Freeze törlődik, és a pálya onnan folytatható, ahol éppen tart. Az éppen futó egyetlen lépés rövid animációja még befejeződik. Számítás közbeni leállításnál az eredmény eldobódik.
+- A pontozás nem változott: ha az automatikus megoldás elindult, a pálya akkor sem ad pontot, ha utána kézzel fejezed be.
+
 ## v0.15.60 — 2026-09-25
 
 ### Gesztusvezérlés (simítás)

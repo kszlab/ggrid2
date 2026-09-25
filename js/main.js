@@ -84,7 +84,7 @@ function enterVictory(automatic=false,rewardInfo=null){
  if(!state?.won||victoryPending||!victoryOverlay.hidden)return;
  victoryPending=true;freezeArmed=false;freezeId=null;hintVisible=false;toast.textContent='';
  stopHold();clearHintHold();MotionControl?.pause?.();
- if(autoSolveTimer)clearTimeout(autoSolveTimer);autoSolveTimer=null;autoSolveToken++;autoSolveActive=false;
+ if(autoSolveTimer)clearTimeout(autoSolveTimer);autoSolveTimer=null;autoSolveToken++;autoSolveActive=false;hideAutoSolveBar();
  document.body.classList.add('victory-state');updateScore();
  victoryMoves.textContent=String(state.moves);
  const test=inMultiBallTest();
@@ -273,12 +273,25 @@ function solverFailureText(result){
  if(result?.status==='limit')return'A keresés elérte a számítási korlátot; ettől még lehet megoldás.';
  return'Nem sikerült megoldást számolni.';
 }
-function cancelAutoSolve(){autoSolveToken++;if(autoSolveTimer)clearTimeout(autoSolveTimer);autoSolveTimer=null;if(autoSolveActive){autoSolveActive=false;MotionControl?.resume?.()}}
+/* v0.15.61: auto-solve has its own status bar below the board, with a red ✕
+   that stops it; the level then continues from the current position. */
+const autoSolveBar=document.querySelector('#autoSolveBar'),autoSolveText=document.querySelector('#autoSolveText'),autoSolveStopBtn=document.querySelector('#autoSolveStop');
+let autoSolveBarTimer=null;
+function showAutoSolveBar(text,stoppable=true){clearTimeout(autoSolveBarTimer);autoSolveText.textContent=text;autoSolveStopBtn.hidden=!stoppable;autoSolveBar.hidden=false}
+function hideAutoSolveBar(){clearTimeout(autoSolveBarTimer);autoSolveBar.hidden=true}
+function cancelAutoSolve(){autoSolveToken++;if(autoSolveTimer)clearTimeout(autoSolveTimer);autoSolveTimer=null;hideAutoSolveBar();if(autoSolveActive){autoSolveActive=false;MotionControl?.resume?.()}}
+// The move already under way finishes its short animation; no further step follows.
+function stopAutoSolve(){
+ if(autoSolveBar.hidden)return;
+ cancelAutoSolve();cancelFreezeSelection();
+ showAutoSolveBar('Leállítva · innen folytathatod',false);autoSolveBarTimer=setTimeout(hideAutoSolveBar,1500);
+}
+autoSolveStopBtn.addEventListener('click',stopAutoSolve);
 function startAutoSolve(){
  if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
  if(!state||state.won||autoSolveActive)return;
  stopHold();cancelFreezeSelection();hintVisible=false;
- const token=++autoSolveToken;toast.textContent='Automatikus megoldás számítása…';
+ const token=++autoSolveToken;showAutoSolveBar('Megoldás számítása…');
  setTimeout(()=>{
   if(token!==autoSolveToken||!state)return;
   let result;
@@ -287,15 +300,15 @@ function startAutoSolve(){
    rememberSolverRoute(state,result.path);
   }else result=solveForPlay(state,'auto');
   if(token!==autoSolveToken)return;
-  if(result.status!=='solved'||!result.path?.length){toast.textContent=solverFailureText(result);return}
+  if(result.status!=='solved'||!result.path?.length){hideAutoSolveBar();toast.textContent=solverFailureText(result);return}
   const route=result.path;
   solverUsedThisRun=true;rewardedThisRun=true;autoSolveActive=true;MotionControl?.pause?.();render({preservePieces:true});
   let index=0;
   function next(){
    if(token!==autoSolveToken)return;
-   if(index>=route.length||state.won){autoSolveActive=false;if(!state.won)MotionControl?.resume?.();return}
+   if(index>=route.length||state.won){autoSolveActive=false;hideAutoSolveBar();if(!state.won)MotionControl?.resume?.();return}
    if(busy){autoSolveTimer=setTimeout(next,80);return}
-   toast.textContent=`Automatikus megoldás: ${index+1}/${route.length} · 0 pont`;
+   showAutoSolveBar(`Automatikus megoldás · ${index+1}/${route.length}`);
    move(route[index++],true);
    autoSolveTimer=setTimeout(next,680);
   }
@@ -342,29 +355,29 @@ function startFreezeAutoSolve(){
  if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
  if(!state||state.won||autoSolveActive)return;
  stopHold();cancelFreezeSelection();hintVisible=false;
- const token=++autoSolveToken;toast.textContent='Freeze-megoldás számítása…';
+ const token=++autoSolveToken;showAutoSolveBar('Freeze-megoldás számítása…');
  setTimeout(()=>{
   if(token!==autoSolveToken||!state)return;
   const result=solveWithFreezeForPlay(state,'auto');
   if(token!==autoSolveToken)return;
-  if(result.status!=='solved'||!result.actions?.length){toast.textContent=freezeSolverFailureText(result);return}
+  if(result.status!=='solved'||!result.actions?.length){hideAutoSolveBar();toast.textContent=freezeSolverFailureText(result);return}
   const actions=result.actions;
   solverUsedThisRun=true;rewardedThisRun=true;autoSolveActive=true;MotionControl?.pause?.();render({preservePieces:true});
   let index=0;
   function runAction(){
    if(token!==autoSolveToken)return;
-   if(index>=actions.length||state.won){autoSolveActive=false;cancelFreezeSelection();if(!state.won)MotionControl?.resume?.();return}
+   if(index>=actions.length||state.won){autoSolveActive=false;hideAutoSolveBar();cancelFreezeSelection();if(!state.won)MotionControl?.resume?.();return}
    if(busy){autoSolveTimer=setTimeout(runAction,80);return}
    const action=actions[index],stepNo=index+1;
    if(action.freezeId){
     freezeArmed=true;freezeId=action.freezeId;render({preservePieces:true});
-    toast.textContent=`❄ Freeze: ${action.freezeId} · ${stepNo}/${actions.length}`;
+    showAutoSolveBar(`❄ Freeze: ${action.freezeId} · ${stepNo}/${actions.length}`);
     autoSolveTimer=setTimeout(()=>{
      if(token!==autoSolveToken)return;
      move(action.dir,true);index++;autoSolveTimer=setTimeout(runAction,680);
     },520);
    }else{
-    toast.textContent=`Freeze-megoldás: ${stepNo}/${actions.length}${result.freezeUses?' · 1 Freeze':' · Freeze nélkül'}`;
+    showAutoSolveBar(`Freeze-megoldás · ${stepNo}/${actions.length}${result.freezeUses?' · 1 Freeze':''}`);
     move(action.dir,true);index++;autoSolveTimer=setTimeout(runAction,680);
    }
   }
