@@ -1,14 +1,15 @@
-/* GGrid v0.15.64 – adaptive difficulty for free play (self-contained, easy to remove).
+/* GGrid v0.15.64 (events: v0.15.67) – adaptive difficulty for free play (self-contained, easy to remove).
    A player level ("szint", a continuous D value) per ball count follows the
    results: every finished level scores 0..1 (optimum/moves, −0.15 per step hint,
    0 after auto-solve; a level left after ≥5 moves counts as 0). The level moves
    Elo-style against the expected result for that D: up by at most ~0.4, down
    gently (~0.2 for a failure at the player's own level). LevelPool then draws
    the selected D classes weighted around "level + 0.5".
-   It observes main.js by wrapping global functions (like pad-layout.js does
-   with render), so the game code stays untouched. To remove it: delete this
-   file, css/adaptive-difficulty.css, their tags in index.html and the weigher
-   line in level-pool.js pick(). */
+   Restart starts a fresh attempt on the same level (moves, hints and the
+   "real attempt" flag reset); a level already counted is not counted twice.
+   It listens to main.js GameEvents (v0.15.67; it used to wrap main.js functions).
+   To remove it: delete this file, css/adaptive-difficulty.css, their tags in
+   index.html and the weigher line in level-pool.js pick(). */
 const AdaptiveDifficulty=(()=>{
  const KEY='ggrid.adaptive.v1',STRETCH=.5,SPREAD=.9,FLOOR=.03,UP=1.6,DOWN=.28,MAX_STEP=.5,HINT_COST=.15,ABANDON_MOVES=5;
  let data={enabled:true,ratings:{}};
@@ -46,20 +47,20 @@ const AdaptiveDifficulty=(()=>{
  }
  // A level left without winning counts as a failure only after a real attempt.
  function finishOpen(){if(cur&&!cur.done&&!state?.won&&(cur.attempted||solverUsedThisRun))record(0)}
- function wrap(name,fn){const base=globalThis[name];if(typeof base!=='function')return;globalThis[name]=function(...a){return fn(base,this,a)}}
- for(const name of ['applyLibraryLevel','applyMultiBallLevel'])wrap(name,(base,self,a)=>{if(!ScenarioMode?.active)finishOpen();const r=base.apply(self,a);if(!ScenarioMode?.active)begin(a[0]);return r});
- wrap('move',(base,self,a)=>{const r=base.apply(self,a);if(cur&&state&&state.moves>=ABANDON_MOVES)cur.attempted=true;return r});
- wrap('spendScore',(base,self,a)=>{const ok=base.apply(self,a);if(ok&&a[0]===1&&cur)cur.hints++;return ok});
- wrap('enterVictory',(base,self,a)=>{
-  const wasShown=!document.querySelector('#victoryOverlay')?.hidden||victoryPending,r=base.apply(self,a);
-  if(wasShown||!cur||cur.done||ScenarioMode?.active)return r;
-  const automatic=!!a[0],p=automatic||solverUsedThisRun?0:clamp(Math.max(1,optimal.length)/Math.max(1,state.moves,optimal.length)-HINT_COST*cur.hints,0,1);
-  const ch=record(p),box=document.querySelector('#victoryScore');
+ function freshAttempt(){if(cur){cur.hints=0;cur.attempted=false}}
+ const free=()=>!ScenarioMode?.active;
+ GameEvents.on('level:leave',()=>{if(free())finishOpen()});
+ GameEvents.on('level:start',({game})=>{if(free())begin(game);else cur=null});
+ GameEvents.on('level:restart',freshAttempt);
+ GameEvents.on('move',()=>{if(cur&&state&&state.moves>=ABANDON_MOVES)cur.attempted=true});
+ GameEvents.on('hint',()=>{if(cur)cur.hints++});
+ GameEvents.on('victory',({automatic,box})=>{
+  if(!cur||cur.done||!free())return;
+  const p=automatic||solverUsedThisRun?0:clamp(Math.max(1,optimal.length)/Math.max(1,state.moves,optimal.length)-HINT_COST*cur.hints,0,1);
+  const ch=record(p);
   if(ch&&box){const n=document.createElement('div');n.className='adaptive-note';const f=x=>x.toFixed(1).replace('.',',');
    n.textContent=`${ch.balls===2?'Kétgolyós szinted':'Szinted'}: D${f(ch.before)} → D${f(ch.after)} ${ch.after>ch.before+.005?'↑':ch.after<ch.before-.005?'↓':'→'}`;box.append(n)}
-  return r;
  });
-
  // ---- setup screen: switch, current levels, reset ----
  const summary=document.querySelector('#freeRangeSummary'),row=document.createElement('div');row.className='adaptive-row';
  row.innerHTML='<label class="adaptive-switch"><input type="checkbox" id="adaptiveToggle"> Alkalmazkodó nehézség</label><span id="adaptiveLevel"></span><button type="button" id="adaptiveReset">Nullázás</button>';

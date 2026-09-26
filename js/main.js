@@ -15,6 +15,15 @@ const APP_VARIANT_FEATURES=Object.freeze({
  paid:Object.freeze({autoSolve:true})
 });
 const AUTO_SOLVE_HOLD_MS=2000;
+/* v0.15.67: game events for add-on modules (adaptive difficulty, …). Modules subscribe
+   here instead of replacing main.js functions, so no event can be missed.
+   level:leave – a new level is requested (the old one may still be on screen)
+   level:start {game} · level:restart · move {dir,automatic}
+   hint {kind:'step'|'freeze'} · victory {automatic,box} */
+const GameEvents=(()=>{const subs=new Map();return{
+ on(type,fn){(subs.get(type)??subs.set(type,[]).get(type)).push(fn)},
+ emit(type,detail={}){for(const fn of subs.get(type)||[]){try{fn(detail)}catch(e){console.error('GameEvents',type,e)}}}
+}})();
 function appFeatureEnabled(name){return APP_VARIANT_FEATURES[APP_VARIANT]?.[name]===true}
 
 
@@ -93,6 +102,7 @@ function enterVictory(automatic=false,rewardInfo=null){
  if(solverUsedThisRun||automatic)victoryScore.textContent='Automatikus megoldás · 0 pont';
  else if(isScoredFreePlay()&&rewardInfo)victoryScore.textContent=rewardInfo.earned?`+${rewardInfo.earned} pont · Egyenleg: ${rewardInfo.balance}`:`Korábbi legjobb eredmény: ${rewardInfo.previous} pont`;
  else victoryScore.textContent='Pálya teljesítve';
+ GameEvents.emit('victory',{automatic,box:victoryScore});
  victoryChoose.hidden=!!ScenarioMode?.active;
  victoryNext.hidden=false;
  victoryNext.textContent=(ScenarioMode?.active&&!ScenarioMode?.hasNext)?'Befejezés':'Következő →';
@@ -184,7 +194,7 @@ function applyMultiBallLevel(g){
  freezeLimitEl.value='inf';freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;
  rewardedThisRun=false;solverUsedThisRun=false;toast.textContent='';
  if(optimal.length)rememberSolverRoute(state,optimal);
- updateLevelScore();render();MotionControl?.onNewLevel?.();
+ updateLevelScore();render();MotionControl?.onNewLevel?.();GameEvents.emit('level:start',{game:g});
 }
 function leaveMultiBallTest(){
  document.body.classList.remove('multiball-test-mode');
@@ -206,7 +216,7 @@ function applyLibraryLevel(g){
  resetWinState();state=g.state;validateLevel(state);initial=cloneState(state);optimal=g.solution||[];currentLevelId=g.code;currentLevelRecord=g.level||null;updateLevelScore();
  freezeLimitEl.value='inf';
  freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;toast.textContent='';
- render();MotionControl?.onNewLevel?.();
+ render();MotionControl?.onNewLevel?.();GameEvents.emit('level:start',{game:g});
 }
 /* v0.15.58: unified free play. LevelPool draws a random level from every
    library inside the chosen size set and D range; the level decides the mode:
@@ -222,7 +232,7 @@ function requestPoolLevel(){
   console.error('Level pool',e);toast.textContent='Nincs pálya a kiválasztott méretekhez és nehézséghez.';return false;
  }
 }
-function newLevel(){return typeof ThemeRotation!=='undefined'?ThemeRotation.newLevel(requestPoolLevel):requestPoolLevel()}
+function newLevel(){GameEvents.emit('level:leave');return typeof ThemeRotation!=='undefined'?ThemeRotation.newLevel(requestPoolLevel):requestPoolLevel()}
 function playEvents(events){
  const moves=events.filter(e=>e.type==='move').length,blocked=events.some(e=>e.type==='blocked'),exited=events.some(e=>e.type==='exit'),won=events.some(e=>e.type==='win');
  if(blocked){AudioManager.blocked();SceneRenderer?.event?.('blocked')}else if(moves){AudioManager.move(moves);SceneRenderer?.event?.('move')}
@@ -237,7 +247,7 @@ function move(dir,automatic=false){
  SceneRenderer?.setDirection?.(dir);if(hintVisible){hintVisible=false;toast.textContent='';}
  setBusy(true);const r=step(state,dir,usedFreeze?freezeId:null);
  if(usedFreeze){stopHold();if(!automatic&&isScoredFreePlay())spendScore(10);freezeUsed++;}
- state=r.state;lastEvents=r.events;freezeArmed=false;freezeId=null;
+ state=r.state;lastEvents=r.events;freezeArmed=false;freezeId=null;GameEvents.emit('move',{dir,automatic});
  if(wasArmed&&!state.won)MotionControl.resume();
  render({preservePieces:true});playEvents(r.events);
  if(state.won){
@@ -338,6 +348,7 @@ function freezeHint(){
   if(stateKey(state)!==snapshotKey)return;
   if(result.status!=='solved'||!result.actions?.length){toast.textContent=freezeSolverFailureText(result);return}
   if(isScoredFreePlay()&&!spendScore(1))return;
+  GameEvents.emit('hint',{kind:'freeze'});
   const arrows={up:'↑',down:'↓',left:'←',right:'→'},first=result.actions[0];
   if(result.freezeUses===0){
    toast.textContent=`Freeze nem szükséges. Következő optimális irány: ${arrows[first.dir]} · ${result.actions.length} lépés`;
@@ -396,6 +407,7 @@ function hint(){
   if(!hintVisible)return;
   if(result.status!=='solved'||!result.path?.length){toast.textContent=solverFailureText(result);updateScore();return}
   if(isScoredFreePlay()&&!spendScore(1)){hintVisible=false;return}
+  GameEvents.emit('hint',{kind:'step'});
   const arrows={up:'↑',down:'↓',left:'←',right:'→'};
   const cacheNote=result.cached?'':'';
   toast.textContent=`Innen minimum ${result.path.length} lépés. Következő optimális irány: ${arrows[result.path[0]]}${cacheNote}`;
@@ -765,7 +777,7 @@ const CalibrationLab=(()=>{
 })();
 
 freezeBtn.addEventListener('click',()=>{if(state?.won||autoSolveActive||freezeBtn.disabled)return;if(freezeArmed){cancelFreezeSelection();return}freezeArmed=true;freezeId=null;stopHold();MotionControl.pause();render({preservePieces:true});});
-document.querySelector('#restart').addEventListener('click',()=>{if(busy)return;cancelAutoSolve();clearSolverCache();resetWinState();state=cloneState(initial);freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;toast.textContent='';render();MotionControl.onNewLevel();MotionControl.resume();});
+document.querySelector('#restart').addEventListener('click',()=>{if(busy)return;cancelAutoSolve();clearSolverCache();resetWinState();state=cloneState(initial);freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;toast.textContent='';render();MotionControl.onNewLevel();MotionControl.resume();GameEvents.emit('level:restart');});
 document.querySelector('#new').addEventListener('click',()=>{hideVictory();newLevel();MotionControl.resume();});
 victoryRestart.addEventListener('click',()=>document.querySelector('#restart').click());
 victoryChoose.addEventListener('click',()=>{hideVictory();AppUI?.openFreeSetup?.()});
