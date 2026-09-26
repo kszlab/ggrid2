@@ -632,3 +632,6 @@ body.layout-pad .pad-dir.hint-target span{background:#1b1410}
 .layout-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:180px;flex:0 0 auto}
 .layout-picker button{min-height:34px;padding:0 8px;border:1px solid #ffffff33;border-radius:9px;background:#ffffff0c;color:inherit;font-weight:800;font-size:.78rem;cursor:pointer}
 .layout-picker button.active,#settingsPanel .layout-picker button.active{background:#e8f5ff!important;color:#10273a!important;border-color:#e8f5ff!important}
+/* v0.15.74 language picker in the settings */
+.settings-select{flex:0 0 auto;min-height:34px;min-width:120px;padding:0 10px;border:1px solid #ffffff33;border-radius:9px;background:#10253b;color:#e8f5ff;font:800 .82rem system-ui,sans-serif;cursor:pointer}
+.settings-select:focus-visible{outline:3px solid #ffd58a;outline-offset:2px}

@@ -61,18 +61,19 @@ const AdaptiveDifficulty=(()=>{
   if(cur.bombed){cur.done=true;return}
   const p=automatic||solverUsedThisRun?0:clamp(Math.max(1,optimal.length)/Math.max(1,state.moves,optimal.length)-HINT_COST*cur.hints,0,1);
   const ch=record(p);
-  if(ch&&box){const n=document.createElement('div');n.className='adaptive-note';const f=x=>x.toFixed(1).replace('.',',');
-   n.textContent=`${ch.balls===2?'Kétgolyós szinted':'Szinted'}: D${f(ch.before)} → D${f(ch.after)} ${ch.after>ch.before+.005?'↑':ch.after<ch.before-.005?'↓':'→'}`;box.append(n)}
+  if(ch&&box){const n=document.createElement('div');n.className='adaptive-note';const f=x=>I18n.num(x,1);
+   n.textContent=I18n.t('adaptive.change',{who:I18n.t(ch.balls===2?'adaptive.youTwoBall':'adaptive.you'),before:f(ch.before),after:f(ch.after),arrow:ch.after>ch.before+.005?'↑':ch.after<ch.before-.005?'↓':'→'});box.append(n)}
  });
  // ---- setup screen: switch, current levels, reset ----
  const summary=document.querySelector('#freeRangeSummary'),row=document.createElement('div');row.className='adaptive-row';
- row.innerHTML='<label class="adaptive-switch"><input type="checkbox" id="adaptiveToggle"> Alkalmazkodó nehézség</label><span id="adaptiveLevel"></span><button type="button" id="adaptiveReset">Nullázás</button>';
+ row.innerHTML='<label class="adaptive-switch"><input type="checkbox" id="adaptiveToggle"> <span></span></label><span id="adaptiveLevel"></span><button type="button" id="adaptiveReset"></button>';
+ row.querySelector('.adaptive-switch span').textContent=I18n.t('setup.adaptive');row.querySelector('#adaptiveReset').textContent=I18n.t('setup.adaptiveReset');
  summary?.after(row);
  const toggle=row.querySelector('#adaptiveToggle'),levelText=row.querySelector('#adaptiveLevel'),reset=row.querySelector('#adaptiveReset');
  function paint(){
-  toggle.checked=data.enabled;const f=x=>x.toFixed(1).replace('.',',');
+  toggle.checked=data.enabled;const f=x=>I18n.num(x,1);
   const one=data.ratings[1]!=null?`D${f(+data.ratings[1])}`:'',two=data.ratings[2]!=null?`●● D${f(+data.ratings[2])}`:'';
-  levelText.textContent=!data.enabled?'':(LevelPool?.range?.diffs?.length||0)<2?'több nehézség kijelölésével működik':(one||two)?`Szinted: ${[one,two].filter(Boolean).join(' · ')}`:`Kezdés: D${minSelected()}`;
+  levelText.textContent=!data.enabled?'':(LevelPool?.range?.diffs?.length||0)<2?I18n.t('setup.adaptiveNeedsMore'):(one||two)?I18n.t('setup.adaptiveLevel',{levels:[one,two].filter(Boolean).join(' · ')}):I18n.t('setup.adaptiveStart',{d:minSelected()});
   reset.hidden=!data.enabled||(data.ratings[1]==null&&data.ratings[2]==null);
  }
  toggle.addEventListener('change',()=>{data.enabled=toggle.checked;save();paint()});

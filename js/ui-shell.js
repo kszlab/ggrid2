@@ -24,8 +24,8 @@ const AppUI=(()=>{
   cancelFreezeSelection();
   menu.hidden=false;MotionControl?.pause?.();
   const active=!!ScenarioMode?.active,test=!!globalThis.inMultiBallTest?.();
-  document.querySelector('#menuTitle').textContent=active?'Játék':'Szabad játék';
-  document.querySelector('#menuStage').textContent=active?(document.querySelector('#scenarioInfo').textContent||'Forgatókönyv'):test?`Kétgolyós pálya · D${difficultyEl.value}`:'Aktuális pálya';
+  document.querySelector('#menuTitle').textContent=I18n.t(active?'game.game':'game.freePlay');
+  document.querySelector('#menuStage').textContent=active?(document.querySelector('#scenarioInfo').textContent||I18n.t('game.scenario')):test?I18n.t('menu.twoBall',{d:difficultyEl.value}):I18n.t('menu.current');
   document.querySelector('#menuNew').hidden=active;
  }
  function closeMenu(){menu.hidden=true;MotionControl?.resume?.()}
@@ -59,7 +59,8 @@ const AppUI=(()=>{
  }
  function paintTheme(){
   const a=themes();if(!a.length)return;themeIndex=(themeIndex+a.length)%a.length;const t=a[themeIndex];
-  themeEl.value=t.id;preview.dataset.theme=t.id;previewName.textContent=t.preview?.shortName||t.name;previewTag.textContent=t.preview?.tag||(t.showcase?'SHOWCASE WORLD':'GGRID WORLD');if(previewDesc)previewDesc.textContent=t.preview?.description||t.description||'';const art=preview.querySelector('.theme-preview-art');art.style.backgroundImage=t.preview?.image?`url("${t.preview.image}")`:'';art.classList.toggle('has-theme-image',!!t.preview?.image);art.innerHTML=previewBoard(t.id);
+  themeEl.value=t.id;preview.dataset.theme=t.id;// v0.15.74: theme texts come from the locale file (theme.<id>.*), the index is the fallback.
+  previewName.textContent=I18n.t(`theme.${t.id}.shortName`,{},t.preview?.shortName||t.name);previewTag.textContent=I18n.t(`theme.${t.id}.tag`,{},t.preview?.tag||(t.showcase?'SHOWCASE WORLD':'GGRID WORLD'));if(previewDesc)previewDesc.textContent=I18n.t(`theme.${t.id}.description`,{},t.preview?.description||t.description||'');const art=preview.querySelector('.theme-preview-art');art.style.backgroundImage=t.preview?.image?`url("${t.preview.image}")`:'';art.classList.toggle('has-theme-image',!!t.preview?.image);art.innerHTML=previewBoard(t.id);
   dots.innerHTML='';a.forEach((_,i)=>{const d=document.createElement('i');if(i===themeIndex)d.className='active';dots.append(d)});
  }
  function selectTheme(delta){themeIndex+=delta;paintTheme()}
@@ -73,7 +74,7 @@ const AppUI=(()=>{
   sizeBox.querySelectorAll('button[data-value]').forEach(b=>{const on=r.sizes.includes(b.dataset.value),ok=LevelPool.hasSize(b.dataset.value);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=!ok;b.classList.toggle('unavailable',!ok)});
   diffBox.querySelectorAll('button[data-value]').forEach(b=>{const on=r.diffs.includes(+b.dataset.value);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
   const c=LevelPool.candidates(),two=c.filter(x=>x.balls===2).length;
-  if(rangeSummary)rangeSummary.textContent=!c.length?'Nincs pálya a kiválasztott méretekhez és nehézségekhez':`${c.length} pálya · ${diffLabel(r.diffs)}${two?` · ebből ${two} kétgolyós`:''}`;
+  if(rangeSummary)rangeSummary.textContent=!c.length?I18n.t('setup.none'):[I18n.t('setup.count',{n:c.length}),diffLabel(r.diffs),...(two?[I18n.t('setup.twoBall',{n:two})]:[])].join(' · ');
   document.querySelector('#freeSetupPlay').disabled=!c.length;
  }
  function toggleIn(list,v){return list.includes(v)?list.filter(x=>x!==v):[...list,v]}

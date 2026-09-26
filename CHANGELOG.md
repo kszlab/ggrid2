@@ -15,6 +15,17 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.74 — 2026-09-26
+
+### Többnyelvű játék: magyar és angol
+- Beállítások → Nyelv: Automatikus (a rendszer nyelve) / Magyar / English. Automatikus módban a rendszer nyelve dönt; nem támogatott rendszernyelvnél angol. Nyelvváltáskor az oldal újratölt.
+- Minden játékos által látott szöveg nyelvi fájlból jön: főmenü, pályaválasztó és témaválasztó (a témák neve és leírása is), felső sáv, gombok és akadálymentes feliratok, győzelmi ablak, pályaüzenetek, súgó-javaslat (iránycímke: UP/DOWN/LEFT/RIGHT), automatikus megoldás sávja, beállítások, menü és a teljes súgó. A számok a nyelv szerint formázódnak (pl. 1 234 / 1,234; D4,5 / D4.5), az angol többes szám helyes (1 level / 3 levels).
+- Nyelvenként egy fájl: `locales/hu.json` (forrás, minden kulcsnál fordítói megjegyzés és hosszkorlát), `locales/en.json`, a nyelvek listája: `locales/index.json`. Útmutató fordítónak (embernek vagy AI-nak): `locales/TRANSLATING.md`.
+- Új `js/i18n.js`: a nyelvi fájlok a játék moduljai előtt töltődnek be (az `index.html` a modulokat a nyelvkezelőn keresztül, változatlan sorrendben indítja), a statikus oldal `data-i18n` jelölésekkel fordul, a súgó csak engedélyezett formázással (`<h3> <p> <strong> <em> <br>`). Hiányzó fordításnál a magyar szöveg jelenik meg, konzolfigyelmeztetéssel.
+- Új `tools/check-locales.mjs`: kulcskészlet, helyőrzők, HTML, hosszkorlátok és a kódban használt kulcsok ellenőrzése.
+- Szándékosan magyarul maradnak a fejlesztői és kutatási eszközök: forgatókönyv-szerkesztő, Theme Lab, Theme Studio, mozdulatmérés.
+- A regressziós tesztoldal magyar nyelvre rögzítve fut, és új angol teszt ellenőrzi, hogy a játékos által látott felületen nem marad magyar szöveg (összesen 26 eset).
+
 ## v0.15.73 — 2026-09-26
 
 ### Javítás: egymást átfedő témabetöltések (reprodukált hiba)

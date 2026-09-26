@@ -278,7 +278,21 @@ const tests=[
    await p1;await p2;await sleep(1500);
    assert(!E('document.body.classList.contains("level-switching")')&&E('!!state'),'rendezetlen végállapot');
    const s=themeState();assert(s.picker===s.body&&s.scene===s.body&&s.css.length===1&&s.css[0]===s.body,`nincs összhang: ${JSON.stringify(s)}`);
-   return `látható = pálya témája = ${s.body}`}finally{restoreFetch()}}]
+   return `látható = pálya témája = ${s.body}`}finally{restoreFetch()}}],
+ ['Nyelv: angolra váltva a felület, a számok és a többes szám angol; a kulcsok teljesek',async()=>{
+  W.localStorage.setItem('ggrid.lang','en');await load();
+  try{
+   assert(E('I18n.lang')==='en'&&W.document.documentElement.lang==='en','nem angol a nyelv');
+   const home=E('document.getElementById("homeFreePlay").textContent');assert(/Free play/.test(home),'főmenü: '+home);
+   E('document.getElementById("homeFreePlay").click()');await sleep(1200);
+   E('LevelPool.setRange({sizes:["5x8"],diffs:[2,5]},false)');E('document.querySelector("#quickDifficulty button[data-value=\\"2\\"]").click()');E('document.querySelector("#quickDifficulty button[data-value=\\"2\\"]").click()');
+   const sum=E('document.getElementById("freeRangeSummary").textContent');assert(/levels? ·/.test(sum)&&!/pálya/.test(sum),'összesítő: '+sum);
+   assert(E('I18n.t("setup.count",{n:1})')==='1 level'&&E('I18n.t("setup.count",{n:3})')==='3 levels','többes szám');
+   assert(E('I18n.num(1234.5,1)')==='1,234.5','számformátum: '+E('I18n.num(1234.5,1)'));
+   const huLeft=E('[...document.querySelectorAll("body *:not(script):not(style)")].filter(e=>!e.closest("#calibration,#scenarioPanel,.topbar,.legacy-tools,.skin-scene-title,#freeSettings")&&[...e.childNodes].some(n=>n.nodeType===3&&/[áéíóőúűÁÉÍÓŐÚŰ]/.test(n.textContent))).map(e=>e.textContent.trim().slice(0,30))');
+   assert(huLeft.length===0,'magyar szöveg maradt: '+huLeft.join(' | '));
+   return `„${home}”, „${sum}”`;
+  }finally{W.localStorage.setItem('ggrid.lang','hu')}}]
 ];
 
 async function run(){
@@ -288,6 +302,8 @@ async function run(){
  try{
   for(const k of Object.keys(backup))localStorage.removeItem(k);
   localStorage.setItem('ggrid.freeplay.themes.v1',JSON.stringify(['classic']));
+  // The checks read Hungarian texts: pin the game language (the saved settings are restored afterwards).
+  localStorage.setItem('ggrid.lang','hu');
   await load();await startFreePlay(['4','5x8'],[3,4]);
   for(const [name,fn] of tests){try{const d=await fn();row(name,'pass',d||'');pass++}catch(e){row(name,'fail',e.message);fail++;console.error(name,e)}}
  }catch(e){row('Előkészítés','fail',e.message);fail++}

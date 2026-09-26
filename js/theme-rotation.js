@@ -29,15 +29,16 @@ const ThemeRotation=(()=>{
  // ---- carousel UI ----
  const toggle=document.createElement('button');toggle.type='button';toggle.id='themePick';toggle.className='theme-pick';
  const row=document.createElement('div');row.className='theme-pick-row';
- row.innerHTML='<span id="themePickCount" aria-live="polite"></span><button type="button" id="themePickAll">Mind</button><button type="button" id="themePickOnly">Csak ez</button>';
+ row.innerHTML='<span id="themePickCount" aria-live="polite"></span><button type="button" id="themePickAll"></button><button type="button" id="themePickOnly"></button>';
+ row.querySelector('#themePickAll').textContent=I18n.t('setup.all');row.querySelector('#themePickOnly').textContent=I18n.t('setup.onlyThis');
  if(enabled&&cinema&&dots){cinema.append(toggle);dots.after(row)}
  const current=()=>themeEl?.value||'classic';
  function paint(){
   if(!enabled)return;const a=valid(),on=a.includes(current());
-  toggle.textContent=on?'✓ Kijelölve':'+ Hozzáadás';toggle.classList.toggle('on',on);toggle.setAttribute('aria-pressed',String(on));
-  toggle.setAttribute('aria-label',(on?'Téma kijelölve a véletlen válogatáshoz, koppints a kivételhez':'Téma hozzáadása a véletlen válogatáshoz'));
+  toggle.textContent=I18n.t(on?'setup.picked':'setup.add');toggle.classList.toggle('on',on);toggle.setAttribute('aria-pressed',String(on));
+  toggle.setAttribute('aria-label',I18n.t(on?'setup.pickedAria':'setup.addAria'));
   const list=themes();[...dots.children].forEach((d,i)=>d.classList.toggle('picked',!!list[i]&&a.includes(list[i].id)));
-  row.querySelector('#themePickCount').textContent=a.length===list.length&&list.length?`Mind a ${a.length} téma kijelölve`:`${a.length} téma kijelölve`;
+  row.querySelector('#themePickCount').textContent=a.length===list.length&&list.length?I18n.t('setup.allThemes',{n:a.length}):I18n.t('setup.themesPicked',{n:a.length});
  }
  toggle.addEventListener('click',()=>{const a=valid(),id=current();if(a.includes(id)){if(a.length===1)return;selected=a.filter(x=>x!==id)}else selected=[...a,id];save();paint()});
  row.querySelector('#themePickAll').addEventListener('click',()=>{selected=themes().map(t=>t.id);save();paint()});

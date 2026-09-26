@@ -1,0 +1,16 @@
+{
+ "source": "hu",
+ "fallback": "en",
+ "languages": [
+  {
+   "code": "hu",
+   "name": "Magyar",
+   "intl": "hu-HU"
+  },
+  {
+   "code": "en",
+   "name": "English",
+   "intl": "en-US"
+  }
+ ]
+}

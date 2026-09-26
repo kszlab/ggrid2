@@ -1,0 +1,1180 @@
+{
+ "@@locale": "hu",
+ "app.loading": "A játék töltődik…",
+ "@app.loading": {
+  "context": "Startup screen while the game loads"
+ },
+ "home.freePlay": "▶ Szabad játék",
+ "@home.freePlay": {
+  "context": "Main menu button",
+  "maxLength": 22
+ },
+ "home.settings": "⚙ Beállítások",
+ "@home.settings": {
+  "context": "Main menu button",
+  "maxLength": 22
+ },
+ "home.help": "❔ Súgó",
+ "@home.help": {
+  "context": "Main menu button",
+  "maxLength": 22
+ },
+ "top.movesTitle": "Megtett lépések / optimális lépésszám",
+ "@top.movesTitle": {
+  "context": "Tooltip of the moves box"
+ },
+ "top.moves": "Lépések",
+ "@top.moves": {
+  "context": "Small label above the move counter",
+  "maxLength": 10
+ },
+ "top.levelTitle": "Nehézség és pályaméret",
+ "@top.levelTitle": {
+  "context": "Tooltip of the level box"
+ },
+ "top.level": "Pálya",
+ "@top.level": {
+  "context": "Small label above difficulty and size",
+  "maxLength": 10
+ },
+ "top.levelTwoBall": "Pálya · ●●",
+ "@top.levelTwoBall": {
+  "context": "Level label on a two-ball level (●● = two balls)",
+  "maxLength": 12
+ },
+ "top.score": "Pont",
+ "@top.score": {
+  "context": "Small label above the score",
+  "maxLength": 10
+ },
+ "top.menu": "Menü",
+ "@top.menu": {
+  "context": "Menu button label",
+  "maxLength": 8
+ },
+ "game.freePlay": "Szabad játék",
+ "@game.freePlay": {
+  "context": "Game mode name"
+ },
+ "game.twoBall": "Kétgolyós játék",
+ "@game.twoBall": {
+  "context": "Game mode label on two-ball levels"
+ },
+ "game.scenario": "Forgatókönyv",
+ "@game.scenario": {
+  "context": "Game mode name"
+ },
+ "game.game": "Játék",
+ "@game.game": {
+  "context": "Menu title in scenario mode"
+ },
+ "game.board": "Játéktábla",
+ "@game.board": {
+  "context": "Accessible name of the board"
+ },
+ "game.menu": "Menü",
+ "@game.menu": {
+  "context": "Accessible name of the menu button"
+ },
+ "edge.up": "Folyamatosan fel",
+ "@edge.up": {
+  "context": "Accessible name of an edge arrow (classic layout)"
+ },
+ "edge.left": "Folyamatosan balra",
+ "@edge.left": {
+  "context": "Accessible name of an edge arrow"
+ },
+ "edge.right": "Folyamatosan jobbra",
+ "@edge.right": {
+  "context": "Accessible name of an edge arrow"
+ },
+ "edge.down": "Folyamatosan le",
+ "@edge.down": {
+  "context": "Accessible name of an edge arrow"
+ },
+ "pad.group": "Irányítás",
+ "@pad.group": {
+  "context": "Accessible name of the D-pad"
+ },
+ "pad.up": "Fel",
+ "@pad.up": {
+  "context": "Accessible name of the up arrow"
+ },
+ "pad.left": "Balra",
+ "@pad.left": {
+  "context": "Accessible name of the left arrow"
+ },
+ "pad.right": "Jobbra",
+ "@pad.right": {
+  "context": "Accessible name of the right arrow"
+ },
+ "pad.down": "Le",
+ "@pad.down": {
+  "context": "Accessible name of the down arrow"
+ },
+ "pad.hint": "Segítség",
+ "@pad.hint": {
+  "context": "Button label (usually hidden, icon only)",
+  "maxLength": 12
+ },
+ "pad.hintShort": "Súgó",
+ "@pad.hintShort": {
+  "context": "Short button label",
+  "maxLength": 8
+ },
+ "pad.restart": "Újraindítás",
+ "@pad.restart": {
+  "context": "Button label",
+  "maxLength": 12
+ },
+ "pad.restartShort": "Újra",
+ "@pad.restartShort": {
+  "context": "Short button label",
+  "maxLength": 8
+ },
+ "pad.next": "Új pálya",
+ "@pad.next": {
+  "context": "Button label",
+  "maxLength": 12
+ },
+ "pad.choose": "Pályaválasztó",
+ "@pad.choose": {
+  "context": "Button label",
+  "maxLength": 14
+ },
+ "pad.chooseShort": "Pályák",
+ "@pad.chooseShort": {
+  "context": "Short button label",
+  "maxLength": 8
+ },
+ "piece.ball": "Golyó",
+ "@piece.ball": {
+  "context": "Accessible name of a ball"
+ },
+ "piece.wall": "Fix blokk",
+ "@piece.wall": {
+  "context": "Accessible name of a wall"
+ },
+ "piece.brick": "Tégla",
+ "@piece.brick": {
+  "context": "Accessible name of a movable block"
+ },
+ "piece.gluedBrick": "Ragasztott tégla",
+ "@piece.gluedBrick": {
+  "context": "Accessible name of a multi-cell block"
+ },
+ "exit.label": "KIJÁRAT",
+ "@exit.label": {
+  "context": "Label on the exit (short, upper case)",
+  "maxLength": 8
+ },
+ "exit.aria": "Kijárat {side}",
+ "@exit.aria": {
+  "context": "Accessible name of the exit; {side} is one of exit.side.*"
+ },
+ "exit.side.up": "felül",
+ "@exit.side.up": {
+  "context": "Exit position"
+ },
+ "exit.side.down": "alul",
+ "@exit.side.down": {
+  "context": "Exit position"
+ },
+ "exit.side.left": "balra",
+ "@exit.side.left": {
+  "context": "Exit position"
+ },
+ "exit.side.right": "jobbra",
+ "@exit.side.right": {
+  "context": "Exit position"
+ },
+ "dir.up": "FEL",
+ "@dir.up": {
+  "context": "Direction word in the hint label (upper case, short)",
+  "maxLength": 7
+ },
+ "dir.down": "LE",
+ "@dir.down": {
+  "context": "Direction word in the hint label",
+  "maxLength": 7
+ },
+ "dir.left": "BALRA",
+ "@dir.left": {
+  "context": "Direction word in the hint label",
+  "maxLength": 7
+ },
+ "dir.right": "JOBBRA",
+ "@dir.right": {
+  "context": "Direction word in the hint label",
+  "maxLength": 7
+ },
+ "btn.hint": "Súgó",
+ "@btn.hint": {
+  "context": "Accessible name of the hint button"
+ },
+ "btn.restartLevel": "Pálya újrakezdése",
+ "@btn.restartLevel": {
+  "context": "Button tooltip"
+ },
+ "btn.nextLevel": "Következő pálya",
+ "@btn.nextLevel": {
+  "context": "Accessible name"
+ },
+ "btn.nextLevelTitle": "Új pálya ugyanilyen mérettel, nehézséggel és témával",
+ "@btn.nextLevelTitle": {
+  "context": "Tooltip"
+ },
+ "btn.chooseLevel": "Új pálya választása",
+ "@btn.chooseLevel": {
+  "context": "Button tooltip"
+ },
+ "btn.score": "Pontszám",
+ "@btn.score": {
+  "context": "Accessible name of the score box"
+ },
+ "btn.close": "Bezárás",
+ "@btn.close": {
+  "context": "Accessible name of a close button"
+ },
+ "autoSolve.stop": "Automatikus megoldás leállítása",
+ "@autoSolve.stop": {
+  "context": "Tooltip of the red ✕"
+ },
+ "victory.title": "SIKER",
+ "@victory.title": {
+  "context": "Victory title (upper case, short)",
+  "maxLength": 10
+ },
+ "victory.moves": "lépésből",
+ "@victory.moves": {
+  "context": "After the number of moves on the victory card: \"12 moves\"",
+  "maxLength": 12
+ },
+ "victory.again": "↶ Újra",
+ "@victory.again": {
+  "context": "Victory button",
+  "maxLength": 10
+ },
+ "victory.levels": "▦ Pályák",
+ "@victory.levels": {
+  "context": "Victory button",
+  "maxLength": 10
+ },
+ "victory.next": "Következő →",
+ "@victory.next": {
+  "context": "Victory button",
+  "maxLength": 12
+ },
+ "victory.finish": "Befejezés",
+ "@victory.finish": {
+  "context": "Victory button on the last scenario stage",
+  "maxLength": 12
+ },
+ "victory.auto": "Automatikus megoldás · 0 pont",
+ "@victory.auto": {
+  "context": "Victory card line"
+ },
+ "victory.bombed": "Bombával megoldva · +{earned} pont · Egyenleg: {balance}",
+ "@victory.bombed": {
+  "context": "Victory card line"
+ },
+ "victory.earned": "+{earned} pont · Egyenleg: {balance}",
+ "@victory.earned": {
+  "context": "Victory card line"
+ },
+ "victory.previousBest": "Korábbi legjobb eredmény: {previous} pont",
+ "@victory.previousBest": {
+  "context": "Victory card line when no new points"
+ },
+ "victory.solved": "Pálya teljesítve",
+ "@victory.solved": {
+  "context": "Victory card line (unscored mode)"
+ },
+ "adaptive.change": "{who}: D{before} → D{after} {arrow}",
+ "@adaptive.change": {
+  "context": "Victory card line, adaptive level change"
+ },
+ "adaptive.you": "Szinted",
+ "@adaptive.you": {
+  "context": "Used as {who}"
+ },
+ "adaptive.youTwoBall": "Kétgolyós szinted",
+ "@adaptive.youTwoBall": {
+  "context": "Used as {who}"
+ },
+ "tip.levelDone": "Teljesített pálya · legjobb eredmény: {best}/{max} pont",
+ "@tip.levelDone": {
+  "context": "Tooltip"
+ },
+ "tip.levelOpen": "Még nem teljesített pálya · maximum: {max} pont",
+ "@tip.levelOpen": {
+  "context": "Tooltip"
+ },
+ "tip.levelLabel": "{done}{id} · D{d} · {best}/{max} pont",
+ "@tip.levelLabel": {
+  "context": "Level line in the classic layout; {done} is \"✓ \" or empty"
+ },
+ "tip.generatedUnscored": "Generátor teszt · pontozás nélkül",
+ "@tip.generatedUnscored": {
+  "context": "Tooltip"
+ },
+ "tip.levelDoneAlready": "A pálya már kész.",
+ "@tip.levelDoneAlready": {
+  "context": "Tooltip on a finished level"
+ },
+ "tip.hint": "Rövid nyomás: súgó (szükség esetén Freeze-zel).",
+ "@tip.hint": {
+  "context": "Hint button tooltip"
+ },
+ "tip.hintAuto": "Rövid nyomás: súgó (szükség esetén Freeze-zel). {seconds} másodperc nyomva tartás: automatikus megoldás, pont nélkül.",
+ "@tip.hintAuto": {
+  "context": "Hint button tooltip"
+ },
+ "tip.bombNeed": "BOMB: {cost} pont szükséges",
+ "@tip.bombNeed": {
+  "context": "BOMB tooltip"
+ },
+ "tip.bombActive": "BOMB aktív: koppints a felrobbantandó elemre, vagy nyomd meg újra a kilépéshez",
+ "@tip.bombActive": {
+  "context": "BOMB tooltip"
+ },
+ "tip.bomb": "BOMB: egy elem eltüntetése {cost} pontért (bombás megoldás: {reward} pont)",
+ "@tip.bomb": {
+  "context": "BOMB tooltip"
+ },
+ "tip.freezeNeed": "Freeze: 10 pont szükséges",
+ "@tip.freezeNeed": {
+  "context": "Freeze tooltip"
+ },
+ "tip.freezeActive": "Freeze aktív: válassz elemet, vagy nyomd meg újra a kilépéshez",
+ "@tip.freezeActive": {
+  "context": "Freeze tooltip"
+ },
+ "tip.freezeGenerated": "Generátor teszt: Freeze pontlevonás nélkül",
+ "@tip.freezeGenerated": {
+  "context": "Freeze tooltip"
+ },
+ "tip.freeze": "Freeze: 10 pont a kijelölt elemmel kiadott irányparancsért",
+ "@tip.freeze": {
+  "context": "Freeze tooltip"
+ },
+ "tip.freezeSelect": "Freeze: elem kijelölése",
+ "@tip.freezeSelect": {
+  "context": "Freeze tooltip"
+ },
+ "aria.freezeSelected": "Freeze aktív, elem kijelölve; ismételt nyomásra kilép",
+ "@aria.freezeSelected": {
+  "context": "Accessible name"
+ },
+ "aria.freezePick": "Freeze aktív: válassz elemet",
+ "@aria.freezePick": {
+  "context": "Accessible name"
+ },
+ "aria.freezeLeft": "Freeze, hátralévő: {left}{cost}",
+ "@aria.freezeLeft": {
+  "context": "Accessible name; {left} is a number or aria.unlimited, {cost} is empty or aria.freezeCost"
+ },
+ "aria.unlimited": "korlátlan",
+ "@aria.unlimited": {
+  "context": "Used as {left}"
+ },
+ "aria.freezeCost": " · 10 pont",
+ "@aria.freezeCost": {
+  "context": "Used as {cost}"
+ },
+ "toast.noLevel": "Nincs pálya a kiválasztott méretekhez és nehézséghez.",
+ "@toast.noLevel": {
+  "context": "Board message"
+ },
+ "toast.freezeUsedCost": "Freeze felhasználva · −10 pont",
+ "@toast.freezeUsedCost": {
+  "context": "Board message",
+  "maxLength": 34
+ },
+ "toast.freezeUsed": "Freeze felhasználva",
+ "@toast.freezeUsed": {
+  "context": "Board message",
+  "maxLength": 34
+ },
+ "toast.bombDone": "💣 Felrobbantva · −{cost} pont",
+ "@toast.bombDone": {
+  "context": "Board message",
+  "maxLength": 34
+ },
+ "toast.autoUnavailable": "Az automatikus megoldás ebben a kiadásban nem érhető el.",
+ "@toast.autoUnavailable": {
+  "context": "Board message"
+ },
+ "toast.solverBusy": "Solver számol…",
+ "@toast.solverBusy": {
+  "context": "Board message while the hint is computed",
+  "maxLength": 30
+ },
+ "toast.freezeUnsolvable": "Innen egyetlen Freeze használatával sem találtam megoldást.",
+ "@toast.freezeUnsolvable": {
+  "context": "Board message"
+ },
+ "toast.freezeLimit": "A Freeze-keresés elérte a számítási korlátot; ettől még lehet menthető út.",
+ "@toast.freezeLimit": {
+  "context": "Board message"
+ },
+ "toast.freezeFailed": "Nem sikerült Freeze-megoldást számolni.",
+ "@toast.freezeFailed": {
+  "context": "Board message"
+ },
+ "hint.steps": "Innen {n} lépés · Következő:",
+ "@hint.steps": {
+  "context": "Hint text before the direction label"
+ },
+ "hint.freezeFirst": "❄ Fagyaszd le: {id}, majd",
+ "@hint.freezeFirst": {
+  "context": "Hint text before the direction label; {id} is a piece id like K2"
+ },
+ "hint.next": "Következő:",
+ "@hint.next": {
+  "context": "Hint text before the direction label"
+ },
+ "hint.freezeLater": "· Freeze a {step}. lépésnél: {id} + {dir}",
+ "@hint.freezeLater": {
+  "context": "Hint text after the direction label"
+ },
+ "auto.computing": "Megoldás számítása…",
+ "@auto.computing": {
+  "context": "Auto-solve status bar",
+  "maxLength": 34
+ },
+ "auto.freezeComputing": "Freeze-megoldás számítása…",
+ "@auto.freezeComputing": {
+  "context": "Auto-solve status bar",
+  "maxLength": 34
+ },
+ "auto.progress": "Automatikus megoldás · {i}/{n}",
+ "@auto.progress": {
+  "context": "Auto-solve status bar",
+  "maxLength": 34
+ },
+ "auto.freezeProgress": "Freeze-megoldás · {i}/{n}{freeze}",
+ "@auto.freezeProgress": {
+  "context": "Auto-solve status bar; {freeze} is empty or auto.oneFreeze",
+  "maxLength": 34
+ },
+ "auto.oneFreeze": " · 1 Freeze",
+ "@auto.oneFreeze": {
+  "context": "Used as {freeze}"
+ },
+ "auto.freezeStep": "❄ Freeze: {id} · {i}/{n}",
+ "@auto.freezeStep": {
+  "context": "Auto-solve status bar",
+  "maxLength": 34
+ },
+ "auto.stopped": "Leállítva · innen folytathatod",
+ "@auto.stopped": {
+  "context": "Auto-solve status bar",
+  "maxLength": 34
+ },
+ "motion.unavailable": "Ezen az eszközön nincs elérhető mozgásérzékelés",
+ "@motion.unavailable": {
+  "context": "Settings line under Motion control"
+ },
+ "motion.checking": "Mozgásérzékelő ellenőrzése…",
+ "@motion.checking": {
+  "context": "Settings line"
+ },
+ "motion.toggle": "Mozgásos irányítás be / ki",
+ "@motion.toggle": {
+  "context": "Settings line"
+ },
+ "motion.paused": "A szenzoradat átmenetileg szünetel; a vezérlés automatikusan visszatér, ha újra érkezik adat.",
+ "@motion.paused": {
+  "context": "Board message"
+ },
+ "motion.tapToActivate": "Mozgásvezérlés bekapcsolva · játék közben érintésre aktiválódik.",
+ "@motion.tapToActivate": {
+  "context": "Board message"
+ },
+ "motion.noPermission": "A mozgásérzékelő engedélye hiányzik.",
+ "@motion.noPermission": {
+  "context": "Board message"
+ },
+ "motion.cannotStart": "A mozgásvezérlés nem indítható: {error}",
+ "@motion.cannotStart": {
+  "context": "Board message"
+ },
+ "motion.unknownError": "ismeretlen hiba",
+ "@motion.unknownError": {
+  "context": "Used as {error}"
+ },
+ "motion.slideV1": "Csúsztatás bekapcsolva · ehhez a klasszikus (v1) felismerő fut",
+ "@motion.slideV1": {
+  "context": "Board message"
+ },
+ "motion.fastButV1": "Gyors felismerés · a csúsztatás bekapcsolt állapota miatt most a v1 fut",
+ "@motion.fastButV1": {
+  "context": "Board message"
+ },
+ "motion.fast": "Gyors billentésfelismerés (v2)",
+ "@motion.fast": {
+  "context": "Board message"
+ },
+ "motion.classic": "Klasszikus felismerés (v1)",
+ "@motion.classic": {
+  "context": "Board message"
+ },
+ "motion.noData": "Ezen az eszközön nem érkezik használható mozgásérzékelő adat.",
+ "@motion.noData": {
+  "context": "Board message"
+ },
+ "gesture.lockedTouch": "Nyilak nélküli elrendezésben mindig bekapcsolva",
+ "@gesture.lockedTouch": {
+  "context": "Settings line"
+ },
+ "gesture.lockedMouse": "Nyilak nélküli elrendezésben egérrel húzva is léphetsz",
+ "@gesture.lockedMouse": {
+  "context": "Settings line"
+ },
+ "gesture.on": "Simítás a játéktéren: egy simítás, egy lépés",
+ "@gesture.on": {
+  "context": "Settings line"
+ },
+ "gesture.touchOnly": "Csak érintőképernyős eszközön érhető el",
+ "@gesture.touchOnly": {
+  "context": "Settings line"
+ },
+ "setup.title": "SZABAD JÁTÉK",
+ "@setup.title": {
+  "context": "Setup screen title (upper case)"
+ },
+ "setup.prevTheme": "Előző téma",
+ "@setup.prevTheme": {
+  "context": "Accessible name"
+ },
+ "setup.nextTheme": "Következő téma",
+ "@setup.nextTheme": {
+  "context": "Accessible name"
+ },
+ "setup.pickWorld": "Válassz világot",
+ "@setup.pickWorld": {
+  "context": "Theme preview placeholder"
+ },
+ "setup.size": "Méret",
+ "@setup.size": {
+  "context": "Row label",
+  "maxLength": 10
+ },
+ "setup.sizesAria": "Méretek, több is választható",
+ "@setup.sizesAria": {
+  "context": "Accessible name"
+ },
+ "setup.difficulty": "Nehézség",
+ "@setup.difficulty": {
+  "context": "Row label",
+  "maxLength": 10
+ },
+ "setup.diffsAria": "Nehézségek, több is választható",
+ "@setup.diffsAria": {
+  "context": "Accessible name"
+ },
+ "setup.play": "▶ JÁTÉK INDÍTÁSA",
+ "@setup.play": {
+  "context": "Big start button (upper case)",
+  "maxLength": 22
+ },
+ "setup.none": "Nincs pálya a kiválasztott méretekhez és nehézségekhez",
+ "@setup.none": {
+  "context": "Summary line"
+ },
+ "setup.count": "{n} pálya",
+ "@setup.count": {
+  "context": "Summary line: number of levels"
+ },
+ "setup.twoBall": "ebből {n} kétgolyós",
+ "@setup.twoBall": {
+  "context": "Summary line part"
+ },
+ "setup.picked": "✓ Kijelölve",
+ "@setup.picked": {
+  "context": "Theme pick switch (on)",
+  "maxLength": 14
+ },
+ "setup.add": "+ Hozzáadás",
+ "@setup.add": {
+  "context": "Theme pick switch (off)",
+  "maxLength": 14
+ },
+ "setup.pickedAria": "Téma kijelölve a véletlen válogatáshoz, koppints a kivételhez",
+ "@setup.pickedAria": {
+  "context": "Accessible name"
+ },
+ "setup.addAria": "Téma hozzáadása a véletlen válogatáshoz",
+ "@setup.addAria": {
+  "context": "Accessible name"
+ },
+ "setup.allThemes": "Mind a {n} téma kijelölve",
+ "@setup.allThemes": {
+  "context": "Theme count line"
+ },
+ "setup.themesPicked": "{n} téma kijelölve",
+ "@setup.themesPicked": {
+  "context": "Theme count line"
+ },
+ "setup.all": "Mind",
+ "@setup.all": {
+  "context": "Quick button",
+  "maxLength": 8
+ },
+ "setup.onlyThis": "Csak ez",
+ "@setup.onlyThis": {
+  "context": "Quick button",
+  "maxLength": 10
+ },
+ "setup.adaptive": "Alkalmazkodó nehézség",
+ "@setup.adaptive": {
+  "context": "Checkbox label"
+ },
+ "setup.adaptiveNeedsMore": "több nehézség kijelölésével működik",
+ "@setup.adaptiveNeedsMore": {
+  "context": "Adaptive status"
+ },
+ "setup.adaptiveLevel": "Szinted: {levels}",
+ "@setup.adaptiveLevel": {
+  "context": "Adaptive status"
+ },
+ "setup.adaptiveStart": "Kezdés: D{d}",
+ "@setup.adaptiveStart": {
+  "context": "Adaptive status"
+ },
+ "setup.adaptiveReset": "Nullázás",
+ "@setup.adaptiveReset": {
+  "context": "Button",
+  "maxLength": 10
+ },
+ "menu.restart": "↶ Pálya újrakezdése",
+ "@menu.restart": {
+  "context": "Menu button"
+ },
+ "menu.new": "⟳ Új pálya",
+ "@menu.new": {
+  "context": "Menu button"
+ },
+ "menu.help": "❔ Játékleírás",
+ "@menu.help": {
+  "context": "Menu button"
+ },
+ "menu.settings": "⚙ Beállítások",
+ "@menu.settings": {
+  "context": "Menu button"
+ },
+ "menu.home": "⌂ Kilépés a főmenübe",
+ "@menu.home": {
+  "context": "Menu button"
+ },
+ "menu.current": "Aktuális pálya",
+ "@menu.current": {
+  "context": "Menu subtitle"
+ },
+ "menu.twoBall": "Kétgolyós pálya · D{d}",
+ "@menu.twoBall": {
+  "context": "Menu subtitle"
+ },
+ "settings.title": "Beállítások",
+ "@settings.title": {
+  "context": "Panel title"
+ },
+ "settings.language": "Nyelv",
+ "@settings.language": {
+  "context": "Settings row name"
+ },
+ "settings.languageHint": "Automatikus: a rendszer nyelve",
+ "@settings.languageHint": {
+  "context": "Settings row line"
+ },
+ "settings.languageAuto": "Automatikus",
+ "@settings.languageAuto": {
+  "context": "Language option: follow the system"
+ },
+ "settings.sounds": "Hangok",
+ "@settings.sounds": {
+  "context": "Section title"
+ },
+ "settings.soundsSub": "A játék és a háttér külön kapcsolható",
+ "@settings.soundsSub": {
+  "context": "Section subtitle"
+ },
+ "settings.fx": "Játék-akció hangok",
+ "@settings.fx": {
+  "context": "Row name"
+ },
+ "settings.fxInfo": "Információ a játék-akció hangokról",
+ "@settings.fxInfo": {
+  "context": "Accessible name of the info button"
+ },
+ "settings.fxTip": "A mozgás, ütközés, Freeze, kijutás és győzelem hangjait kapcsolja. A háttérzene ettől független.",
+ "@settings.fxTip": {
+  "context": "Tooltip"
+ },
+ "settings.fxSub": "Mozgás, ütközés, Freeze, kijutás",
+ "@settings.fxSub": {
+  "context": "Row line"
+ },
+ "settings.ambient": "Háttérhang és zene",
+ "@settings.ambient": {
+  "context": "Row name"
+ },
+ "settings.ambientInfo": "Információ a háttérhangokról és zenéről",
+ "@settings.ambientInfo": {
+  "context": "Accessible name"
+ },
+ "settings.ambientTip": "A választott téma zenéjét és környezeti hangjait kapcsolja. A játék-akció hangok ettől függetlenül működnek.",
+ "@settings.ambientTip": {
+  "context": "Tooltip"
+ },
+ "settings.ambientSub": "A választott téma hangulata",
+ "@settings.ambientSub": {
+  "context": "Row line"
+ },
+ "settings.ui": "Kezelőfelület",
+ "@settings.ui": {
+  "context": "Section title"
+ },
+ "settings.uiSub": "A játék vezérlőinek elrendezése",
+ "@settings.uiSub": {
+  "context": "Section subtitle"
+ },
+ "settings.arrows": "Nyilak elrendezése",
+ "@settings.arrows": {
+  "context": "Row name"
+ },
+ "settings.arrowsInfo": "Információ a nyilak elrendezéséről",
+ "@settings.arrowsInfo": {
+  "context": "Accessible name"
+ },
+ "settings.arrowsTip": "Alul: nagy iránykereszt a pálya alatt, mellette a gombok. Szélen: a nyilak a pálya szélén vannak. Nincs: nincsenek nyilak, a gombok egy sorban a pálya alatt, így a pálya a legnagyobb; mobilon simítással, gépen a billentyűzet nyilaival vagy egérrel húzva léphetsz. Nyilak nélkül a gesztusvezérlés mindig be van kapcsolva.",
+ "@settings.arrowsTip": {
+  "context": "Tooltip"
+ },
+ "settings.arrowsSub": "Alul · a pálya szélén · nyilak nélkül",
+ "@settings.arrowsSub": {
+  "context": "Row line"
+ },
+ "settings.arrowsBelow": "Alul",
+ "@settings.arrowsBelow": {
+  "context": "Option button",
+  "maxLength": 8
+ },
+ "settings.arrowsEdges": "Szélen",
+ "@settings.arrowsEdges": {
+  "context": "Option button",
+  "maxLength": 8
+ },
+ "settings.arrowsNone": "Nincs",
+ "@settings.arrowsNone": {
+  "context": "Option button",
+  "maxLength": 8
+ },
+ "settings.gesture": "Gesztusvezérlés",
+ "@settings.gesture": {
+  "context": "Section title and row name"
+ },
+ "settings.gestureSub": "Érintőképernyőn a játéktéren simítással is irányíthatod a pályát",
+ "@settings.gestureSub": {
+  "context": "Section subtitle"
+ },
+ "settings.gestureInfo": "Információ a gesztusvezérlésről",
+ "@settings.gestureInfo": {
+  "context": "Accessible name"
+ },
+ "settings.gestureTip": "Bekapcsolva a játéktéren jobbra, balra, fel vagy le simítva az adott nyíl egyetlen lépését kapod; egy simítás mindig egy lépés. A pálya elemeire koppintás (például Freeze-kijelölés) továbbra is működik. Bekapcsolt állapotban a játéktéren a böngésző görgetése, nagyítása és lehúzásos frissítése nem működik. A telefon rendszergesztusai (például a képernyő széléről indított vissza mozdulat) ettől függetlenül működnek, ezért a simítást a képernyő közepén érdemes végezni.",
+ "@settings.gestureTip": {
+  "context": "Tooltip"
+ },
+ "settings.motion": "Mozgásvezérlés",
+ "@settings.motion": {
+  "context": "Section title and row name"
+ },
+ "settings.motionSub": "Telefon billentésével és igény szerint csúsztatásával is irányíthatod a pályát",
+ "@settings.motionSub": {
+  "context": "Section subtitle"
+ },
+ "settings.motionInfo": "Információ a mozgásvezérlésről",
+ "@settings.motionInfo": {
+  "context": "Accessible name"
+ },
+ "settings.motionTip": "Telefonon a készülék billentésével, és külön kapcsolóval a csúsztatásával is mozgathatod a pálya elemeit. A mozgásérzékelő engedélye szükséges.",
+ "@settings.motionTip": {
+  "context": "Tooltip"
+ },
+ "settings.sensitivity": "Mozdulat érzékenysége",
+ "@settings.sensitivity": {
+  "context": "Row name"
+ },
+ "settings.sensitivityInfo": "Információ a mozdulat érzékenységéről",
+ "@settings.sensitivityInfo": {
+  "context": "Accessible name"
+ },
+ "settings.sensitivityTip": "Billentésnél és engedélyezett csúsztatásnál egyaránt érvényes. 1: nagyobb mozdulat kell; 10: kisebb mozdulat is elég. Egy mozdulat legfeljebb egy lépés.",
+ "@settings.sensitivityTip": {
+  "context": "Tooltip"
+ },
+ "settings.sensitivitySub": "1: határozottabb · 5: bevált alap · 10: nagyon érzékeny",
+ "@settings.sensitivitySub": {
+  "context": "Row line"
+ },
+ "settings.sensitivityDown": "Mozdulatérzékenység csökkentése",
+ "@settings.sensitivityDown": {
+  "context": "Accessible name"
+ },
+ "settings.sensitivityUp": "Mozdulatérzékenység növelése",
+ "@settings.sensitivityUp": {
+  "context": "Accessible name"
+ },
+ "settings.fastTilt": "Gyors billentésfelismerés",
+ "@settings.fastTilt": {
+  "context": "Row name"
+ },
+ "settings.fastTiltInfo": "Információ a gyors billentésfelismerésről",
+ "@settings.fastTiltInfo": {
+  "context": "Accessible name"
+ },
+ "settings.fastTiltTip": "Bekapcsolva a lépés már a billentés közben megtörténik, nem a telefon visszaállítása után. A visszaállító mozdulat soha nem ad ellentétes lépést, és a gyors egymás utáni billentések sem vesznek el. Kikapcsolva a korábbi (v1) felismerő működik; a csúsztatásos léptetés csak azzal érhető el.",
+ "@settings.fastTiltTip": {
+  "context": "Tooltip"
+ },
+ "settings.fastTiltSub": "Bekapcsolva: azonnali lépés (v2) · kikapcsolva: klasszikus (v1)",
+ "@settings.fastTiltSub": {
+  "context": "Row line"
+ },
+ "settings.slide": "Csúsztatás is léptet",
+ "@settings.slide": {
+  "context": "Row name"
+ },
+ "settings.slideInfo": "Információ a csúsztatásos irányításról",
+ "@settings.slideInfo": {
+  "context": "Accessible name"
+ },
+ "settings.slideTip": "Bekapcsolva a telefon képernyő síkjában jobbra, balra, fel vagy le csúsztatása is az adott nyíl egyetlen lépését adja. Kikapcsolva csak a billentés léptet. Emelés és süllyesztés egyik esetben sem léptet.",
+ "@settings.slideTip": {
+  "context": "Tooltip"
+ },
+ "settings.slideSub": "Kikapcsolva a csúsztatás nem léptet",
+ "@settings.slideSub": {
+  "context": "Row line"
+ },
+ "settings.settle": "Lépés késleltetése",
+ "@settings.settle": {
+  "context": "Row name"
+ },
+ "settings.settleInfo": "Információ a lépés késleltetéséről",
+ "@settings.settleInfo": {
+  "context": "Accessible name"
+ },
+ "settings.settleTip": "A mozdulat befejezése után várt nyugalmi idő. 1: rövidebb várakozás; 10: hosszabb. A beállítás nem változtatja meg a bábu mozgásának sebességét.",
+ "@settings.settleTip": {
+  "context": "Tooltip"
+ },
+ "settings.settleSub": "1: gyorsabb döntés · 5: bevált alap · 10: több nyugalom",
+ "@settings.settleSub": {
+  "context": "Row line"
+ },
+ "settings.settleDown": "Lépés késleltetésének csökkentése",
+ "@settings.settleDown": {
+  "context": "Accessible name"
+ },
+ "settings.settleUp": "Lépés késleltetésének növelése",
+ "@settings.settleUp": {
+  "context": "Accessible name"
+ },
+ "settings.measure": "Mozdulatmérés",
+ "@settings.measure": {
+  "context": "Row name"
+ },
+ "settings.measureInfo": "Információ a mozdulatmérésről",
+ "@settings.measureInfo": {
+  "context": "Accessible name"
+ },
+ "settings.measureTip": "A teszt billentéseket, emelést, süllyesztést és csúsztatásokat rögzít JSON-fájlba. Ez kutatási mérés; nem állítja be automatikusan a mozgásvezérlést. A mérés felülete magyar nyelvű.",
+ "@settings.measureTip": {
+  "context": "Tooltip"
+ },
+ "settings.measureSub": "Mérési adatok exportálása",
+ "@settings.measureSub": {
+  "context": "Row line"
+ },
+ "settings.measureStart": "Mérés indítása",
+ "@settings.measureStart": {
+  "context": "Button",
+  "maxLength": 18
+ },
+ "settings.shell": "Főképernyő és menük",
+ "@settings.shell": {
+  "context": "Section title"
+ },
+ "settings.shellLook": "Megjelenés",
+ "@settings.shellLook": {
+  "context": "Label"
+ },
+ "settings.shellClassic": "Klasszikus",
+ "@settings.shellClassic": {
+  "context": "Option"
+ },
+ "settings.shellWarm": "Meleg üveg",
+ "@settings.shellWarm": {
+  "context": "Option"
+ },
+ "help.title": "GGrid · Súgó",
+ "@help.title": {
+  "context": "Help panel title"
+ },
+ "help.close": "Súgó bezárása",
+ "@help.close": {
+  "context": "Accessible name"
+ },
+ "help.goal": "<h3>A játék célja</h3><p>Juttasd ki a golyót a pálya szélén jelölt <strong>KIJÁRAT</strong>on. A kijáratból a jelzett irányba kell még egyet lépned. Egy irányparancs minden mozgatható elemre egyszerre hat: a falak nem mozdulnak, az egymáshoz kapcsolt téglák együtt haladnak. Kétgolyós pályán (●● jel a Pálya mezőben) mindkét golyónak ki kell jutnia.</p>",
+ "@help.goal": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "help.controls": "<h3>Irányítás</h3><p><strong>Nyilak:</strong> a pálya alatti nagy nyílgombok egy lépést adnak, nyomva tartva ismételnek. Számítógépen a billentyűzet nyilai is működnek.</p><p><strong>Simítás:</strong> érintőképernyőn a játéktéren jobbra, balra, fel vagy le simítva léphetsz; egy simítás mindig egy lépés. Bekapcsolt állapotban a játéktéren nem görget és nem nagyít a böngésző. A Beállítások → Gesztusvezérlés alatt kapcsolható ki (nyilak nélküli elrendezésben nem).</p><p><strong>Billentés:</strong> telefonon a Beállítások → Mozgásvezérlés alatt kapcsolható be. A gyors billentésfelismerés már a mozdulat közben lép; a csúsztatás (a telefon síkbeli elmozdítása) külön engedélyezhető. Az érzékenység és a mozdulat lezárásának késleltetése állítható.</p><p><strong>Nyilak elrendezése</strong> (Beállítások → Kezelőfelület): <em>Alul</em> – nagy iránykereszt a pálya alatt; <em>Szélen</em> – a nyilak a pálya szélén; <em>Nincs</em> – nincsenek nyilak, a gombok egy sorban a pálya alatt, így a pálya a legnagyobb. Nyilak nélkül mobilon simítással, gépen a billentyűzet nyilaival vagy egérrel húzva léphetsz; ilyenkor a gesztusvezérlés mindig be van kapcsolva.</p>",
+ "@help.controls": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "help.buttons": "<h3>Gombok a pálya alatt</h3><p>Balra (nyilak nélküli elrendezésben egy sorban, a sor elején): <strong>❄</strong> Freeze, <strong>💣</strong> BOMB, <strong>💡</strong> súgó. Jobbra: <strong>↶</strong> újrakezdés, <strong>⟳</strong> új pálya, <strong>▦</strong> pályaválasztó. Felül a ☰ menü, a lépésszám (megtett / optimális; bomba után az optimum helyén „–”), a pálya nehézsége és mérete, valamint a pontjaid láthatók.</p><p>A pályán megjelenő rövid üzenetek (például „Freeze felhasználva”, „Felrobbantva”) 2 másodperc múlva vagy a következő lépésnél eltűnnek.</p>",
+ "@help.buttons": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "help.levels": "<h3>Pályaválasztás</h3><p>A Szabad játékban a <strong>méretekből és a nehézségekből (D1–D10) is bármennyit kijelölhetsz</strong>, tetszőleges kombinációban; koppintással kapcsolhatók be és ki. Az összesítő sor mutatja, hány pálya felel meg a választásnak. A játék az összes pályakönyvtárból válogat, egy- és kétgolyós pályákat vegyesen, és a még nem teljesített pályákat adja először.</p><p><strong>Témák:</strong> lapozz a témák között, és a sarokban lévő <strong>✓ Kijelölve / + Hozzáadás</strong> kapcsolóval jelöld ki, melyekből kérsz; a <strong>Mind</strong> és a <strong>Csak ez</strong> gyors választás. Minden új pálya véletlenszerűen kap egy témát a kijelöltek közül; az újrakezdés megtartja a témát.</p><p><strong>Alkalmazkodó nehézség:</strong> ha több nehézség van kijelölve, a játék a teljesítményed szerint választ közülük. Követi a szintedet (egy- és kétgolyós pályákra külön), a legkönnyebb kijelölt nehézségtől indul, és főleg a szinted körüli, kicsit afölötti pályákat adja. Jó megoldások után a szint emelkedik, gyengébb teljesítménynél finoman csökken. Egy pálya eredményét az optimális és a megtett lépések aránya adja; a súgó ront rajta, az automatikus megoldás nullának számít, a bombával megoldott pálya pedig nem számít bele. Ha legalább 5 lépés után megoldás nélkül kérsz új pályát, az sikertelennek számít; egy rövid ránézés utáni kihagyás és az újrakezdés nem. A szinted a pályaválasztón látszik, győzelemkor pedig a változása; a Nullázás gombbal újraindítható, a kapcsolóval kikapcsolható.</p>",
+ "@help.levels": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "help.points": "<h3>Pontok</h3><p>Egy- és kétgolyós pályáért is pont jár. A pálya pontértéke a méretétől, a nehézségétől és az optimális lépésszámtól függ; kétgolyós pályán kis bónusz jár a két golyó kezeléséért. Optimális megoldásért a teljes pontérték jár, több lépésnél kevesebb, de legalább a fele. Ugyanazon a pályán csak a korábbi legjobb eredményed javulásáért kapsz új pontot. Ha egy pályán BOMB-ot használtál, a megoldásért fix 5 pont jár, és a pálya nem számít teljesítettnek. A pontok és a teljesített pályák a böngésződben tárolódnak.</p>",
+ "@help.points": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "help.aids": "<h3>Segítségek</h3><p>A <strong>💡</strong> rövid megnyomása 1 pontért megmutatja a következő lépést az aktuális állásból. Az irányt egy kiemelt címke mutatja (például <strong>↑ FEL</strong>), és a pálya alatti megfelelő nyílgomb lüktetve felvillan (nyilak nélküli elrendezésben a pálya adott szélén egy nagy nyíl); a javaslat a következő lépésig, legfeljebb 8 másodpercig látszik. Ha lépés nélkül kéred újra, ugyanazt a javaslatot ingyen mutatja meg; lépés, újrakezdés vagy új pálya után ismét 1 pontba kerül. Ha Freeze nélkül nincs megoldás, olyan utat keres, amely legfeljebb egy Freeze-t használ, és megnevezi a lefagyasztandó elemet. <strong>2 másodpercig nyomva tartva</strong> a játék lépésről lépésre bemutatja a megoldást, szükség esetén Freeze-zel.</p><p><strong>Automatikus megoldás:</strong> az állapota a pálya alatti sávban látszik. A piros <strong>✕</strong> gombbal bármikor leállíthatod, és onnan folytathatod, ahol tart. Ha egy pályán elindítottad, azért a menetért nem jár pont akkor sem, ha kézzel fejezed be; újrakezdés után újra szerezhetsz pontot. Ha abból az állásból nincs megtalálható megoldás, a játék jelzi.</p><p>A <strong>❄ Freeze</strong> gombbal kijelölési módba lépsz. Érintsd meg a helyben tartandó golyót vagy mozgatható elemet; ugyanarra újra koppintva törölheted, másikra koppintva áthelyezheted a kijelölést. A Freeze gomb újabb megnyomásával pontlevonás nélkül kiléphetsz. Kijelölt elem mellett az első irányparancs 10 pontba kerül akkor is, ha semmi nem mozdul; ezután a Freeze-mód megszűnik. 10 pont alatt a gomb nem érhető el.</p><p>A <strong>💣 BOMB</strong> gombbal robbantási módba lépsz (egérrel a pálya fölött szálkereszt jelzi), majd egy pályaelemre koppintva azt 15 pontért eltünteted: az elem robbanással eltűnik, és a pálya megrázkódik; fal és mozgatható tégla is felrobbantható, golyó és kijárat nem, a többcellás test egészben tűnik el. A BOMB gomb újabb megnyomásával pontlevonás nélkül kiléphetsz, és egy irányparancs is megszünteti a robbantási módot. 15 pont alatt a gomb nem érhető el. Bomba után a pálya fix 5 pontot ér, nem számít teljesítettnek, és a szintedet sem változtatja; az újrakezdés visszaállítja az eredeti pályát, és újra teljes pont szerezhető.</p>",
+ "@help.aids": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "help.sound": "<h3>Hang és menü</h3><p>A Beállításokban a játék akcióhangjai és a téma háttérhangja külön kapcsolhatók. A ☰ menüből újrakezdhetsz, új pályát kérhetsz, megnyithatod a beállításokat, ezt a súgót, vagy visszatérhetsz a főképernyőre.</p>",
+ "@help.sound": {
+  "context": "Help section (HTML: only <h3>, <p>, <strong>, <em>, <br> are allowed)"
+ },
+ "theme.classic.shortName": "CLASSIC",
+ "@theme.classic.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.classic.tag": "GGRID WORLD",
+ "@theme.classic.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.classic.description": "Az eredeti GGrid megjelenés.",
+ "@theme.classic.description": {
+  "context": "One-line theme description"
+ },
+ "theme.mine.shortName": "BÁNYA",
+ "@theme.mine.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.mine.tag": "GGRID WORLD",
+ "@theme.mine.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.mine.description": "Sötét tárnák, sziklák és faládák.",
+ "@theme.mine.description": {
+  "context": "One-line theme description"
+ },
+ "theme.space-station.shortName": "ORBITAL",
+ "@theme.space-station.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.space-station.tag": "GGRID WORLD",
+ "@theme.space-station.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.space-station.description": "Energiagömbök, teherkonténerek és légzsilip.",
+ "@theme.space-station.description": {
+  "context": "One-line theme description"
+ },
+ "theme.ancient-temple.shortName": "TEMPLOM",
+ "@theme.ancient-temple.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.ancient-temple.tag": "GGRID WORLD",
+ "@theme.ancient-temple.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.ancient-temple.description": "Kristálygömbök, faragott kőtömbök és rúnakapuk.",
+ "@theme.ancient-temple.description": {
+  "context": "One-line theme description"
+ },
+ "theme.ice-cavern.shortName": "JÉGBARLANG",
+ "@theme.ice-cavern.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.ice-cavern.tag": "GGRID WORLD",
+ "@theme.ice-cavern.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.ice-cavern.description": "Jéggömbök és fagyott akadályok egy kék barlangban.",
+ "@theme.ice-cavern.description": {
+  "context": "One-line theme description"
+ },
+ "theme.cybergrid.shortName": "CYBERGRID",
+ "@theme.cybergrid.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.cybergrid.tag": "GGRID WORLD",
+ "@theme.cybergrid.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.cybergrid.description": "Fénygömbök, adatblokkok és digitális portálok.",
+ "@theme.cybergrid.description": {
+  "context": "One-line theme description"
+ },
+ "theme.pirate-ship.shortName": "KALÓZHAJÓ",
+ "@theme.pirate-ship.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.pirate-ship.tag": "GGRID WORLD",
+ "@theme.pirate-ship.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.pirate-ship.description": "Ágyúgolyók, faládák és egy öreg hajó raktere.",
+ "@theme.pirate-ship.description": {
+  "context": "One-line theme description"
+ },
+ "theme.ghost-manor.shortName": "ÉJFÉLI KASTÉLY",
+ "@theme.ghost-manor.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.ghost-manor.tag": "GGRID WORLD",
+ "@theme.ghost-manor.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.ghost-manor.description": "Kísértetjárta kastély szellemmel, bútorokkal, köddel és túlvilági kapuval.",
+ "@theme.ghost-manor.description": {
+  "context": "One-line theme description"
+ },
+ "theme.traffic-rescue.shortName": "MENTŐAKCIÓ",
+ "@theme.traffic-rescue.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.traffic-rescue.tag": "GGRID WORLD",
+ "@theme.traffic-rescue.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.traffic-rescue.description": "Forgalmi puzzle: mentőautó, autók, buszok és városi úthálózat.",
+ "@theme.traffic-rescue.description": {
+  "context": "One-line theme description"
+ },
+ "theme.orbital-breach.shortName": "ORBITAL // BREACH",
+ "@theme.orbital-breach.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.orbital-breach.tag": "GGRID WORLD",
+ "@theme.orbital-breach.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.orbital-breach.description": "Filmszerű sci-fi vészhelyzet sérült űrállomáson.",
+ "@theme.orbital-breach.description": {
+  "context": "One-line theme description"
+ },
+ "theme.abyssal-lab.shortName": "ABYSS",
+ "@theme.abyssal-lab.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.abyssal-lab.tag": "GGRID WORLD",
+ "@theme.abyssal-lab.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.abyssal-lab.description": "Biolumineszcens mélytengeri kutatóállomás az óceánfenéken.",
+ "@theme.abyssal-lab.description": {
+  "context": "One-line theme description"
+ },
+ "theme.clockwork-sanctum.shortName": "AETHERIUM",
+ "@theme.clockwork-sanctum.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.clockwork-sanctum.tag": "SHOWCASE WORLD",
+ "@theme.clockwork-sanctum.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.clockwork-sanctum.description": "SHOWCASE: lebegő viktoriánus csillagvizsgáló, óraművek és mechanikus csillagkapu.",
+ "@theme.clockwork-sanctum.description": {
+  "context": "One-line theme description"
+ },
+ "theme.neon-noir.shortName": "NEON RAIN",
+ "@theme.neon-noir.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.neon-noir.tag": "SHOWCASE WORLD",
+ "@theme.neon-noir.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.neon-noir.description": "SHOWCASE: esőáztatta jövővárosi tető, futárdrón és holografikus evakuációs lift.",
+ "@theme.neon-noir.description": {
+  "context": "One-line theme description"
+ },
+ "theme.microchip-lab.shortName": "MICROCORE",
+ "@theme.microchip-lab.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.microchip-lab.tag": "SHOWCASE WORLD",
+ "@theme.microchip-lab.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.microchip-lab.description": "SHOWCASE: nyomtatott áramköri lap világa, elektron-maggal és IC modulokkal.",
+ "@theme.microchip-lab.description": {
+  "context": "One-line theme description"
+ },
+ "theme.moonlit-zen.shortName": "HOLDKERT",
+ "@theme.moonlit-zen.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.moonlit-zen.tag": "SHOWCASE WORLD",
+ "@theme.moonlit-zen.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.moonlit-zen.description": "SHOWCASE: holdfényes japán vízikert koi szellemmel és torii-kapuval.",
+ "@theme.moonlit-zen.description": {
+  "context": "One-line theme description"
+ },
+ "theme.sunlit-greenhouse.shortName": "NAPÜVEGHÁZ",
+ "@theme.sunlit-greenhouse.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.sunlit-greenhouse.tag": "THE GOLDEN SEED",
+ "@theme.sunlit-greenhouse.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.sunlit-greenhouse.description": "SHOWCASE V2: napfényes üvegház, aranymag és alakzatonként egybefüggő terrakotta növénytartók.",
+ "@theme.sunlit-greenhouse.description": {
+  "context": "One-line theme description"
+ },
+ "theme.celestial-library.shortName": "Csillagkönyvtár",
+ "@theme.celestial-library.shortName": {
+  "context": "Theme name on the theme picker (short, often upper case)",
+  "maxLength": 20
+ },
+ "theme.celestial-library.tag": "Az égi archívum",
+ "@theme.celestial-library.tag": {
+  "context": "Small caption under the theme name"
+ },
+ "theme.celestial-library.description": "Díszes kódexek, csillagtérképek és asztrolábiumok egy éjszakai égi archívumban.",
+ "@theme.celestial-library.description": {
+  "context": "One-line theme description"
+ }
+}

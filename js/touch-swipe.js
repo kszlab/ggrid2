@@ -18,7 +18,7 @@ const TouchSwipe=(()=>{
  function sync(){
   document.body.classList.toggle('gesture-control',active());
   if(toggle){toggle.checked=active()&&touchDevice;toggle.disabled=!touchDevice||locked}
-  if(availability)availability.textContent=locked?(touchDevice?'Nyilak nélküli elrendezésben mindig bekapcsolva':'Nyilak nélküli elrendezésben egérrel húzva is léphetsz'):touchDevice?'Simítás a játéktéren: egy simítás, egy lépés':'Csak érintőképernyős eszközön érhető el';
+  if(availability)availability.textContent=I18n.t(locked?(touchDevice?'gesture.lockedTouch':'gesture.lockedMouse'):touchDevice?'gesture.on':'gesture.touchOnly');
  }
  // force: only for tools/runtime-regression.html, which runs on desktop browsers too.
  function set(v,force=false){enabled=(touchDevice||force)&&v;try{localStorage.setItem(KEY,enabled?'on':'off')}catch(_){}sync()}

@@ -11,8 +11,8 @@
 const PadLayout=(()=>{
  const KEY='ggrid.ui.layout.v1';
  // [id, label, short label for narrow phones]
- const LEFT=[['freeze','Freeze','Freeze'],['bomb','BOMB','BOMB'],['playHint','Segítség','Súgó']];
- const RIGHT=[['playRestart','Újraindítás','Újra'],['playNext','Új pálya','Új pálya'],['playChoose','Pályaválasztó','Pályák']];
+ const LEFT=[['freeze','Freeze','Freeze'],['bomb','BOMB','BOMB'],['playHint',I18n.t('pad.hint'),I18n.t('pad.hintShort')]];
+ const RIGHT=[['playRestart',I18n.t('pad.restart'),I18n.t('pad.restartShort')],['playNext',I18n.t('pad.next'),I18n.t('pad.next')],['playChoose',I18n.t('pad.choose'),I18n.t('pad.chooseShort')]];
  const $=s=>document.querySelector(s);
  const top=$('#padTop'),deck=$('#padDeck'),picker=$('#layoutPicker');
  const movesEl=$('#padMoves'),parEl=$('#padPar'),levelEl=$('#padLevel');
@@ -44,7 +44,7 @@ const PadLayout=(()=>{
   for(const [id,text,short] of LEFT){const el=document.getElementById(id);if(on)moveTo(el,left);else restore(el);label(el,text,on,short)}
   for(const [id,text,short] of RIGHT){const el=document.getElementById(id);if(on)moveTo(el,right);else restore(el);label(el,text,on,short)}
   const menu=$('#gameMenu'),score=$('#scoreBox');
-  if(on){moveTo(menu,top.querySelector('.pad-top-menu'));moveTo(score,top.querySelector('.pad-score-slot'));label(menu,'Menü',true)}
+  if(on){moveTo(menu,top.querySelector('.pad-top-menu'));moveTo(score,top.querySelector('.pad-score-slot'));label(menu,I18n.t('top.menu'),true)}
   else{label(menu,'',false);restore(menu);restore(score)}
   // Board and artwork geometry depend on the space around them.
   requestAnimationFrame(()=>{try{if(typeof SceneRenderer!=='undefined')SceneRenderer.refreshArtworkLayout?.()}catch(_){}dispatchEvent(new Event('resize'))});
@@ -62,7 +62,7 @@ const PadLayout=(()=>{
   const multi=typeof inMultiBallTest==='function'&&inMultiBallTest();
   // The two-ball mark sits in the small label: the value line stays short enough for narrow phones.
   levelEl.textContent=[diff,`${state.width}×${state.height}`].filter(Boolean).join(' · ');
-  const levelLabel=$('#padLevelLabel');if(levelLabel)levelLabel.textContent=multi?'Pálya · ●●':'Pálya';
+  const levelLabel=$('#padLevelLabel');if(levelLabel)levelLabel.textContent=I18n.t(multi?'top.levelTwoBall':'top.level');
   levelEl.title=(typeof currentLevelId!=='undefined'&&currentLevelId)||'';
 
  }
