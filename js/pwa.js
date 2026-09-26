@@ -78,5 +78,8 @@ const PWA=(()=>{
   paintInstall();
  });
  paintInstall();
+ // Installed app: ask the browser to keep the stored progress even when the device runs low on
+ // space (granted silently for installed apps; not asked in a normal tab, where Firefox would prompt).
+ if(supported&&standalone())navigator.storage?.persisted?.().then(p=>p||navigator.storage.persist()).catch(()=>{});
  return{get supported(){return supported},get registration(){return reg},get standalone(){return standalone()},check,apply};
 })();

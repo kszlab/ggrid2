@@ -647,3 +647,10 @@ body.layout-pad .pad-dir.hint-target span{background:#1b1410}
 .pwa-update-bar button:focus-visible{outline:3px solid var(--ui-focus,#ffd58a);outline-offset:2px}/* v0.15.77 settings row feedback (backup / restore): the row hint briefly shows the result */
 #settingsPanel .settings-copy small.settings-status{font-weight:800;color:#bff3c8}
 #settingsPanel .settings-copy small.settings-status.bad{color:#ffc8a8}
+/* v0.15.77 installed app (PWA) and notched phones: the home screen, the panels and the classic /
+   no-arrows layouts stay clear of the notch and the home indicator (the bottom-pad layout and the
+   level select already do); inside the installed app there is no pull-to-refresh or rubber-band bounce. */
+.home-screen{padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+.ui-panel{padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+body[data-ui-context="game"]:not(.layout-pad) main{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+@media (display-mode:standalone),(display-mode:fullscreen){html,body{overscroll-behavior:none}}
