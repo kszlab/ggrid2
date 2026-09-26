@@ -184,7 +184,9 @@ body:not(.scenario-mode) #scenarioInfo:empty:before{content:'Szabad játék';opa
 /* v0.12.14 – true unified polyomino overlays + richer scene depth */
 .sr-composite{position:absolute;z-index:7;pointer-events:none;box-sizing:border-box;transition:left var(--ggrid-piece-move,190ms) ease,top var(--ggrid-piece-move,190ms) ease;overflow:visible}
 .scene-showcase .brick.sr-component{opacity:.16}
-.scene-showcase.fx-freeze .sr-composite{filter:brightness(1.5) saturate(.45);box-shadow:0 0 22px #aef}
+/* v0.15.75: no extra freeze flash for rigid overlays – they sit inside .board, whose flash already
+   brightens them; the old rule lit every rigid body about twice as bright as the board. The chosen
+   body is marked by the Freeze marker (freeze-selection-body). */
 @keyframes srBreathe{to{opacity:.45;transform:scale(1.03)}}@keyframes srPulse{50%{opacity:.2}}@keyframes srHolo{0%,91%,100%{opacity:1;transform:skewY(-4deg)}92%{opacity:.35;transform:skewY(-4deg) translateX(2px)}94%{opacity:.8;transform:skewY(-4deg) translateX(-1px)}}
 
 /* v0.12.15 – rigid composite synchronization
