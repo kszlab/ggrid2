@@ -156,7 +156,7 @@ const ScenarioMode=(()=>{
  }
  async function advanceAfterWin(){
   if(await nextStage())return;
-  const finished=scenario?.name||'Forgatókönyv';
+  const finished=scenario?.name||I18n.t('game.scenario');
   await freePlay();flashToast('Forgatókönyv teljesítve: '+finished);AppUI?.showHome?.();
  }
  function onWin(){if(!active||!state?.won)return;stopTimer()}

@@ -171,7 +171,7 @@ function detonate(id){
  state={...state,objects:state.objects.filter(x=>x.id!==id)};
  bombArmed=false;bombUsedThisRun=true;hintVisible=false;clearSolverCache();
  AudioManager.bomb?.();SceneRenderer?.event?.('bomb');shakeBoard();
- flashToast(`💣 Felrobbantva · −${BOMB_COST} pont`);
+ flashToast(tr('toast.bombDone',{cost:BOMB_COST}));
  render({preservePieces:true});MotionControl?.resume?.();
  GameEvents.emit('bomb',{id,type:o.type});
 }

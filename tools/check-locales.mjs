@@ -51,6 +51,23 @@ for(const f of fs.readdirSync(path.join(root,'js')).filter(f=>f.endsWith('.js'))
 for(const th of json('content/themes/index.json').themes)for(const part of ['shortName','tag','description'])used.add(`theme.${th.id}.${part}`);
 // A key ending in '.' is a dynamic prefix (e.g. tr('exit.side.'+dir)); its keys are listed below.
 for(const k of used)if(k&&!k.endsWith('.')&&!(k in src))errors.push(`code uses unknown key ${k}`);
+// v0.15.75: a text that has a key but is still written into the game code stays Hungarian in
+// every language (the BOMB toast did). Look for the longest fixed part (without placeholders)
+// of every source text in the code of the player-facing scripts, comments stripped. A text
+// without placeholders only counts as a whole string literal ('Szabad játék'), so longer
+// developer sentences that merely contain it (scenario mode) are not reported.
+const DEV_SCRIPTS=new Set(['i18n.js','scenario-editor.js','theme-lab.js','theme-studio.js']);
+const code=fs.readdirSync(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!DEV_SCRIPTS.has(f))
+ .map(f=>[f,read('js/'+f).replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|[^:\\'"`])\/\/.*$/gm,'$1')]);
+for(const [k,v] of Object.entries(src)){
+ if(k.startsWith('theme.'))continue;
+ for(const s of forms(v)){
+  const part=String(s).split(/\{\w+\}/).map(p=>p.trim()).sort((a,b)=>b.length-a.length)[0]||'';
+  if(part.length<8||!/[a-zA-ZÀ-ž]{4}/.test(part))continue;
+  const whole=!/\{\w+\}/.test(String(s)),found=c=>whole?['\'','"','`'].some(q=>c.includes(q+part+q)):c.includes(part);
+  for(const [f,c] of code)if(found(c))errors.push(`js/${f}: text of ${k} is written into the code ("${part}") – use tr('${k}')`);
+ }
+}
 const unused=Object.keys(src).filter(k=>k!=='@@locale'&&!used.has(k)&&!/^(exit\.side|dir|piece|motion|gesture|tip|toast|aria|auto|hint|victory|adaptive|setup|menu|game|top|pad)\.|^settings\.languageAuto$/.test(k));
 if(unused.length)warnings.push('keys not found in code (check dynamic use): '+unused.join(', '));
 for(const w of warnings)console.warn('WARN',w);

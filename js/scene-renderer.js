@@ -74,7 +74,7 @@ const SceneRenderer=(()=>{
   const st=wrap.querySelector('.skin-scene-title');
   if(st){
    st.hidden=mode==='artwork';
-   if(mode!=='artwork'){st.querySelector('strong').textContent=(t?.name||'GGrid').split('//')[0].trim();st.querySelector('span').textContent=t?.scene?.subtitle||(document.body.classList.contains('scenario-mode')?'Forgatókönyv':'Szabad játék')}
+   if(mode!=='artwork'){st.querySelector('strong').textContent=(t?.name||'GGrid').split('//')[0].trim();st.querySelector('span').textContent=t?.scene?.subtitle||I18n.t(document.body.classList.contains('scenario-mode')?'game.scenario':'game.freePlay')}
   }
   wrap.style.setProperty('--ggrid-piece-move',`${globalThis.ThemeVisuals?.moveMs?.(t)??190}ms`);
   wrap.classList.toggle('scene-artwork',mode==='artwork');
