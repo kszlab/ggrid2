@@ -48,7 +48,9 @@ const PadLayout=(()=>{
   const diff=(typeof difficultyEl!=='undefined'&&difficultyEl?.value)?'D'+difficultyEl.value:'';
   // Two-ball levels are scored since v0.15.63; the ball count moved next to the level.
   const multi=typeof inMultiBallTest==='function'&&inMultiBallTest();
-  levelEl.textContent=[diff,`${state.width}×${state.height}`,multi?'●●':''].filter(Boolean).join(' · ');
+  // The two-ball mark sits in the small label: the value line stays short enough for narrow phones.
+  levelEl.textContent=[diff,`${state.width}×${state.height}`].filter(Boolean).join(' · ');
+  const levelLabel=$('#padLevelLabel');if(levelLabel)levelLabel.textContent=multi?'Pálya · ●●':'Pálya';
   levelEl.title=(typeof currentLevelId!=='undefined'&&currentLevelId)||'';
 
  }

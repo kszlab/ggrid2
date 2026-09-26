@@ -301,6 +301,9 @@
     "moveMs": 190
   },
   "renderMode": "artwork",
+  "renderer": {
+    "rigid": "shape"
+  },
   "textPolicy": {
     "functionalText": "localized",
     "themeIdentity": "theme-selector-only",

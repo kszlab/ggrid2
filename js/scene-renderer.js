@@ -179,13 +179,11 @@ const SceneRenderer=(()=>{
   const live=new Set(),w=state?.width||1,h=state?.height||w,cellX=100/w,cellY=100/h,inset=globalThis.ThemeVisuals?.rigidInset?.(theme)??1.8;
   for(const o of (state?.objects||[])){
    if(o.exited||o.type!=='brick'||(o.cells||[]).length<2)continue;
-   const id=String(o.id),shapeId=globalThis.RigidShapes?.identify?.(o.cells)||'';
-   const xs=o.cells.map(q=>q.x),ys=o.cells.map(q=>q.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
-   const boxArea=(maxX-minX+1)*(maxY-minY+1);
-   const rectangular=globalThis.RigidShapes?.isRectangular?.(o.cells)??(o.cells.length===boxArea);
-   const rawVariant=shapeId?variants[shapeId]:null,rigidMode=theme?.renderer?.rigid||'material';
-   const useTiles=rigidMode==='tiles'&&!!tileUrls,useSilhouette=rigidMode==='material'&&!!tileUrls,useShape=rigidMode==='shape'&&!!rawVariant;
-   const useComposite=useSilhouette||useShape||(!useTiles&&!!baseSpec&&rectangular),rawSpec=useShape?rawVariant:(!useSilhouette&&!useTiles?baseSpec:null),spec=resolvedSpec(rawSpec,`${theme?.id||'theme'}:rigid:${shapeId}:${o.id}`);
+   const id=String(o.id),xs=o.cells.map(q=>q.x),ys=o.cells.map(q=>q.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+   // The plan never hides the cells unless something drawable replaces them (see RigidShapes.renderPlan).
+   const plan=globalThis.RigidShapes.renderPlan(theme,o.cells,{tiles:!!tileUrls,artwork:renderMode()==='artwork'}),shapeId=plan.shapeId,rawVariant=plan.variant;
+   const useTiles=plan.mode==='tiles',useSilhouette=plan.mode==='silhouette';
+   const useComposite=useSilhouette||plan.mode==='shape'||plan.mode==='composite',spec=resolvedSpec(plan.spec,`${theme?.id||'theme'}:rigid:${shapeId}:${o.id}`);
    board.querySelectorAll('.piece[data-id="'+CSS.escape(id)+'"]').forEach(el=>{
     el.classList.toggle('sr-composite-source',useComposite);
     if(useTiles){globalThis.ThemeAutotile?.apply?.(el,o,+(el.dataset.cellkey?.split(':')[1]||0),tileUrls);el.style.setProperty('--sr-join',pieceInset+'px')}

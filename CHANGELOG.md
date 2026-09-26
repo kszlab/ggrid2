@@ -15,6 +15,17 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.66 — 2026-09-26
+
+### Javítás: láthatatlan merev testek a Celestial Library témában
+- Ok: a v0.15.53 óta az alakonkénti rigid-képeket csak `renderer.rigid: "shape"` beállítású téma használja. A Celestial Library ezt nem kapta meg, ezért a téglalap alakú többcellás testek egy általános, CSS-sel rajzolt elemet kaptak, ami festett (artwork) témában üres – a test cellái közben rejtve voltak, így a test láthatatlan lett (pl. `FG2-3X3-B2-00045`).
+- A téma megkapta a `renderer.rigid: "shape"` beállítást: a 2H, 2V, 3H, 3V és a négy L-alak a saját kódex-képével jelenik meg.
+- Biztonsági háló: az új `RigidShapes.renderPlan()` dönti el a rajzolás módját, és festett témában csak akkor rejti el a cellákat, ha van helyettük kép. Kép nélküli alak (pl. 2×2, 1×4) cellánként látszik; többcellás test így nem lehet láthatatlan.
+- Új teszt: `tools/test-rigid-visibility.mjs` minden témára és minden pályákban előforduló alakra.
+
+### Javítás: Pálya mező
+- A kétgolyós jel (●●) a „Pálya” feliratba került; a „D10 · 3×3” érték keskeny telefonon sem vágódik le.
+
 ## v0.15.65 — 2026-09-25
 
 ### Súgó frissítése

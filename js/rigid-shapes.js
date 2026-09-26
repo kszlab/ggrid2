@@ -44,7 +44,27 @@ const RigidShapes=(()=>{
  };
  function cssClass(id=''){return 'sr-shape-'+String(id).toLowerCase().replace(/[^a-z0-9_-]+/g,'-')}
  function clipPath(id=''){return clips[id]||''}
- return{normalize,signature,bounds,identify,isRectangular,cssClass,clipPath};
+ /* How a multi-cell rigid body is drawn in a theme:
+    tiles | silhouette – painted material from artwork.pieces.rigidTiles;
+    shape     – the theme's own picture for this exact shape (renderer.rigid:'shape');
+    composite – one generic rigidBody element over the whole (rectangular) body;
+    cells     – every cell drawn on its own with the single-brick look.
+    For shape/composite the cells underneath are hidden, so the overlay must be
+    drawable: in a painted (artwork) theme that means it needs an image, because
+    CSS-markup parts render empty there. Otherwise fall back to cells, so a body
+    can never become invisible. */
+ function renderPlan(theme,cells,{tiles=false,artwork=false}={}){
+  const art=theme?.artwork?.pieces||{},base=art.rigidBody||theme?.pieces?.rigidBody||null;
+  const variants=art.rigidShapes||art.rigidBodyVariants||theme?.pieces?.rigidBodyVariants||{};
+  const shapeId=identify(cells),variant=variants[shapeId]||null,mode=theme?.renderer?.rigid||'material';
+  const drawable=s=>!!s&&(!artwork||!!s.asset);
+  if(mode==='tiles'&&tiles)return{mode:'tiles',shapeId,spec:null,variant};
+  if(mode==='material'&&tiles)return{mode:'silhouette',shapeId,spec:null,variant};
+  if(mode==='shape'&&drawable(variant))return{mode:'shape',shapeId,spec:variant,variant};
+  if(isRectangular(cells)&&drawable(base))return{mode:'composite',shapeId,spec:base,variant};
+  return{mode:'cells',shapeId,spec:null,variant};
+ }
+ return{normalize,signature,bounds,identify,isRectangular,cssClass,clipPath,renderPlan};
 })();
 if(typeof globalThis!=='undefined')globalThis.RigidShapes=RigidShapes;
 if(typeof module!=='undefined'&&module.exports)module.exports=RigidShapes;
