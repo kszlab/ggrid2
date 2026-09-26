@@ -15,6 +15,11 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.76 — 2026-09-26
+
+### Javítás
+- **Freeze-villanás:** fagyasztásnál a pálya rövid kivilágosodása megmarad, de a merev testek (pl. a Holdkert szigetei, a saját rajzos könyvek) már nem kapnak külön, a pályánál kb. kétszer erősebb kivilágosítást és téglalap alakú fényudvart. A kiválasztott elemet a Freeze-jelölés emeli ki.
+
 ## v0.15.75 — 2026-09-26
 
 ### Javítások
