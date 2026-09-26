@@ -32,7 +32,19 @@ for(const entry of index.themes){
  }
  report[entry.id]=modes;
 }
-// The painted theme must use its own codex pictures for the shapes it has.
-const cl=read('content/themes/celestial-library/theme.json');
-for(const id of Object.keys(cl.artwork.pieces.rigidShapes))assert.equal(RigidShapes.renderPlan(cl,shapes.get(id)||[],{artwork:true}).mode,'shape','celestial-library '+id);
-console.log(JSON.stringify({rigidVisibility:'passed',shapes:shapes.size,themes:Object.keys(report).length,celestial:report['celestial-library']}));
+// v0.15.73: visible is not enough – a theme that defines its own picture for a shape
+// must actually get that picture (the Celestial Library and Sunlit Greenhouse regressions
+// both passed the visibility check while their own shape art was skipped).
+const intended={};
+for(const entry of index.themes){
+ const theme=read(path.join('content/themes',entry.src)),artwork=ThemeAssets.renderMode(theme)==='artwork';
+ const own=theme.artwork?.pieces?.rigidShapes||(artwork?null:theme.pieces?.rigidBodyVariants);
+ if(!own||!Object.keys(own).length)continue;
+ for(const id of Object.keys(own)){
+  const cells=shapes.get(id);if(!cells)continue;
+  const plan=RigidShapes.renderPlan(theme,cells,{tiles:!!theme.artwork?.pieces?.rigidTiles,artwork});
+  assert.equal(plan.mode,'shape',`${entry.id} ${id}: own shape art defined but ${plan.mode} is used (set renderer.rigid:"shape")`);
+ }
+ intended[entry.id]=Object.keys(own).length;
+}
+console.log(JSON.stringify({rigidVisibility:'passed',shapes:shapes.size,themes:Object.keys(report).length,ownShapeArtUsed:intended}));

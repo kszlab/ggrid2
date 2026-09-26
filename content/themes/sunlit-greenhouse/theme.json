@@ -218,6 +218,9 @@
       "win": "bloom"
     }
   },
+  "renderer": {
+    "rigid": "shape"
+  },
   "pieces": {
     "ball": {
       "className": "sr-piece sg-seed",
