@@ -178,6 +178,25 @@ function detonate(id){
 function syncSoundControls(){soundBtn.setAttribute('aria-checked',String(AudioManager.effectsEnabled));ambientBtn.setAttribute('aria-checked',String(AudioManager.ambientEnabled))}
 function selectedDims(){const v=String(sizeEl.value);if(v.includes('x')){const [w,h]=v.split('x').map(Number);return{w,h}}const n=+v;return{w:n,h:n}}
 function pctPos(x,y,w,h){const inset=globalThis.ThemeVisuals?.pieceInset?.(SceneRenderer?.theme)??1.8,cx=100/w,cy=100/h;return{left:`calc(${x*cx}% + ${inset}px)`,top:`calc(${y*cy}% + ${inset}px)`,width:`calc(${cx}% - ${inset*2}px)`,height:`calc(${cy}% - ${inset*2}px)`};}
+/* v0.15.75: Freeze marker of a multi-cell body – one tile per cell of the body, outlined only on
+   the body's outer edges, so any shape (T, S, U, …) is marked exactly and a ball or empty cell
+   inside its bounding box stays uncovered. cc-* marks a concave corner, where the outline turns inwards. */
+function freezeBodyMarker(o){
+ const all=new Set(o.cells.map(c=>key(c.x,c.y))),has=(x,y)=>all.has(key(x,y)),cx=100/state.width,cy=100/state.height;
+ const wrap=document.createElement('div');wrap.className='freeze-selection-marker freeze-selection-body';wrap.setAttribute('aria-hidden','true');
+ const badge=[...o.cells].sort((a,b)=>a.y-b.y||b.x-a.x)[0];
+ for(const c of o.cells){
+  const t=has(c.x,c.y-1),r=has(c.x+1,c.y),b=has(c.x,c.y+1),l=has(c.x-1,c.y),cl=['freeze-cell'];
+  if(!t)cl.push('edge-t');if(!r)cl.push('edge-r');if(!b)cl.push('edge-b');if(!l)cl.push('edge-l');
+  if(t&&r&&!has(c.x+1,c.y-1))cl.push('cc-tr');if(r&&b&&!has(c.x+1,c.y+1))cl.push('cc-br');
+  if(b&&l&&!has(c.x-1,c.y+1))cl.push('cc-bl');if(l&&t&&!has(c.x-1,c.y-1))cl.push('cc-tl');
+  if(c===badge)cl.push('freeze-badge');
+  const e=document.createElement('i');e.className=cl.join(' ');
+  e.style.left=(o.x+c.x)*cx+'%';e.style.top=(o.y+c.y)*cy+'%';e.style.width=cx+'%';e.style.height=cy+'%';
+  wrap.append(e);
+ }
+ return wrap;
+}
 function outerEdgeClasses(o,ci){
  const c=o.cells[ci],all=new Set(o.cells.map(q=>key(q.x,q.y))),cl=[];
  const sides=[['t',0,-1],['r',1,0],['b',0,1],['l',-1,0]];
@@ -230,15 +249,8 @@ function render(opts={}){
   const selected=state.objects.find(o=>o.id===freezeId&&!o.exited);
   if(selected){
    const cells=selected.cells||[];
-   if(cells.length>1){
-    const xs=cells.map(c=>c.x),ys=cells.map(c=>c.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
-    const marker=document.createElement('div'),p=pctPos(selected.x+minX,selected.y+minY,state.width,state.height);
-    const shapeId=RigidShapes?.identify?.(cells)||'',clip=RigidShapes?.clipPath?.(shapeId)||'';
-    marker.className='freeze-selection-marker freeze-selection-composite '+(RigidShapes?.cssClass?.(shapeId)||'');
-    marker.dataset.shapeId=shapeId;marker.style.left=p.left;marker.style.top=p.top;
-    marker.style.width=((maxX-minX+1)*100/state.width)+'%';marker.style.height=((maxY-minY+1)*100/state.height)+'%';
-    if(clip)marker.style.setProperty('--freeze-clip',clip);marker.setAttribute('aria-hidden','true');board.append(marker);
-   }else for(const c of cells){
+   if(cells.length>1)board.append(freezeBodyMarker(selected));
+   else for(const c of cells){
     const marker=document.createElement('div'),p=pctPos(selected.x+c.x,selected.y+c.y,state.width,state.height);
     marker.className='freeze-selection-marker';marker.style.left=p.left;marker.style.top=p.top;marker.style.width=p.width;marker.style.height=p.height;marker.setAttribute('aria-hidden','true');board.append(marker);
    }

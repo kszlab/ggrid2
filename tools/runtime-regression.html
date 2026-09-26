@@ -124,6 +124,19 @@ const tests=[
   assert(E('freezeId')===piece.dataset.id,`a koppintás elveszett (freezeId: ${E('freezeId')})`);
   assert(E('state.moves')===moves0,'a remegés lépést adott');
   E('cancelFreezeSelection()');return `kijelölve: ${piece.dataset.id}`}],
+ ['Freeze: több cellás, nem téglalap alakú test jelölése pontosan a test celláit fedi',async()=>{
+  // v0.15.75: the marker used to cover the bounding box and hid a ball standing in it.
+  const range=E('JSON.stringify(LevelPool.range)');E('LevelPool.setRange({sizes:["5x6","5x7","5x8"],diffs:[1,2,3,4,5,6,7,8,9,10]},false)');
+  let id=null;for(let i=0;i<300&&!id;i++){E('requestPoolLevel()');id=E(`(state.objects.find(o=>o.type!=='ball'&&o.cells.length>=4&&!RigidShapes.isRectangular(o.cells))||{}).id||null`)}
+  E(`LevelPool.setRange(${range},false)`);assert(id,'nincs nem téglalap alakú, legalább 4 cellás test');await sleep(200);
+  E(`freezeArmed=true;freezeId=${JSON.stringify(id)};render({preservePieces:true})`);
+  const r=E(`(()=>{const o=state.objects.find(x=>x.id===${JSON.stringify(id)}),bb=board.getBoundingClientRect(),x0=bb.left+board.clientLeft,y0=bb.top+board.clientTop,cw=board.clientWidth/state.width,ch=board.clientHeight/state.height;
+   const cells=[...document.querySelectorAll('.freeze-selection-body .freeze-cell')].map(e=>{const q=e.getBoundingClientRect();return{at:Math.round((q.left-x0)/cw)+','+Math.round((q.top-y0)/ch),full:Math.abs(q.width-cw)<1.5&&Math.abs(q.height-ch)<1.5}});
+   return{shape:RigidShapes.identify(o.cells),want:o.cells.map(c=>(o.x+c.x)+','+(o.y+c.y)).sort(),got:cells.map(c=>c.at).sort(),full:cells.every(c=>c.full),badges:document.querySelectorAll('.freeze-cell.freeze-badge').length,markers:document.querySelectorAll('.freeze-selection-marker').length}})()`);
+  assert(JSON.stringify(r.got)===JSON.stringify(r.want),`${r.shape}: jelölt cellák ${r.got.join(' ')}, a test cellái ${r.want.join(' ')}`);
+  assert(r.full,'a jelölés cellái nem egész cellák');assert(r.badges===1&&r.markers===1,`${r.markers} jelölő, ${r.badges} ❄ jel`);
+  E('cancelFreezeSelection()');assert(!E('document.querySelector(".freeze-selection-marker")'),'a jelölés megmaradt a visszavonás után');
+  return `${r.shape}: ${r.want.length} cella, befoglaló keret nélkül`}],
  ['Simítás: valódi simítás lép, csak a saját koppintását nyeli el, a következő koppintás működik',async()=>{
   await idle();const pe=(type,el,x,y,id)=>el.dispatchEvent(new W.PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',clientX:x,clientY:y,isPrimary:true}));
   const pieces=[...W.document.querySelectorAll('#board .piece')].filter(e=>!e.classList.contains('wall'));assert(pieces.length>=2,'kevés elem');

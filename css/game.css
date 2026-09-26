@@ -469,32 +469,33 @@ body[data-ui-context="game"] main #freeze.freeze-action[data-freeze-state="unava
 }
 
 
-/* v0.15.8 – one silhouette-aware Freeze marker for each rigid body */
-.freeze-selection-marker.freeze-selection-composite{
- border:0;
- border-radius:0;
- background:none;
- box-shadow:none;
- filter:none;
-}
-.freeze-selection-marker.freeze-selection-composite::before{
- content:"";
- position:absolute;
- inset:0;
- border-radius:10px;
- background:linear-gradient(135deg,#b6f6ff70,#45c9ee52);
- clip-path:var(--freeze-clip,inset(0 round 10px));
- box-shadow:inset 0 0 0 3px var(--freeze-edge,#078bb6);
- filter:drop-shadow(0 0 3px #f4feff) drop-shadow(0 0 9px var(--freeze-glow,#9bf4ff));
-}
-.freeze-selection-marker.freeze-selection-composite::after{
- top:6px;
- right:6px;
-}
-.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-tl::after{left:6px;right:auto;top:6px;bottom:auto}
-.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-tr::after{right:6px;left:auto;top:6px;bottom:auto}
-.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-bl::after{left:6px;right:auto;bottom:6px;top:auto}
-.freeze-selection-marker.freeze-selection-composite.sr-shape-l3-br::after{right:6px;left:auto;bottom:6px;top:auto}
+/* v0.15.75 – Freeze marker of a multi-cell body: one tile per cell of the body (main.js
+   freezeBodyMarker), white outline and blue inner ring on the outer edges only, so every shape is
+   marked exactly. The glow is a filter on the whole group: it follows the silhouette without seams. */
+.freeze-selection-marker.freeze-selection-body{inset:0;border:0;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 0 3px #f4feff) drop-shadow(0 0 9px var(--freeze-glow,#9bf4ff))}
+.freeze-selection-marker.freeze-selection-body::after{content:none}
+.freeze-cell{--line:#f4feff;--ring:var(--freeze-edge,#078bb6);position:absolute;box-sizing:border-box;border:0 solid var(--line);
+ background:
+  linear-gradient(var(--line),var(--line)) left top/var(--cc-tl,0 0) no-repeat,
+  linear-gradient(var(--line),var(--line)) right top/var(--cc-tr,0 0) no-repeat,
+  linear-gradient(var(--line),var(--line)) right bottom/var(--cc-br,0 0) no-repeat,
+  linear-gradient(var(--line),var(--line)) left bottom/var(--cc-bl,0 0) no-repeat,
+  #8fe3f75c;
+ box-shadow:inset 0 var(--ring-t,0px) 0 0 var(--ring),inset calc(-1*var(--ring-r,0px)) 0 0 0 var(--ring),inset 0 calc(-1*var(--ring-b,0px)) 0 0 var(--ring),inset var(--ring-l,0px) 0 0 0 var(--ring)}
+.freeze-cell.edge-t{border-top-width:4px;--ring-t:2px}
+.freeze-cell.edge-r{border-right-width:4px;--ring-r:2px}
+.freeze-cell.edge-b{border-bottom-width:4px;--ring-b:2px}
+.freeze-cell.edge-l{border-left-width:4px;--ring-l:2px}
+.freeze-cell.edge-t.edge-l{border-top-left-radius:10px}
+.freeze-cell.edge-t.edge-r{border-top-right-radius:10px}
+.freeze-cell.edge-b.edge-r{border-bottom-right-radius:10px}
+.freeze-cell.edge-b.edge-l{border-bottom-left-radius:10px}
+/* concave corner: the outline turns inwards here, fill the 4px gap between the two edge lines */
+.freeze-cell.cc-tl{--cc-tl:4px 4px}
+.freeze-cell.cc-tr{--cc-tr:4px 4px}
+.freeze-cell.cc-br{--cc-br:4px 4px}
+.freeze-cell.cc-bl{--cc-bl:4px 4px}
+.freeze-cell.freeze-badge::after{content:"❄";position:absolute;top:-8px;right:-7px;display:grid;place-items:center;width:22px;height:22px;border:2px solid #fff;border-radius:50%;background:#08799c;color:white;font:800 15px/1 system-ui;text-shadow:0 1px 2px #004966;box-shadow:0 1px 7px #023947}
 
 /* Theme Pipeline v1: arbitrary rigid-body autotile quarters. */
 .piece.sr-autotile{background:transparent!important;overflow:visible}
