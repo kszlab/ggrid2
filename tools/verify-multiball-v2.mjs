@@ -29,9 +29,11 @@ for(const size of sizes){
 }
 const fetchLocal=async url=>({ok:true,json:async()=>JSON.parse(fs.readFileSync(new URL(String(url),'https://example.invalid/').pathname.slice(1),'utf8'))});
 const library=new Function('fetch','location',fs.readFileSync('js/multiball-library.js','utf8')+'\nreturn MultiBallLibrary;')(fetchLocal,{href:'https://example.invalid/'});
-await library.init();const health=library.health();assert.equal(health.ok,true);assert.equal(health.total,240);
+// The runtime library loads every multiball pack (v2 + expansion-v3-*); the per-size checks above cover the v2 packs.
+const catalogTotal=JSON.parse(fs.readFileSync('content/levels/multiball/catalog.json','utf8')).packs.reduce((n,p)=>n+p.levelCount,0);
+await library.init();const health=library.health();assert.equal(health.ok,true);assert.equal(health.total,catalogTotal);
 for(const size of sizes){const [w,h]=size.split('x').map(Number);for(let d=1;d<=10;d++){
- const cycle=Array.from({length:5},()=>library.next(w,h,d));assert.equal(new Set(cycle.slice(0,4).map(x=>x.levelId)).size,4);assert.equal(cycle[0].levelId,cycle[4].levelId);
+ const n=library.candidates(w,h,d).length,cycle=Array.from({length:n+1},()=>library.next(w,h,d));assert.equal(new Set(cycle.slice(0,n).map(x=>x.levelId)).size,n);assert.equal(cycle[0].levelId,cycle[n].levelId);
  const game=library.toGame(cycle[0]);let s=game.state;for(const dir of game.solution)s=production.step(s,dir).state;assert.equal(s.won,true);
 }}
 const report={model,total:ids.size,verified:true,productionEquivalentTransitions:transitions,runtimeLibraryHealth:health,summary,calibrationSha256:crypto.createHash('sha256').update(fs.readFileSync('tools/difficulty-calibration-v2.json')).digest('hex')};

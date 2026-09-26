@@ -74,6 +74,18 @@
         "visibility": "public"
       },
       "levelCount": 40
+    },
+    {
+      "id": "expansion-v3-2000-b2",
+      "src": "packs/expansion-v3-2000-b2.json",
+      "metadataVersion": 3,
+      "contentType": "level-pack",
+      "status": "active",
+      "access": {
+        "entitlement": null,
+        "visibility": "public"
+      },
+      "levelCount": 133
     }
   ],
   "metadataVersion": 3
