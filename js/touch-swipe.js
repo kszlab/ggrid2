@@ -5,12 +5,12 @@
    the browser's own gestures (scroll, zoom, pull-to-refresh) are blocked on
    the game area. Only offered on touch devices; on by default there. */
 const TouchSwipe=(()=>{
- const KEY='ggrid.gesture.v1',THRESHOLD=28,DOMINANCE=1.5,MOVED=10,BUFFER_MS=650;
+ const KEY='ggrid.gesture.v1',THRESHOLD=28,DOMINANCE=1.5,BUFFER_MS=650;
  const wrap=document.querySelector('.board-wrap'),toggle=document.querySelector('#gestureControl'),availability=document.querySelector('#gestureAvailability');
  const touchDevice=(navigator.maxTouchPoints||0)>0||matchMedia('(pointer: coarse)').matches;
  let enabled=touchDevice;
  try{const v=localStorage.getItem(KEY);if(v!=null)enabled=touchDevice&&v==='on'}catch(_){}
- let track=null,suppressClickUntil=0,pending=null,pendingTimer=null;
+ let track=null,suppress=null,pending=null,pendingTimer=null;
 
  function sync(){
   document.body.classList.toggle('gesture-control',enabled);
@@ -38,21 +38,22 @@ const TouchSwipe=(()=>{
  function ignoredTarget(t){return !!t.closest?.('.victory-overlay,.edge-control')}
  wrap?.addEventListener('pointerdown',e=>{
   if(track||e.pointerType==='mouse'||!gameReady()||ignoredTarget(e.target))return;
-  track={id:e.pointerId,x:e.clientX,y:e.clientY,fired:false,moved:false};
+  track={id:e.pointerId,x:e.clientX,y:e.clientY,fired:false,target:e.target};
  });
  // Listen on window: pointer capture would retarget the click away from a tapped piece.
  addEventListener('pointermove',e=>{
   if(!track||e.pointerId!==track.id)return;
   const dx=e.clientX-track.x,dy=e.clientY-track.y,ax=Math.abs(dx),ay=Math.abs(dy);
-  if(Math.max(ax,ay)>MOVED)track.moved=true;
   if(track.fired||Math.max(ax,ay)<THRESHOLD)return;
   if(ax>=ay*DOMINANCE)track.fired='x';else if(ay>=ax*DOMINANCE)track.fired='y';else return;
   if(gameReady())fire(track.fired==='x'?(dx>0?'right':'left'):(dy>0?'down':'up'));
  },{passive:true});
- function end(e){if(!track||e.pointerId!==track.id)return;if(track.moved)suppressClickUntil=performance.now()+400;track=null}
+ // Only a touch that really produced a step swallows its own click: tap jitter below the
+ // swipe threshold keeps the tap (e.g. Freeze selection), and later taps are never lost.
+ function end(e){if(!track||e.pointerId!==track.id)return;if(track.fired)suppress={target:track.target,until:performance.now()+400};track=null}
  addEventListener('pointerup',end,{passive:true});addEventListener('pointercancel',end,{passive:true});
  // A swipe that started on a piece must not also select it as a Freeze target.
- wrap?.addEventListener('click',e=>{if(performance.now()<suppressClickUntil){e.preventDefault();e.stopPropagation()}},true);
+ wrap?.addEventListener('click',e=>{const s=suppress;if(!s)return;suppress=null;if(performance.now()<s.until&&(e.target===s.target||s.target.contains?.(e.target))){e.preventDefault();e.stopPropagation()}},true);
  // iOS Safari fallback for touch-action: no page scroll or pinch zoom on the game area.
  wrap?.addEventListener('touchmove',e=>{if(enabled&&document.body.dataset.uiContext==='game')e.preventDefault()},{passive:false});
  wrap?.addEventListener('gesturestart',e=>{if(enabled)e.preventDefault()});
