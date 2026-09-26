@@ -15,6 +15,11 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.69 — 2026-09-26
+
+### Jelenetfeliratok vissza, díszítésként
+- A pálya alján lévő kis jelenetfeliratok (pl. „MOON GARDEN // 静 水”, „ACID RAIN // ROOFTOP 09 EVAC”) újra látszanak, változatlanul az eredeti angol szövegükkel. A téma nagy címfelirata (pl. „HOLDKERT”, „NAPÜVEGHÁZ”) továbbra sem jelenik meg a pályaképen.
+
 ## v0.15.68 — 2026-09-26
 
 ### Nincs témafelirat a pályaképen
