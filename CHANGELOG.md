@@ -15,6 +15,27 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.77 — 2026-09-26
+
+### Telepíthető, offline is működő app (PWA)
+- **Telepítés:** a játék telefonra és számítógépre telepíthető (saját ikon, teljes képernyő, álló tájolás). Beállítások → Alkalmazás:
+  - Android és asztali Chrome/Edge: „Telepítés” gomb;
+  - iPhone: Safari-útmutató.
+- **Offline játék:** az első megnyitás után minden játékfájl a készüléken van (185 fájl, kb. 10 MB), a játék internet nélkül is indul.
+- **Frissítés:**
+  - új verziónál csak a megváltozott fájlok töltődnek le, ellenőrzötten;
+  - indításkor a kezdőképernyőn azonnal átvált;
+  - játék közben egy „Új verzió érhető el – Frissítés” sáv jelenik meg, és pálya közben semmi nem cserélődik.
+- **Haladás mentése és betöltése:** pontok, megoldott pályák, nehézség és beállítások egy fájlba, és vissza. iPhone-on ezzel vihető át a Safariban szerzett haladás a telepített appba (külön tárhely).
+- **Mobil:** a kezdőképernyő, a panelek és minden elrendezés kikerüli a kijelzőkivágást és az alsó sávot; telepített appban nincs lehúzásos frissítés. Telepített appban tartós tárhelyet kér.
+- **Fejlesztés:**
+  - `tools/build-pwa.mjs`: minden kiadásnál futtatandó;
+  - `tools/test-pwa.mjs`: hibát jelez, ha kimaradt;
+  - `tools/build-icons.mjs`: ikonok;
+  - localhoston a service worker kikapcsol (`?pwa-test`-tel próbálható).
+
+  Leírás: `docs/PWA.md`.
+
 ## v0.15.76 — 2026-09-26
 
 ### Javítás

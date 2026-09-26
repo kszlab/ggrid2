@@ -11,7 +11,7 @@
    The page activates a waiting version only when the player asks (update bar) or at app start –
    see js/pwa.js. Not registered on localhost, so development and the regression tests stay uncached. */
 /* PWA-ASSETS:BEGIN */
-const VERSION="0.15.76";
+const VERSION="0.15.77";
 const ASSETS={
  "apple-touch-icon.png":"5574ffe93c14ebf7",
  "content/levels/catalog.json":"3fc9f99727cdc573",
@@ -164,7 +164,7 @@ const ASSETS={
  "icons/icon-192.png":"5cda1ba56fc41ab4",
  "icons/icon-512.png":"b620721ccaed19db",
  "icons/icon-maskable-512.png":"bcb872f5afc2ec2a",
- "index.html":"581804593f4f6370",
+ "index.html":"532fb7a311226f03",
  "js/adaptive-difficulty.js":"0dcba0775ec3c68c",
  "js/audio.js":"36efd7558932a275",
  "js/freeze-solver-v1.js":"c661547bc2adafe6",
