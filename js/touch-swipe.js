@@ -17,7 +17,8 @@ const TouchSwipe=(()=>{
   if(toggle){toggle.checked=enabled;toggle.disabled=!touchDevice}
   if(availability)availability.textContent=touchDevice?'Simítás a játéktéren: egy simítás, egy lépés':'Csak érintőképernyős eszközön érhető el';
  }
- function set(v){enabled=touchDevice&&v;try{localStorage.setItem(KEY,enabled?'on':'off')}catch(_){}sync()}
+ // force: only for tools/runtime-regression.html, which runs on desktop browsers too.
+ function set(v,force=false){enabled=(touchDevice||force)&&v;try{localStorage.setItem(KEY,enabled?'on':'off')}catch(_){}sync()}
  // Same conditions as tilt control: only on the running game, never under a panel.
  function gameReady(){
   if(!enabled||document.body.dataset.uiContext!=='game'||!state||state.won)return false;

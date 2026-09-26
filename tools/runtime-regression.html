@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GGrid runtime regresszió</title>
+<style>
+ :root{--bg:#0d1620;--fg:#e8f1f8;--ok:#5fd28a;--bad:#ff6b6b;--skip:#e0b44f;--muted:#9fb1c0}
+ body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif}
+ h1{font-size:18px;margin:0 0 4px}p{margin:0 0 12px;color:var(--muted)}
+ button{padding:8px 16px;border:0;border-radius:8px;background:#2f7de0;color:#fff;font-weight:700;cursor:pointer}
+ #summary{margin:12px 0;font-weight:800}
+ table{border-collapse:collapse;width:100%;max-width:900px}td{padding:6px 8px;border-bottom:1px solid #ffffff1a;vertical-align:top}
+ td.r{font-weight:800;white-space:nowrap}.pass{color:var(--ok)}.fail{color:var(--bad)}.skip{color:var(--skip)}
+ td.d{color:var(--muted);font-size:12px}
+ iframe{width:412px;height:780px;border:1px solid #ffffff33;border-radius:10px;margin-top:16px;background:#000}
+</style></head>
+<body>
+<h1>GGrid runtime regresszió</h1>
+<p>A játékot egy beágyazott ablakban tölti be és vezérli: alkalmazkodó nehézség és újrakezdés, témaváltás közbeni zárolás, simítás és koppintás. A böngésző GGrid-mentéseit (pontok, beállítások) a futás előtt elmenti, utána visszaállítja.</p>
+<button id="run" type="button">Tesztek futtatása</button>
+<div id="summary"></div>
+<table id="results"></table>
+<iframe id="game" title="GGrid teszt alatt"></iframe>
+<script>
+const frame=document.getElementById('game'),table=document.getElementById('results'),summary=document.getElementById('summary');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let W=null;const E=code=>W.eval(code);
+async function until(fn,ms=8000,label='feltétel'){const t0=performance.now();while(performance.now()-t0<ms){try{if(fn())return true}catch(_){}await sleep(25)}throw Error('időtúllépés: '+label)}
+function row(name,status,detail=''){const tr=document.createElement('tr');tr.innerHTML=`<td class="r ${status}">${status==='pass'?'✔ OK':status==='fail'?'✘ HIBA':'– kihagyva'}</td><td>${name}</td><td class="d"></td>`;tr.lastChild.textContent=detail;table.append(tr)}
+function assert(c,msg){if(!c)throw Error(msg)}
+
+// ---- game helpers (all run inside the game frame) ----
+async function load(){
+ frame.src='../index.html?regression='+Date.now();
+ await new Promise(r=>frame.onload=r);W=frame.contentWindow;
+ await until(()=>E('typeof LevelPool!=="undefined"&&typeof AdaptiveDifficulty!=="undefined"&&typeof TouchSwipe!=="undefined"'),15000,'modulok');
+ await E('LevelPool.init()');await sleep(300);
+}
+async function startFreePlay(sizes,diffs){
+ E('document.getElementById("homeFreePlay").click()');await until(()=>!E('document.getElementById("freePlaySetup").hidden'),5000,'pályaválasztó');await sleep(200);
+ E(`LevelPool.setRange({sizes:${JSON.stringify(sizes)},diffs:${JSON.stringify(diffs)}},false)`);
+ E('document.getElementById("freeSetupPlay").click()');
+ await until(()=>E('document.body.dataset.uiContext==="game"&&!!state&&!document.body.classList.contains("level-switching")'),10000,'játék indul');await sleep(300);
+}
+const idle=()=>until(()=>E('!busy&&!autoSolveActive'),5000,'lépés vége');
+async function mv(dir){await idle();E(`move(${JSON.stringify(dir)})`);await idle()}
+async function newLevel(){await E('(async()=>{document.getElementById("new").click();await new Promise(r=>setTimeout(r,20))})()');await until(()=>E('!!state&&!document.body.classList.contains("level-switching")'),10000,'új pálya');await sleep(150)}
+async function solveOptimal(){for(const d of E('[...optimal]')){if(E('state.won'))break;await mv(d)}await until(()=>E('state.won'),5000,'győzelem');await sleep(500)}
+const balls=()=>E('totalBalls()'),rating=b=>E(`AdaptiveDifficulty.rating(${b})`),dClass=()=>E('currentLevelRecord.analysis.testDifficultyClass');
+function perfectDelta(d,r){const e=E(`AdaptiveDifficulty.expected(${d},${r})`);return Math.min(10,r+Math.min(.5,(1-e)*1.6))-r}
+// Make ≥5 moves without winning; returns false if the level got solved by accident.
+async function fiveMoves(){const seq=['up','left','down','right','up','left','down','right','up'];for(const d of seq){if(E('state.won'))return false;await mv(d);if(E('state.moves')>=5)return !E('state.won')}return !E('state.won')&&E('state.moves')>=5}
+async function levelWith(pred,tries=25){for(let i=0;i<tries;i++){if(pred())return true;await newLevel()}return false}
+
+// ---- tests ----
+const tests=[
+ ['Adaptív: 5 lépés, majd új pálya → kudarcként számít (kontroll)',async()=>{
+  for(let i=0;i<10;i++){await newLevel();const b=balls(),r0=rating(b);if(!(await fiveMoves()))continue;await newLevel();const r1=rating(b);assert(r1<r0,`a szint nem csökkent (${r0} → ${r1})`);return `${b} golyó: D${r0} → D${r1}`}
+  throw Error('nem sikerült 5 lépést tenni győzelem nélkül')}],
+ ['Adaptív: 5 lépés, újrakezdés, legfeljebb 1 lépés, új pálya → nem kudarc',async()=>{
+  for(let i=0;i<10;i++){await newLevel();const b=balls(),r0=rating(b);if(!(await fiveMoves()))continue;
+   E('document.getElementById("playRestart").click()');await sleep(200);assert(E('state.moves')===0,'az újrakezdés után a lépésszám nem 0');
+   await mv('up');if(E('state.won'))continue;await newLevel();const r1=rating(b);assert(Math.abs(r1-r0)<1e-9,`a szint változott (${r0} → ${r1})`);return `${b} golyó: D${r0} változatlan`}
+  throw Error('nem sikerült 5 lépést tenni győzelem nélkül')}],
+ ['Adaptív: súgó, újrakezdés, optimális megoldás → nincs súgóbüntetés',async()=>{
+  await newLevel();assert(await levelWith(()=>E('optimal.length')>=3),'nincs legalább 3 lépéses pálya');
+  E('scoreData.balance=Math.max(scoreData.balance,50)');let hints=0;E('GameEvents.on("hint",()=>{window.__hints=(window.__hints||0)+1})');W.__hints=0;
+  E('hint()');await until(()=>W.__hints>0,5000,'súgó');hints=W.__hints;
+  E('document.getElementById("playRestart").click()');await sleep(200);
+  const b=balls(),r0=rating(b),d=dClass();await solveOptimal();const r1=rating(b),want=perfectDelta(d,r0);
+  assert(Math.abs((r1-r0)-want)<0.011,`változás ${(r1-r0).toFixed(3)}, elvárt ${want.toFixed(3)} (súgó nélküli tökéletes eredmény)`);
+  E('document.getElementById("victoryNext").click()');await until(()=>E('!state.won&&!document.body.classList.contains("level-switching")'),8000,'következő');
+  return `${hints} súgó után újrakezdve: D${r0} → D${r1} (elvárt +${want.toFixed(2)})`}],
+ ['Automatikus megoldás, leállítás, újrakezdés, kézi megoldás → teljes eredmény és pont',async()=>{
+  for(let i=0;i<10;i++){await newLevel();if(E('optimal.length')<5)continue;
+   E('startAutoSolve()');await until(()=>E('autoSolveActive&&state.moves>=1'),8000,'automatikus megoldás');
+   E('document.getElementById("autoSolveStop").click()');await idle();if(E('state.won'))continue;
+   E('document.getElementById("playRestart").click()');await sleep(200);
+   const b=balls(),r0=rating(b),d=dClass(),bal0=E('scoreData.balance');await solveOptimal();const r1=rating(b),want=perfectDelta(d,r0),bal1=E('scoreData.balance');
+   assert(Math.abs((r1-r0)-want)<0.011,`szintváltozás ${(r1-r0).toFixed(3)}, elvárt ${want.toFixed(3)}`);
+   assert(bal1>bal0||E(`Number(scoreData.best[currentLevelId])`)>0,'nem járt pont az újrakezdés utáni kézi megoldásért');
+   E('document.getElementById("victoryNext").click()');await until(()=>E('!state.won&&!document.body.classList.contains("level-switching")'),8000,'következő');
+   return `D${r0} → D${r1}, pont: ${bal0} → ${bal1}`}
+  throw Error('nem volt megfelelő pálya')}],
+ ['Témaváltás lassított betöltéssel: a régi pálya zárolva, új téma csak az új pályán',async()=>{
+  E('AppUI.openFreeSetup()');await sleep(600);E('document.getElementById("themePickAll").click()');E('document.getElementById("freeSetupPlay").click()');
+  await until(()=>E('!!state&&document.body.dataset.uiContext==="game"&&!document.body.classList.contains("level-switching")'),8000,'indítás');await sleep(300);
+  E('window.__origLoad=ScenarioMode.loadFreeTheme;ScenarioMode.loadFreeTheme=async id=>{await new Promise(r=>setTimeout(r,700));return window.__origLoad(id)}');
+  const themeBefore=E('document.body.dataset.theme'),idBefore=E('currentLevelId');
+  E('window.__p=newLevel()');await sleep(50);
+  assert(E('document.body.classList.contains("level-switching")'),'nincs zárolás');
+  assert(E('state')===null,'a régi pálya állapota aktív maradt');
+  E('move("up")');W.document.dispatchEvent(new W.KeyboardEvent('keydown',{key:'ArrowUp',bubbles:true}));
+  assert(E('state')===null,'bevitel jutott a régi pályára');
+  assert(E('document.body.dataset.theme')===themeBefore,'az új téma már a régi pálya alatt megjelent');
+  assert(E('getComputedStyle(document.querySelector("main")).pointerEvents')==='none','a játéktér érinthető maradt');
+  await E('window.__p');await sleep(100);
+  assert(!E('document.body.classList.contains("level-switching")'),'a zárolás nem oldódott fel');
+  assert(E('!!state')&&E('currentLevelId')!==idBefore,'nem töltődött be új pálya');
+  return `téma: ${themeBefore} → ${E('document.body.dataset.theme')}`}],
+ ['Gyors, egymás utáni „Új pálya” lassított témaváltással: csak az utolsó érvényesül',async()=>{
+  let starts=0;W.__starts=0;E('GameEvents.on("level:start",()=>{window.__starts++})');
+  E('window.__ps=[newLevel(),newLevel(),newLevel()]');await E('Promise.all(window.__ps)');await sleep(200);
+  starts=W.__starts;
+  assert(starts===1,`${starts} pálya indult el 1 helyett`);
+  assert(!E('document.body.classList.contains("level-switching")')&&E('!!state'),'rendezetlen végállapot');
+  assert(E('ThemeRotation.selected.includes(document.body.dataset.theme)'),'nem kijelölt téma');
+  E('ScenarioMode.loadFreeTheme=window.__origLoad');
+  return `1 pálya indult, téma: ${E('document.body.dataset.theme')}`}],
+ ['Simítás: 15 px-es ujjremegés megtartja a koppintást (Freeze-kijelölés)',async()=>{
+  E('TouchSwipe.set(true,true)');await newLevel();await idle();
+  const pe=(type,el,x,y,id)=>el.dispatchEvent(new W.PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',clientX:x,clientY:y,isPrimary:true}));
+  const piece=W.document.querySelector('#board .piece.ball')||W.document.querySelector('#board .piece.brick');assert(piece,'nincs elem a pályán');
+  const r=piece.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2,moves0=E('state.moves');
+  E('freezeArmed=true;freezeId=null');
+  pe('pointerdown',piece,x,y,21);pe('pointermove',piece,x+15,y+4,21);pe('pointerup',piece,x+15,y+4,21);piece.click();
+  assert(E('freezeId')===piece.dataset.id,`a koppintás elveszett (freezeId: ${E('freezeId')})`);
+  assert(E('state.moves')===moves0,'a remegés lépést adott');
+  E('cancelFreezeSelection()');return `kijelölve: ${piece.dataset.id}`}],
+ ['Simítás: valódi simítás lép, csak a saját koppintását nyeli el, a következő koppintás működik',async()=>{
+  await idle();const pe=(type,el,x,y,id)=>el.dispatchEvent(new W.PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',clientX:x,clientY:y,isPrimary:true}));
+  const pieces=[...W.document.querySelectorAll('#board .piece')].filter(e=>!e.classList.contains('wall'));assert(pieces.length>=2,'kevés elem');
+  let moves=0;W.__mv=0;E('GameEvents.on("move",()=>{window.__mv++})');
+  const a=pieces[0],ra=a.getBoundingClientRect(),x=ra.x+ra.width/2,y=ra.y+ra.height/2;
+  pe('pointerdown',a,x,y,31);pe('pointermove',a,x+20,y,31);pe('pointermove',a,x+45,y+3,31);pe('pointerup',a,x+45,y+3,31);
+  moves=W.__mv;assert(moves===1,`${moves} lépés 1 helyett`);await idle();
+  E('freezeArmed=true;freezeId=null');a.click();assert(E('freezeId')===null,'a simítás saját koppintása nem nyelődött el');
+  const b=[...W.document.querySelectorAll('#board .piece')].find(e=>!e.classList.contains('wall')&&e.dataset.id!==a.dataset.id);
+  b.click();assert(E('freezeId')===b.dataset.id,'a következő koppintás elveszett');
+  E('cancelFreezeSelection();TouchSwipe.set(TouchSwipe.touchDevice)');return 'simítás: 1 lépés, utána a koppintás működik'}]
+];
+
+async function run(){
+ const btn=document.getElementById('run');btn.disabled=true;table.innerHTML='';summary.textContent='Fut…';
+ const backup={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('ggrid'))backup[k]=localStorage.getItem(k)}
+ let pass=0,fail=0;
+ try{
+  for(const k of Object.keys(backup))localStorage.removeItem(k);
+  localStorage.setItem('ggrid.freeplay.themes.v1',JSON.stringify(['classic']));
+  await load();await startFreePlay(['4','5x8'],[3,4]);
+  for(const [name,fn] of tests){try{const d=await fn();row(name,'pass',d||'');pass++}catch(e){row(name,'fail',e.message);fail++;console.error(name,e)}}
+ }catch(e){row('Előkészítés','fail',e.message);fail++}
+ finally{
+  for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k.startsWith('ggrid'))localStorage.removeItem(k)}
+  for(const [k,v] of Object.entries(backup))localStorage.setItem(k,v);
+  summary.innerHTML=`<span class="${fail?'fail':'pass'}">${fail?'HIBA':'MINDEN RENDBEN'}</span> · ${pass} sikeres, ${fail} hibás · mentések visszaállítva`;
+  document.title=`GGrid regresszió: ${pass}/${pass+fail}`;window.__result={pass,fail};btn.disabled=false;
+ }
+}
+document.getElementById('run').addEventListener('click',run);
+if(new URLSearchParams(location.search).has('auto'))run();
+</script>
+</body></html>

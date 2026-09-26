@@ -15,6 +15,15 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.67 — 2026-09-26
+
+### Futásidejű állapotkezelési javítások (audit alapján)
+- **Simítás és koppintás:** a koppintást csak olyan simítás nyeli el, amely ténylegesen lépést adott, és csak a saját koppintását. A 28 px alatti ujjremegés nem veszi el a koppintást (Freeze-kijelölés), és egy simítás után a következő koppintás sem vész el.
+- **Eseményrendszer:** új `GameEvents` a `main.js`-ben (`level:leave`, `level:start`, `level:restart`, `move`, `hint`, `victory`). Az alkalmazkodó nehézség ezekre iratkozik fel, és már nem cseréli le futás közben a `main.js` függvényeit.
+- **Alkalmazkodó nehézség és újrakezdés:** az újrakezdés új próbálkozást indít ugyanazon a pályán: a súgóbüntetés és a „legalább 5 lépés” jelző nullázódik, így az újrakezdés utáni kihagyás nem számít kudarcnak. Egy már elszámolt (megnyert) pálya újrajátszása nem számít kétszer.
+- **Témaváltás közbeni zárolás:** amíg az új pálya témája töltődik, a régi pálya állapota érvénytelen, a játéktér nem érinthető, és billentyű, simítás vagy billentés sem jut el hozzá; az új téma nem jelenik meg a régi pályán. A `ThemeRotation.newLevel()` Promise-t ad, az Új pálya és a Következő megvárja. Gyors, egymás utáni kérésből csak az utolsó érvényesül.
+- **Regressziós tesztek:** új `tools/runtime-regression.html` (helyi szerveren megnyitva, `?auto` paraméterrel magától indul) 8 esettel: újrakezdés utáni adaptív próbálkozás, súgó + újrakezdés, automatikus megoldás + újrakezdés, zárolás lassított témaváltásnál, gyors egymás utáni új pálya, ujjremegés kontra simítás, Freeze-koppintás simítás mellett. A futás előtt elmenti, utána visszaállítja a böngésző GGrid-mentéseit. A javítások előtti kódon a fő hibákat jelző tesztek elbuknak.
+
 ## v0.15.66 — 2026-09-26
 
 ### Javítás: láthatatlan merev testek a Celestial Library témában
