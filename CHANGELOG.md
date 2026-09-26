@@ -15,6 +15,13 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.75 — 2026-09-26
+
+### Javítások
+- **BOMB angolul:** a robbanás utáni értesítés („💣 Blown up · −15 points”) a nyelvi fájlból jön; eddig angol nyelven is magyarul jelent meg. A rejtett jelenetcím és a forgatókönyv-tartalék név is kulcsból jön.
+- **Nyelvi ellenőrző:** hibát jelez, ha egy kulccsal rendelkező szöveg a játék kódjába van írva (így maradt magyar a BOMB-értesítés).
+- **Freeze-jelölés:** a több cellás test kiemelése cellánként készül, és csak a test külső élein van körvonal. Bármely alakot (T, S, U, …) pontosan követ; eddig a test befoglaló téglalapját fedte, és eltakarhatta a benne álló golyót vagy üres cellát. Új böngészős regressziós teszt (27 teszt).
+
 ## v0.15.74 — 2026-09-26
 
 ### Többnyelvű játék: magyar és angol
