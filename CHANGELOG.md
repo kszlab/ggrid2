@@ -15,6 +15,20 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.73 — 2026-09-26
+
+### Javítás: egymást átfedő témabetöltések (reprodukált hiba)
+- Ha egy korábban kért téma lassabban töltődött be, mint egy későbbi, a korábbi felülírhatta a későbbit (téma, stíluslap, hangprofil, mentett választás), témaváltásnál pedig a látható téma eltérhetett a megjelenő pálya témájától. A `loadFreeTheme()` mostantól „a legutolsó kérés nyer” szabály szerint működik: minden kérés azonosítót kap, az elavult kérés nem alkalmaz és nem töröl semmit (hibaágon sem), a stíluslapcserénél sem távolíthatja el az újabb stíluslapot, és `applied` / `stale` / `error` eredményt ad. A témaváltás ezt az eredményt használja; a forgatókönyv-téma betöltése is érvényteleníti a folyamatban lévő szabad játékos betöltést.
+- 4 új regressziós teszt eltérő késleltetéssel (lassú A → gyors B, gyors A → lassú B, későn hibázó A, témaváltás két gyors új pályával); a javítás előtti kódon elbuknak.
+
+### Javítás: a Napüvegház saját alakgrafikái (reprodukált hiba)
+- A 8 saját növénytartó-grafika (2H, 2V, 3H, 3V, 4 L-alak) a v0.15.53 óta kimaradt: az egyenes testek általános grafikát, az L-alakok cellánkénti tartalékot kaptak. A téma megkapta a `renderer.rigid: "shape"` beállítást. Böngészőben ellenőrizve: az alakok a foglalt cellákra illeszkednek, az L-alak negyedik cellája szabad marad, nagy és szabálytalan testeknél a tartalék megjelenés megmarad, újrakezdés és festett témára, majd vissza váltás után sincs eltűnő vagy kettőzött test.
+- A `test-rigid-visibility` szigorúbb: ha egy téma saját alakgrafikát definiál, azt ténylegesen ki is kell választani (a javítás nélküli témán elbukik).
+
+### Megelőzés
+- Új `docs/THEME-RENDER-MODES.md`: a rajzolási módok és tartalékok döntési sorrendje, a láthatósági szabály és a témakészítési szabály (saját alakgrafika → `renderer.rigid: "shape"`).
+- Hiányzó témakép vagy stíluslap konzolfigyelmeztetést ad (`[GGrid Theme] … failed to load`); a betöltés ettől nem áll meg.
+
 ## v0.15.72 — 2026-09-26
 
 ### Súgó: egy állásért csak egyszer kell fizetni
