@@ -420,6 +420,84 @@
   "context": "Board message once all game files are stored on the device",
   "maxLength": 44
  },
+ "settings.app": "Alkalmazás",
+ "@settings.app": {
+  "context": "Settings section title: install the game, back up progress"
+ },
+ "settings.appSub": "Telepítés és a haladás mentése",
+ "@settings.appSub": {
+  "context": "Settings section subtitle"
+ },
+ "settings.install": "Telepítés alkalmazásként",
+ "@settings.install": {
+  "context": "Settings row: install the web game as an app (home screen icon)"
+ },
+ "settings.installSub": "Saját ikon a kezdőképernyőn; internet nélkül is fut",
+ "@settings.installSub": {
+  "context": "Row hint when the browser can install the app"
+ },
+ "settings.installBtn": "Telepítés",
+ "@settings.installBtn": {
+  "context": "Button: open the browser install dialog",
+  "maxLength": 14
+ },
+ "settings.installed": "Telepítve – internet nélkül is fut",
+ "@settings.installed": {
+  "context": "Row hint when the game already runs as an installed app"
+ },
+ "settings.installIos": "Safariban: Megosztás gomb → „Főképernyőhöz adás”",
+ "@settings.installIos": {
+  "context": "Row hint on iPhone/iPad: the install steps in Safari (use the menu item name of iOS in your language)"
+ },
+ "settings.installOther": "A böngésző menüjében: „Alkalmazás telepítése” vagy „Hozzáadás a kezdőképernyőhöz”",
+ "@settings.installOther": {
+  "context": "Row hint in browsers without an install dialog"
+ },
+ "settings.export": "Haladás mentése",
+ "@settings.export": {
+  "context": "Settings row: save progress to a file"
+ },
+ "settings.exportSub": "Pontok, megoldott pályák, nehézség és beállítások egy fájlba",
+ "@settings.exportSub": {
+  "context": "Row hint"
+ },
+ "settings.exportBtn": "Mentés",
+ "@settings.exportBtn": {
+  "context": "Button: save the progress file",
+  "maxLength": 14
+ },
+ "settings.import": "Haladás betöltése",
+ "@settings.import": {
+  "context": "Settings row: restore progress from a saved file"
+ },
+ "settings.importSub": "Mentett fájlból; felülírja a mostani állást",
+ "@settings.importSub": {
+  "context": "Row hint"
+ },
+ "settings.importBtn": "Betöltés",
+ "@settings.importBtn": {
+  "context": "Button: choose the progress file",
+  "maxLength": 14
+ },
+ "progress.exported": "Haladás elmentve",
+ "@progress.exported": {
+  "context": "Message after the progress file was saved",
+  "maxLength": 34
+ },
+ "progress.importBad": "Ez nem GGrid-mentés",
+ "@progress.importBad": {
+  "context": "Message: the chosen file is not a GGrid progress file",
+  "maxLength": 34
+ },
+ "progress.failed": "A mentés nem sikerült",
+ "@progress.failed": {
+  "context": "Message: storage error while saving or restoring",
+  "maxLength": 34
+ },
+ "progress.importConfirm": "Betöltöd a mentést ({date}, {points} pont)? A mostani haladás felülíródik.",
+ "@progress.importConfirm": {
+  "context": "Confirmation dialog before restoring; {date} = when the backup was made, {points} = its points"
+ },
  "toast.autoUnavailable": "Az automatikus megoldás ebben a kiadásban nem érhető el.",
  "@toast.autoUnavailable": {
   "context": "Board message"

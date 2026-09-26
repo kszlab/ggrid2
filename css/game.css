@@ -644,4 +644,6 @@ body.layout-pad .pad-dir.hint-target span{background:#1b1410}
 .pwa-update-bar button{min-height:34px;border-radius:10px;font:800 .84rem system-ui,sans-serif;cursor:pointer}
 .pwa-update-now{padding:0 14px;border:0;background:var(--ui-accent,#e4c477);color:#10273a}
 .pwa-update-later{width:34px;border:1px solid #ffffff33;background:transparent;color:inherit}
-.pwa-update-bar button:focus-visible{outline:3px solid var(--ui-focus,#ffd58a);outline-offset:2px}
+.pwa-update-bar button:focus-visible{outline:3px solid var(--ui-focus,#ffd58a);outline-offset:2px}/* v0.15.77 settings row feedback (backup / restore): the row hint briefly shows the result */
+#settingsPanel .settings-copy small.settings-status{font-weight:800;color:#bff3c8}
+#settingsPanel .settings-copy small.settings-status.bad{color:#ffc8a8}

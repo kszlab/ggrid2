@@ -58,5 +58,25 @@ const PWA=(()=>{
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()});
  }
  init();
- return{get supported(){return supported},get registration(){return reg},check,apply};
+ /* Settings → App → Install. Android / desktop Chrome and Edge offer their own install prompt
+    (beforeinstallprompt), started by our button; iPhone/iPad cannot be prompted, so the row shows
+    the Safari steps; other browsers get the menu hint. Installed (standalone) → status only. */
+ let installPrompt=null;
+ const standalone=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+ const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1;
+ function paintInstall(){
+  const row=document.getElementById('installRow'),hint=document.getElementById('installHint'),btn=document.getElementById('installApp');if(!row)return;
+  row.hidden=!!globalThis.Capacitor;
+  hint.textContent=standalone()?I18n.t('settings.installed'):installPrompt?I18n.t('settings.installSub'):ios?I18n.t('settings.installIos'):I18n.t('settings.installOther');
+  btn.hidden=!installPrompt||standalone();
+ }
+ addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;paintInstall()});
+ addEventListener('appinstalled',()=>{installPrompt=null;paintInstall()});
+ document.getElementById('installApp')?.addEventListener('click',async()=>{
+  if(!installPrompt)return;const p=installPrompt;installPrompt=null;
+  try{await p.prompt();await p.userChoice}catch(_){}
+  paintInstall();
+ });
+ paintInstall();
+ return{get supported(){return supported},get registration(){return reg},get standalone(){return standalone()},check,apply};
 })();

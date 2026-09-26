@@ -160,6 +160,13 @@
     <div class="settings-row"><div class="settings-copy"><div class="settings-name"><span data-i18n="settings.measure">Mozdulatmérés</span> <button type="button" class="settings-info" aria-label="Információ a mozdulatmérésről" aria-expanded="false" data-i18n-attr="aria-label:settings.measureInfo">i<span class="settings-tooltip" role="tooltip" data-i18n="settings.measureTip">A teszt billentéseket, emelést, süllyesztést és csúsztatásokat rögzít JSON-fájlba. Ez kutatási mérés; nem állítja be automatikusan a mozgásvezérlést. A mérés felülete magyar nyelvű.</span></button></div><small data-i18n="settings.measureSub">Mérési adatok exportálása</small></div><button type="button" id="calibrate" class="settings-calibrate" disabled data-i18n="settings.measureStart">Mérés indítása</button></div>
    </div>
   </section>
+  <section id="appSettingsSection" class="settings-section"><h3 data-i18n="settings.app">Alkalmazás</h3><p data-i18n="settings.appSub">Telepítés és a haladás mentése</p>
+   <div class="settings-group">
+    <div class="settings-row" id="installRow"><div class="settings-copy"><div class="settings-name" data-i18n="settings.install">Telepítés alkalmazásként</div><small id="installHint" data-i18n="settings.installSub">Saját ikon a kezdőképernyőn; internet nélkül is fut</small></div><button type="button" id="installApp" class="settings-calibrate" hidden data-i18n="settings.installBtn">Telepítés</button></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name" data-i18n="settings.export">Haladás mentése</div><small id="exportHint" data-i18n="settings.exportSub">Pontok, megoldott pályák, nehézség és beállítások egy fájlba</small></div><button type="button" id="exportProgress" class="settings-calibrate" data-i18n="settings.exportBtn">Mentés</button></div>
+    <div class="settings-row"><div class="settings-copy"><div class="settings-name" data-i18n="settings.import">Haladás betöltése</div><small id="importHint" data-i18n="settings.importSub">Mentett fájlból; felülírja a mostani állást</small></div><button type="button" id="importProgress" class="settings-calibrate" data-i18n="settings.importBtn">Betöltés</button><input type="file" id="importProgressFile" accept=".json,application/json" hidden></div>
+   </div>
+  </section>
   <section id="shellThemeSection"><h3 data-i18n="settings.shell">Főképernyő és menük</h3><label for="shellThemeSelect" data-i18n="settings.shellLook">Megjelenés</label> <select id="shellThemeSelect"><option value="classic" data-i18n="settings.shellClassic">Klasszikus</option><option value="warm" data-i18n="settings.shellWarm">Meleg üveg</option></select></section>
   <section id="freeSettings"><h3>Szabad játék</h3><div id="settingsFree"></div></section>
  <div id="settingsCode" hidden></div>
@@ -214,7 +221,8 @@ I18n.boot('0.15.76',[
   'js/theme-rotation.js?v=0.15.76',
   'js/adaptive-difficulty.js?v=0.15.76',
   'js/ui-shell.js?v=0.15.76',
-  'js/pwa.js?v=0.15.76'
+  'js/pwa.js?v=0.15.76',
+  'js/progress-transfer.js?v=0.15.76'
 ]);
 </script>
 </body></html>
