@@ -67,7 +67,7 @@ const AdaptiveDifficulty=(()=>{
  // ---- setup screen: switch, current levels, reset ----
  const summary=document.querySelector('#freeRangeSummary'),row=document.createElement('div');row.className='adaptive-row';
  row.innerHTML='<label class="adaptive-switch"><input type="checkbox" id="adaptiveToggle"> <span></span></label><span id="adaptiveLevel"></span><button type="button" id="adaptiveReset"></button>';
- row.querySelector('.adaptive-switch span').textContent=I18n.t('setup.adaptive');row.querySelector('#adaptiveReset').textContent=I18n.t('setup.adaptiveReset');
+ row.querySelector('.adaptive-switch span').textContent=I18n.t('setup.adaptive');{const r=row.querySelector('#adaptiveReset');r.textContent='↺';r.title=I18n.t('setup.adaptiveReset');r.setAttribute('aria-label',I18n.t('setup.adaptiveReset'))}// v0.15.78: icon, so the row stays on one line
  summary?.after(row);
  const toggle=row.querySelector('#adaptiveToggle'),levelText=row.querySelector('#adaptiveLevel'),reset=row.querySelector('#adaptiveReset');
  function paint(){

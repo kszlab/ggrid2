@@ -55,7 +55,7 @@ const AppUI=(()=>{
   const cells=[['','','','',''],['',q[1],'',q[3],''],['','','','',''],[q[0],'',q[2],q[2],''],['','','','','']];
   let h='<div class="mini-board" aria-hidden="true">';
   for(let y=0;y<5;y++)for(let x=0;x<5;x++){const v=cells[y][x];let k='';if(v===q[0])k=' target';else if(v===q[3])k=' gate';else if(v)k=' block';h+='<i class="mini-cell'+k+'">'+v+'</i>'}
-  return h+'</div><span class="mini-exit">›</span>';
+  return h+'</div>';// v0.15.78: no exit arrow – the sample only shows colours and mood (it looked like a second "next" arrow)
  }
  function paintTheme(){
   const a=themes();if(!a.length)return;themeIndex=(themeIndex+a.length)%a.length;const t=a[themeIndex];

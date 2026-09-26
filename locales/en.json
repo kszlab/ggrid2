@@ -175,7 +175,7 @@
  "setup.all": "All",
  "setup.onlyThis": "Only this",
  "setup.adaptive": "Adaptive difficulty",
- "setup.adaptiveNeedsMore": "works when several difficulties are selected",
+ "setup.adaptiveNeedsMore": "needs 2+ difficulties",
  "setup.adaptiveLevel": "Your level: {levels}",
  "setup.adaptiveStart": "Starting at: D{d}",
  "setup.adaptiveReset": "Reset",

@@ -197,10 +197,10 @@ body:not(.scenario-mode) #scenarioInfo:empty:before{content:'Szabad játék';opa
 
 
 /* v0.12.20 – cinematic Free Play setup */
-.free-setup{position:fixed;inset:0;z-index:190;background:radial-gradient(circle at 50% 12%,#21435a,#071019 72%);display:grid;place-items:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));overflow:auto}
-.free-setup[hidden]{display:none}.free-setup-card{width:min(96vw,540px);min-height:min(94dvh,760px);display:flex;flex-direction:column;gap:9px}
+.free-setup{position:fixed;inset:0;z-index:190;background:radial-gradient(circle at 50% 12%,#21435a,#071019 72%);display:grid;grid-template-rows:minmax(100%,max-content);justify-items:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));overflow:auto;box-sizing:border-box}
+.free-setup[hidden]{display:none}.free-setup-card{width:min(96vw,540px);display:flex;flex-direction:column;justify-content:safe center;gap:9px}
 .free-setup-head{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;letter-spacing:.16em;font-size:.82rem}.free-setup-head button{width:40px;height:40px;border:0;border-radius:50%;background:#ffffff12;color:#fff;font-size:18px}.free-setup-head span{width:40px}
-.theme-cinema{position:relative;height:clamp(330px,57dvh,500px);border-radius:26px;overflow:hidden;background:#06101a;box-shadow:0 22px 55px #000b,inset 0 0 0 1px #ffffff20;touch-action:pan-y}
+.theme-cinema{position:relative;flex:1 1 0;min-height:228px;max-height:500px;container-type:size;border-radius:26px;overflow:hidden;background:#06101a;box-shadow:0 22px 55px #000b,inset 0 0 0 1px #ffffff20;touch-action:pan-y}
 .theme-preview{position:absolute;inset:0;overflow:hidden;transition:opacity .18s ease,transform .22s ease;background:#13283a}
 .theme-preview-art{position:absolute;inset:0;transform:scale(1.03);transition:background .3s ease}
 .theme-vignette{position:absolute;inset:0;background:linear-gradient(180deg,#00000008 35%,#000000d9 100%),radial-gradient(circle at 50% 42%,transparent 35%,#0008 100%);pointer-events:none}
@@ -210,13 +210,17 @@ body:not(.scenario-mode) #scenarioInfo:empty:before{content:'Szabad játék';opa
 .free-quick{display:grid;gap:6px;background:#ffffff0b;border:1px solid #ffffff10;border-radius:18px;padding:8px}.quick-row{display:grid;grid-template-columns:80px 1fr;gap:7px;align-items:center}.quick-row>span{text-align:left;font-size:.7rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.segmented.compact{grid-template-columns:repeat(5,1fr)}.segmented button{min-height:34px;border:0;border-radius:9px;background:#ffffff0c;color:#d9e8f3;font-size:.72rem;font-weight:700}.segmented button.active{background:#e8f5ff;color:#10273a;box-shadow:0 2px 8px #0005}
 .free-play-launch{border:0;border-radius:16px;min-height:54px;background:linear-gradient(135deg,#f5d16b,#ff9f43);color:#17212a;font-weight:900;letter-spacing:.08em;box-shadow:0 8px 24px #0007,inset 0 1px #fff9}
 .free-setup .panel-version{text-align:center;font-size:.64rem;opacity:.42}
-@keyframes freeRain{to{transform:translate(-28px,70px)}}@media(max-height:700px){.theme-cinema{height:42dvh;min-height:260px}.free-setup-card{gap:6px}.free-play-launch{min-height:48px}}
+@keyframes freeRain{to{transform:translate(-28px,70px)}}@media(max-height:700px){.free-setup-card{gap:6px}.free-play-launch{min-height:48px}}
+/* v0.15.78 level select fits every phone: the theme preview takes the height the other rows leave
+   (228–500 px) instead of a fixed 57% of the screen, which overflowed 701–830 px tall phones; the start
+   button sticks to the bottom if a very small screen still has to scroll. The sample board scales with
+   the preview's height and width and stays above the theme name. */
+.free-play-launch{position:sticky;bottom:0;z-index:2;flex:0 0 auto}
 
 
 /* v0.12.21 – recognizable miniature GGrid scene inside every cinema card */
-.theme-preview-art{display:grid;place-items:center}.mini-board{position:absolute;left:50%;top:46%;width:min(66%,300px);aspect-ratio:1;transform:translate(-50%,-50%) perspective(650px) rotateX(8deg);display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);padding:7px;gap:3px;border:2px solid #ffffff5c;border-radius:13px;background:#07111bbd;box-shadow:0 18px 35px #000b,inset 0 0 25px #fff1;z-index:2}
-.mini-cell{display:grid;place-items:center;min-width:0;border:1px solid #ffffff14;border-radius:6px;background:#ffffff09;color:#fff;font:800 clamp(7px,2vw,12px)/1 ui-monospace,monospace;text-shadow:0 1px 5px #000;overflow:visible}.mini-cell.block{background:linear-gradient(145deg,#d99b4c,#72431e);border-color:#ffe1a0;box-shadow:0 3px 7px #0009}.mini-cell.target{border-radius:50%;margin:14%;background:radial-gradient(circle at 35% 30%,#fff,#6deaff 25%,#1973c8 68%,#082c59);box-shadow:0 0 13px #70eaff}.mini-cell.gate{background:#0c1720;border:2px solid #a6efff;box-shadow:inset 0 0 9px #68eaff,0 0 10px #68eaff88}.mini-exit{position:absolute;z-index:3;right:12%;top:37%;font-size:32px;color:#fff;text-shadow:0 0 12px #8ff}
-@media(max-width:380px){.mini-board{width:62%}.mini-exit{right:10%}}
+.theme-preview-art{display:grid;place-items:center}.mini-board{position:absolute;left:50%;top:calc(50% - 50px);height:min(100cqh - 150px,62cqw,300px);aspect-ratio:1;transform:translate(-50%,-50%) perspective(650px) rotateX(8deg);display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);padding:7px;gap:3px;border:2px solid #ffffff5c;border-radius:13px;background:#07111bbd;box-shadow:0 18px 35px #000b,inset 0 0 25px #fff1;z-index:2}
+.mini-cell{display:grid;place-items:center;min-width:0;border:1px solid #ffffff14;border-radius:6px;background:#ffffff09;color:#fff;font:800 clamp(7px,2vw,12px)/1 ui-monospace,monospace;text-shadow:0 1px 5px #000;overflow:visible}.mini-cell.block{background:linear-gradient(145deg,#d99b4c,#72431e);border-color:#ffe1a0;box-shadow:0 3px 7px #0009}.mini-cell.target{border-radius:50%;margin:14%;background:radial-gradient(circle at 35% 30%,#fff,#6deaff 25%,#1973c8 68%,#082c59);box-shadow:0 0 13px #70eaff}.mini-cell.gate{background:#0c1720;border:2px solid #a6efff;box-shadow:inset 0 0 9px #68eaff,0 0 10px #68eaff88}
 
 
 /* v0.12.22 – compact board action strip */

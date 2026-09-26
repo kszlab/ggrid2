@@ -728,9 +728,10 @@
  "@setup.adaptive": {
   "context": "Checkbox label"
  },
- "setup.adaptiveNeedsMore": "több nehézség kijelölésével működik",
+ "setup.adaptiveNeedsMore": "2+ nehézségnél aktív",
  "@setup.adaptiveNeedsMore": {
-  "context": "Adaptive status"
+  "context": "Adaptive status next to the switch when only one difficulty is selected (it adapts only between several); one short line",
+  "maxLength": 24
  },
  "setup.adaptiveLevel": "Szinted: {levels}",
  "@setup.adaptiveLevel": {
