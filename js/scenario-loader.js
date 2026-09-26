@@ -3,12 +3,21 @@ const ScenarioMode=(()=>{
  const ROOT='content/',progressKey='ggrid.scenario.progress.v1',localStore='ggrid.local.scenarios.v1';
  let active=false,scenario=null,chapterIndex=0,stageIndex=0,effective=null,timerId=null,timeLeft=null;
  const freeThemeEl=document.querySelector('#freeTheme');let freeThemeIndex=null,themeCssLink=null;const preloadedThemeAssets=new Set();
- async function applyThemeAssetCss(t,base){
+ /* v0.15.73: theme loads are asynchronous and can overlap (fast theme switching, slow
+    network). "The latest request wins": every load gets a number, and only the newest
+    one may apply its stylesheet, scene, sounds or saved choice – or clear them on error.
+    A superseded request cleans up after itself and reports status 'stale'. */
+ let themeRequest=0;
+ const newThemeRequest=()=>{const n=++themeRequest;return()=>n===themeRequest};
+ async function applyThemeAssetCss(t,base,isCurrent=()=>true){
   const src=t?.assets?.css||t?.css||null;
-  if(!src||String(base).startsWith('local:')){if(themeCssLink){themeCssLink.remove();themeCssLink=null}return}
+  if(!src||String(base).startsWith('local:')){if(!isCurrent())return false;if(themeCssLink){themeCssLink.remove();themeCssLink=null}return true}
   const next=document.createElement('link');next.rel='stylesheet';next.dataset.ggridThemeCss='1';next.href=refUrl(base,src);document.head.append(next);
-  await new Promise(resolve=>{next.onload=resolve;next.onerror=resolve});
-  const old=themeCssLink;themeCssLink=next;if(old&&old!==next)old.remove();
+  const ok=await new Promise(resolve=>{next.onload=()=>resolve(true);next.onerror=()=>resolve(false)});
+  if(!ok)console.warn('[GGrid Theme] Stylesheet failed to load:',next.href);
+  // An older request must never replace (or remove) the newer request's stylesheet.
+  if(!isCurrent()){next.remove();return false}
+  const old=themeCssLink;themeCssLink=next;if(old&&old!==next)old.remove();return true;
  }
  async function preloadThemeAssets(t,base){
   if(String(base).startsWith('local:'))return;
@@ -17,7 +26,7 @@ const ScenarioMode=(()=>{
   await Promise.allSettled(items.filter(src=>typeof src==='string'&&src.trim()).map(src=>new Promise(resolve=>{
    const url=globalThis.ThemeAssets?.resolveUrl?.(t,src,base)||refUrl(base,src);if(preloadedThemeAssets.has(url)){resolve();return}
    const img=new Image();let done=false;const finish=()=>{if(done)return;done=true;preloadedThemeAssets.add(url);resolve()};
-   img.onload=finish;img.onerror=finish;img.src=url;if(img.complete)finish();
+   img.onload=finish;img.onerror=()=>{console.warn('[GGrid Theme] Asset failed to load:',url);finish()};img.src=url;if(img.complete)finish();
   })));
  }
  const panel=document.querySelector('#scenarioPanel'),list=document.querySelector('#scenarioList'),title=document.querySelector('#scenarioTitle'),desc=document.querySelector('#scenarioDesc'),info=document.querySelector('#scenarioInfo');
@@ -70,15 +79,24 @@ const ScenarioMode=(()=>{
   AudioManager?.setThemeAudio?.(t.audio||null);
   SceneRenderer?.apply?.(t);
  }
+ // Returns {status:'applied'|'stale'|'error', id, theme?, error?}.
  async function loadFreeTheme(id=freeThemeEl?.value||'classic'){
+  const isCurrent=newThemeRequest(),stale=()=>({status:'stale',id});
   try{
    if(!freeThemeIndex){freeThemeIndex=await fetchJson(ROOT+'themes/index.json');checkDoc(freeThemeIndex,'ggrid-theme-index')}
    const entry=(freeThemeIndex.themes||[]).find(t=>t.id===id)||(freeThemeIndex.themes||[]).find(t=>t.id==='classic');
    if(!entry)throw Error('INVALID_REFERENCE theme '+id);
-   const url=refUrl(ROOT+'themes/index.json',entry.src),t=await fetchJson(url);checkDoc(t,'ggrid-theme');t.__index=entry;t.__url=url;await preloadThemeAssets(t,url);await applyThemeAssetCss(t,url);applyTheme(t);
+   const url=refUrl(ROOT+'themes/index.json',entry.src),t=await fetchJson(url);checkDoc(t,'ggrid-theme');t.__index=entry;t.__url=url;
+   if(!isCurrent())return stale();
+   await preloadThemeAssets(t,url);if(!isCurrent())return stale();
+   if(!await applyThemeAssetCss(t,url,isCurrent)&&!isCurrent())return stale();
+   applyTheme(t);
    try{localStorage.setItem('ggrid.freeplay.theme.v1',entry.id)}catch(_){}
-   return t;
-  }catch(e){console.error(e);SceneRenderer?.clear?.();AudioManager?.setThemeAudio?.(null)}
+   return{status:'applied',id:entry.id,theme:t};
+  }catch(e){
+   if(!isCurrent())return stale();
+   console.error(e);SceneRenderer?.clear?.();AudioManager?.setThemeAudio?.(null);return{status:'error',id,error:e};
+  }
  }
  async function initFreeThemes(){
   if(!freeThemeEl)return;
@@ -118,7 +136,7 @@ const ScenarioMode=(()=>{
  async function loadStage(ci,si){
   chapterIndex=ci;stageIndex=si;effective=resolveStage();
   if(effective.completion?.type&&effective.completion.type!=='allBallsExited')throw Error('UNSUPPORTED_COMPLETION');
-  const theme=await loadRef(effective.theme,effective.base,'ggrid-theme');await preloadThemeAssets(theme,theme.__url);await applyThemeAssetCss(theme,theme.__url);applyTheme(theme);
+  const isCurrent=newThemeRequest(),theme=await loadRef(effective.theme,effective.base,'ggrid-theme');await preloadThemeAssets(theme,theme.__url);if(!isCurrent())return;await applyThemeAssetCss(theme,theme.__url,isCurrent);if(!isCurrent())return;applyTheme(theme);
   const lvl=await loadRef(effective.stage.level,effective.base,'ggrid-level'),s=toState(lvl);
   resetWinState();state=s;initial=cloneState(s);optimal=solve(s,30)||[];currentLevelId='Scenario: '+scenario.id+' / '+effective.stage.id;
   active=true;document.body.classList.add('scenario-mode');AppUI?.enterGame?.();newBtn.hidden=true;topbar.hidden=true;loadrow.hidden=true;scenarioOpenBtn.hidden=true;exitScenarioBtn.hidden=false;applyAbilities();hintVisible=false;toast.textContent='';render();paintInfo();startTimer();MotionControl?.onNewLevel?.();

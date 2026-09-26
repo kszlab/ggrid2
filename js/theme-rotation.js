@@ -64,9 +64,11 @@ const ThemeRotation=(()=>{
   lock();
   return (async()=>{
    try{
-    try{await ScenarioMode.loadFreeTheme(id)}catch(e){console.error(e)}
+    let res=null;try{res=await ScenarioMode.loadFreeTheme(id)}catch(e){console.error(e)}
+    // A newer switch owns the screen now: it shows its own level.
     if(token!==switching)return false;
-    loadedId=id;if(themeEl)themeEl.value=id;const r=requestLevel();prepareNext();return r;
+    // Only a theme that was really applied counts as loaded (a stale or failed load does not).
+    if(res?.status==='applied')loadedId=res.id;if(themeEl&&loadedId)themeEl.value=loadedId;const r=requestLevel();prepareNext();return r;
    }finally{if(token===switching)unlock()}
   })();
  }
