@@ -209,7 +209,19 @@ const tests=[
   assert(/url\(/.test(W.getComputedStyle(W.document.getElementById('board')).cursor),'nincs szálkereszt kurzor');
   el.click();assert(E('board.classList.contains("blocked")'),'a robbanás nem rázta meg a pályát');
   assert(/Felrobbantva/.test(E('toast.textContent')),'nincs „Felrobbantva” üzenet');await sleep(2300);assert(E('toast.textContent')==='','a „Felrobbantva” kint maradt');
-  return 'körvonal nincs, kurzor szálkereszt, rázkódás és 2 mp-es üzenet'}]
+  return 'körvonal nincs, kurzor szálkereszt, rázkódás és 2 mp-es üzenet'}],
+ ['Súgó: ugyanabban az állásban újra ingyen; lépés és újrakezdés után újra fizetős',async()=>{
+  await newLevel();assert(await levelWith(()=>E('optimal.length')>=4),'nincs legalább 4 lépéses pálya');
+  E('scoreData.balance=Math.max(scoreData.balance,50);updateScore()');W.__h=0;E('GameEvents.on("hint",()=>{window.__h++})');
+  const label=async()=>{await until(()=>E('!!toast.querySelector(".hint-dir")'),6000,'iránycímke')};
+  const b0=E('scoreData.balance');E('hint()');await label();assert(E('scoreData.balance')===b0-1&&W.__h===1,'az első súgó nem 1 pont');
+  E('hintVisible=false;clearToast()');E('hint()');await label();
+  assert(E('scoreData.balance')===b0-1&&W.__h===1,`az ismételt súgó újra fizetős volt (${b0} → ${E('scoreData.balance')})`);
+  const dir=E(`Object.keys(DIR_WORDS).find(d=>toast.querySelector(".hint-dir").textContent.includes(DIR_WORDS[d]))`);await mv(dir);
+  E('hint()');await label();assert(E('scoreData.balance')===b0-2&&W.__h===2,'lépés után nem vont le pontot');
+  E('document.getElementById("playRestart").click()');await sleep(200);E('hint()');await label();
+  assert(E('scoreData.balance')===b0-3&&W.__h===3,'újrakezdés után nem vont le pontot');
+  return `pontok: ${b0} → ${E('scoreData.balance')} (3 fizetős, 1 ingyenes súgó)`}]
 ];
 
 async function run(){

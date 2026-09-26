@@ -8,7 +8,7 @@ let victoryTimer=null,victoryPending=false,solverUsedThisRun=false;
    for 15 points. A level solved after a bomb gives a fixed 5 points, is not recorded as
    solved and does not move the adaptive level. The solver ignores bombs entirely. */
 const bombBtn=document.querySelector('#bomb'),BOMB_COST=15,BOMB_REWARD=5;
-let bombArmed=false,bombUsedThisRun=false;
+let bombArmed=false,bombUsedThisRun=false,paidHint=null;
 
 /* v0.15.22: build/edition feature gate.
    Development keeps every feature enabled. A future commercial build can set
@@ -124,7 +124,7 @@ function hideVictory(){
  if(victoryTimer)clearTimeout(victoryTimer);victoryTimer=null;victoryPending=false;
  victoryOverlay.hidden=true;document.body.classList.remove('victory-state');
 }
-function resetWinState(){hideVictory();solverUsedThisRun=false;rewardedThisRun=false;bombUsedThisRun=false;bombArmed=false;}
+function resetWinState(){hideVictory();solverUsedThisRun=false;rewardedThisRun=false;bombUsedThisRun=false;bombArmed=false;paidHint=null;}
 function enterVictory(automatic=false,rewardInfo=null){
  if(!state?.won||victoryPending||!victoryOverlay.hidden)return;
  victoryPending=true;freezeArmed=false;freezeId=null;hintVisible=false;toast.textContent='';
@@ -428,10 +428,15 @@ function freezeAdvice(result){
   runAction();
  },0);
 }
+/* v0.15.72: a hint is paid once per position. Asking again without any step in between
+   shows the same advice for free (and does not count again for the adaptive level).
+   A new level and a restart (fresh attempt) forget it; a bomb changes the position. */
+const hintPositionKey=()=>`${currentLevelId}|${bombUsedThisRun?'b':''}|${state.objects.length}|${stateKey(state)}`;
 function hint(){
  if(!state||state.won||autoSolveActive)return;
  cancelFreezeSelection();cancelBomb();
  if(hintVisible){hintVisible=false;clearToast();updateScore();return}
+ if(paidHint&&paidHint.key===hintPositionKey()){hintVisible=true;showHintToast(paidHint.advice);updateScore();return}
  if(isScoredFreePlay()&&scoreData.balance<1)return;
  hintVisible=true;
  toast.textContent='Solver számol…';
@@ -450,6 +455,7 @@ function hint(){
    advice=freezeAdvice(fr);
   }
   if(isScoredFreePlay()&&!spendScore(1)){hintVisible=false;return}
+  paidHint={key:hintPositionKey(),advice};
   GameEvents.emit('hint',{kind:'step'});
   showHintToast(advice);
   updateScore();
