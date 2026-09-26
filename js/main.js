@@ -71,9 +71,8 @@ function updateScore(){
  }
  const hintDisabled=won,autoSolveAllowed=appFeatureEnabled('autoSolve'),autoSolveSeconds=AUTO_SOLVE_HOLD_MS/1000;
  if(hintBtn){hintBtn.disabled=hintDisabled;hintBtn.title=won?'A pálya már kész.':test?autoSolveAllowed?`Kétgolyós játék: rövid nyomás javaslat, ${autoSolveSeconds} másodperc automatikus megoldás.`:'Kétgolyós játék: rövid nyomás javaslat.':isScoredFreePlay()?autoSolveAllowed?`Rövid nyomás: súgó (1 pont). ${autoSolveSeconds} másodperc: automatikus megoldás (0 pont).`:'Rövid nyomás: súgó (1 pont).':''}
- const visibleHint=document.querySelector('#playHint'),visibleFreezeHint=document.querySelector('#playFreezeHint');
- if(visibleHint){visibleHint.disabled=hintDisabled;visibleHint.title=won?'A pálya már kész.':test?autoSolveAllowed?`Kétgolyós teszt: rövid nyomás javaslat, ${autoSolveSeconds} másodperc automatikus megoldás.`:'Kétgolyós teszt: rövid nyomás javaslat.':autoSolveAllowed?`Rövid nyomás: súgó. ${autoSolveSeconds} másodperc nyomva tartás: automatikus megoldás, pont nélkül.`:'Rövid nyomás: súgó.'}
- if(visibleFreezeHint){visibleFreezeHint.disabled=hintDisabled;visibleFreezeHint.title=won?'A pálya már kész.':autoSolveAllowed?`Freeze-súgó: rövid nyomás egy lépéses javaslat, ${autoSolveSeconds} másodperc Freeze-t is használó automatikus megoldás.`:'Freeze-súgó: rövid nyomás egy lépéses javaslat.'}
+ const visibleHint=document.querySelector('#playHint');
+ if(visibleHint){visibleHint.disabled=hintDisabled;visibleHint.title=won?'A pálya már kész.':autoSolveAllowed?`Rövid nyomás: súgó (szükség esetén Freeze-zel). ${autoSolveSeconds} másodperc nyomva tartás: automatikus megoldás, pont nélkül.`:'Rövid nyomás: súgó (szükség esetén Freeze-zel).'}
  freezeBtn.disabled=won||!canUseFreeze()||(isScoredFreePlay()&&scoreData.balance<10);
  freezeBtn.dataset.freezeState=freezeBtn.disabled?'unavailable':freezeArmed?'active':'available';
  freezeBtn.title=won?'A pálya már kész.':freezeBtn.disabled?'Freeze: 10 pont szükséges':freezeArmed?'Freeze aktív: válassz elemet, vagy nyomd meg újra a kilépéshez':generated?'Generátor teszt: Freeze pontlevonás nélkül':isScoredFreePlay()?'Freeze: 10 pont a kijelölt elemmel kiadott irányparancsért':'Freeze: elem kijelölése';
@@ -277,11 +276,6 @@ function solveForPlay(s,mode='hint'){
  if(result.status==='solved')rememberSolverRoute(s,result.path);
  return result;
 }
-function solverFailureText(result){
- if(result?.status==='unsolvable')return'Innen Freeze nélkül nincs megoldás.';
- if(result?.status==='limit')return'A keresés elérte a számítási korlátot; ettől még lehet megoldás.';
- return'Nem sikerült megoldást számolni.';
-}
 /* v0.15.61: auto-solve has its own status bar below the board, with a red ✕
    that stops it; the level then continues from the current position. */
 const autoSolveBar=document.querySelector('#autoSolveBar'),autoSolveText=document.querySelector('#autoSolveText'),autoSolveStopBtn=document.querySelector('#autoSolveStop');
@@ -309,7 +303,7 @@ function startAutoSolve(){
    rememberSolverRoute(state,result.path);
   }else result=solveForPlay(state,'auto');
   if(token!==autoSolveToken)return;
-  if(result.status!=='solved'||!result.path?.length){hideAutoSolveBar();toast.textContent=solverFailureText(result);return}
+  if(result.status!=='solved'||!result.path?.length){startFreezeAutoSolve();return}
   const route=result.path;
   solverUsedThisRun=true;rewardedThisRun=true;autoSolveActive=true;MotionControl?.pause?.();render({preservePieces:true});
   let index=0;
@@ -336,32 +330,15 @@ function freezeSolverFailureText(result){
  if(result?.status==='limit')return'A Freeze-keresés elérte a számítási korlátot; ettől még lehet menthető út.';
  return'Nem sikerült Freeze-megoldást számolni.';
 }
-function freezeHint(){
- if(!state||state.won||autoSolveActive)return;
- cancelFreezeSelection();
- if(isScoredFreePlay()&&scoreData.balance<1)return;
- toast.textContent='Freeze-solver számol…';
- const snapshotKey=stateKey(state);
- setTimeout(()=>{
-  if(!state||stateKey(state)!==snapshotKey)return;
-  const result=solveWithFreezeForPlay(state,'hint');
-  if(stateKey(state)!==snapshotKey)return;
-  if(result.status!=='solved'||!result.actions?.length){toast.textContent=freezeSolverFailureText(result);return}
-  if(isScoredFreePlay()&&!spendScore(1))return;
-  GameEvents.emit('hint',{kind:'freeze'});
-  const arrows={up:'↑',down:'↓',left:'←',right:'→'},first=result.actions[0];
-  if(result.freezeUses===0){
-   toast.textContent=`Freeze nem szükséges. Következő optimális irány: ${arrows[first.dir]} · ${result.actions.length} lépés`;
-  }else if(first.freezeId){
-   toast.textContent=`❄ Fagyaszd le: ${first.freezeId}, majd ${arrows[first.dir]} · innen ${result.actions.length} lépés`;
-  }else{
-   const fi=result.firstFreezeIndex;
-   const fa=fi>=0?result.actions[fi]:null;
-   toast.textContent=`Következő: ${arrows[first.dir]} · Freeze ${fi+1}. lépésnél: ${fa?.freezeId||'?'} + ${fa?arrows[fa.dir]:''}`;
-  }
- },0);
-}
-function startFreezeAutoSolve(){
+const ARROWS={up:'↑',down:'↓',left:'←',right:'→'};
+// Advice text for a Freeze-solver result (used by the merged hint).
+function freezeAdviceText(result){
+ const first=result.actions[0];
+ if(result.freezeUses===0)return`Innen minimum ${result.actions.length} lépés. Következő optimális irány: ${ARROWS[first.dir]}`;
+ if(first.freezeId)return`❄ Fagyaszd le: ${first.freezeId}, majd ${ARROWS[first.dir]} · innen ${result.actions.length} lépés`;
+ const fi=result.firstFreezeIndex,fa=fi>=0?result.actions[fi]:null;
+ return`Következő: ${ARROWS[first.dir]} · Freeze ${fi+1}. lépésnél: ${fa?.freezeId||'?'} + ${fa?ARROWS[fa.dir]:''}`;
+}function startFreezeAutoSolve(){
  if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
  if(!state||state.won||autoSolveActive)return;
  stopHold();cancelFreezeSelection();hintVisible=false;
@@ -403,14 +380,21 @@ function hint(){
  toast.textContent='Solver számol…';
  setTimeout(()=>{
   if(!hintVisible||!state)return;
+  // v0.15.70: one hint for everything. A Freeze-free route comes first (fast, cached);
+  // only if there is none does the Freeze solver advise (at most one Freeze).
   const result=solveForPlay(state,'hint');
   if(!hintVisible)return;
-  if(result.status!=='solved'||!result.path?.length){toast.textContent=solverFailureText(result);updateScore();return}
+  let text;
+  if(result.status==='solved'&&result.path?.length)text=`Innen minimum ${result.path.length} lépés. Következő optimális irány: ${ARROWS[result.path[0]]}`;
+  else{
+   const fr=solveWithFreezeForPlay(state,'hint');
+   if(!hintVisible)return;
+   if(fr.status!=='solved'||!fr.actions?.length){toast.textContent=freezeSolverFailureText(fr);updateScore();return}
+   text=freezeAdviceText(fr);
+  }
   if(isScoredFreePlay()&&!spendScore(1)){hintVisible=false;return}
   GameEvents.emit('hint',{kind:'step'});
-  const arrows={up:'↑',down:'↓',left:'←',right:'→'};
-  const cacheNote=result.cached?'':'';
-  toast.textContent=`Innen minimum ${result.path.length} lépés. Következő optimális irány: ${arrows[result.path[0]]}${cacheNote}`;
+  toast.textContent=text;
   updateScore();
  },0);
 }
@@ -804,21 +788,6 @@ for(const event of ['pointerup','pointercancel','lostpointercapture'])playHintBt
 // Some mobile browsers issue a context menu on long touch; CSS disables that gesture.
 playHintBtn.addEventListener('click',e=>{if(!hintHoldFired)return;e.preventDefault();e.stopImmediatePropagation();hintHoldFired=false},true);
 playHintBtn.addEventListener('contextmenu',e=>e.preventDefault());
-const playFreezeHintBtn=document.querySelector('#playFreezeHint');let freezeHintHoldTimer=null,freezeHintHoldFired=false,freezeHintHoldPointer=null;
-function clearFreezeHintHold(){if(freezeHintHoldTimer)clearTimeout(freezeHintHoldTimer);freezeHintHoldTimer=null;freezeHintHoldPointer=null;playFreezeHintBtn.classList.remove('pressed')}
-playFreezeHintBtn.addEventListener('pointerdown',e=>{
- if(state?.won||e.button!==0||freezeHintHoldPointer!==null)return;
- clearFreezeHintHold();freezeHintHoldFired=false;freezeHintHoldPointer=e.pointerId;
- try{playFreezeHintBtn.setPointerCapture(e.pointerId)}catch(_){}
- playFreezeHintBtn.classList.add('pressed');
- freezeHintHoldTimer=setTimeout(()=>{freezeHintHoldTimer=null;freezeHintHoldFired=true;playFreezeHintBtn.classList.remove('pressed');startFreezeAutoSolve()},AUTO_SOLVE_HOLD_MS);
-});
-for(const event of ['pointerup','pointercancel','lostpointercapture'])playFreezeHintBtn.addEventListener(event,e=>{if(e.pointerId===freezeHintHoldPointer)clearFreezeHintHold()});
-playFreezeHintBtn.addEventListener('click',e=>{
- if(freezeHintHoldFired){e.preventDefault();e.stopImmediatePropagation();freezeHintHoldFired=false;return}
- freezeHint();
-});
-playFreezeHintBtn.addEventListener('contextmenu',e=>e.preventDefault());
 // Long-press on any in-game button must not open the browser's context menu.
 document.querySelector('#game').addEventListener('contextmenu',e=>{if(document.body.dataset.uiContext==='game'&&e.target.closest('button'))e.preventDefault()});
 soundBtn.addEventListener('click',async()=>{await AudioManager.toggleEffects();syncSoundControls()});

@@ -8,7 +8,7 @@
 const PadLayout=(()=>{
  const KEY='ggrid.ui.layout.v1';
  // [id, label, short label for narrow phones]
- const LEFT=[['freeze','Freeze','Freeze'],['playHint','Segítség','Súgó'],['playFreezeHint','Freeze-súgó','❄ súgó']];
+ const LEFT=[['freeze','Freeze','Freeze'],['playHint','Segítség','Súgó']];
  const RIGHT=[['playRestart','Újraindítás','Újra'],['playNext','Új pálya','Új pálya'],['playChoose','Pályaválasztó','Pályák']];
  const $=s=>document.querySelector(s);
  const top=$('#padTop'),deck=$('#padDeck'),sw=$('#padLayoutSwitch');
