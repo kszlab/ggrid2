@@ -627,3 +627,8 @@ body.layout-pad .pad-dir.hint-target{background:var(--ui-accent,#ffd76a)!importa
 body.layout-pad .pad-dir.hint-target span{background:#1b1410}
 .edge-control.hint-target{outline:3px solid var(--ui-accent,#ffd76a);outline-offset:2px;animation:hint-pulse 1s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.hint-target{animation:none!important}}
+/* v0.15.72 settings: three-way arrow layout picker */
+.settings-row-wide{flex-wrap:wrap;row-gap:8px}
+.layout-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:180px;flex:0 0 auto}
+.layout-picker button{min-height:34px;padding:0 8px;border:1px solid #ffffff33;border-radius:9px;background:#ffffff0c;color:inherit;font-weight:800;font-size:.78rem;cursor:pointer}
+.layout-picker button.active,#settingsPanel .layout-picker button.active{background:#e8f5ff!important;color:#10273a!important;border-color:#e8f5ff!important}

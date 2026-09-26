@@ -47,6 +47,11 @@ function showHintToast({prefix,dir,suffix=''}){
 new MutationObserver(()=>{const dir=Object.keys(DIR_WORDS).find(d=>toast.querySelector('.hint-dir')?.textContent.includes(DIR_WORDS[d]))||null;
  document.querySelectorAll('.hint-target').forEach(el=>{if(el.dataset.holdDir!==dir)el.classList.remove('hint-target')});
  if(dir)document.querySelectorAll(`[data-hold-dir="${dir}"]`).forEach(el=>el.classList.add('hint-target'));
+ // No-arrows layout (v0.15.72): the direction shows as a pulsing arrow on that edge of the board.
+ // Drawn on the board itself (not the frame), so the message under the board never covers it.
+ const edge=board.querySelector('.hint-edge');
+ if(dir&&document.body.classList.contains('layout-compact')){const el=edge||document.createElement('div');el.className='hint-edge hint-edge-'+dir;el.setAttribute('aria-hidden','true');el.textContent=DIR_ARROWS[dir];if(!edge)board.append(el)}
+ else edge?.remove();
 }).observe(toast,{childList:true,subtree:true,characterData:true});
 function appFeatureEnabled(name){return APP_VARIANT_FEATURES[APP_VARIANT]?.[name]===true}
 

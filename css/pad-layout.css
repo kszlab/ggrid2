@@ -93,3 +93,19 @@ body.layout-pad .pad-dir:focus-visible{outline:3px solid #fff;outline-offset:2px
 @media(max-width:360px){body.layout-pad .pad-deck{--pad-side:58px}body.layout-pad[data-ui-context="game"]{--pad-deck-h:156px}}
 @media(max-height:700px){body.layout-pad[data-ui-context="game"]{--pad-top-h:44px;--pad-deck-h:152px}body.layout-pad .pad-ico{font-size:23px}}
 body.layout-pad #playChoose .pad-long{font-size:10px;letter-spacing:-.3px}
+
+/* ---------- v0.15.72 no-arrows layout (body.layout-pad.layout-compact) ----------
+   Same top bar; the six buttons in one row under the board; no D-pad. The smaller deck
+   lets the board grow (its height formula uses --pad-deck-h). */
+body.layout-pad.layout-compact[data-ui-context="game"]{--pad-deck-h:56px}
+body.layout-pad.layout-compact .pad-dpad{display:none}
+body.layout-pad.layout-compact .pad-deck{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
+body.layout-pad.layout-compact .pad-col{flex-direction:row;gap:6px}
+body.layout-pad.layout-compact .pad-col .play-action,body.layout-pad.layout-compact .pad-col #freeze.play-action{max-height:none}
+body.layout-pad.layout-compact main #autoSolveBar{bottom:calc(var(--pad-deck-h) + 14px)}
+/* Hint without arrow buttons: a large translucent arrow pulses on that edge of the board. */
+.hint-edge{position:absolute;z-index:35;pointer-events:none;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;
+ background:color-mix(in srgb,var(--ui-accent,#ffd76a) 78%,transparent);color:#1b1410;font:900 34px/1 system-ui,sans-serif;box-shadow:0 4px 14px #0008;animation:hint-pulse 1s ease-in-out infinite}
+.hint-edge-up{top:8px;left:50%;margin-left:-28px}.hint-edge-down{bottom:8px;left:50%;margin-left:-28px}
+.hint-edge-left{left:8px;top:50%;margin-top:-28px}.hint-edge-right{right:8px;top:50%;margin-top:-28px}
+@media (prefers-reduced-motion:reduce){.hint-edge{animation:none}}

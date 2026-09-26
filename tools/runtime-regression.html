@@ -221,7 +221,35 @@ const tests=[
   E('hint()');await label();assert(E('scoreData.balance')===b0-2&&W.__h===2,'lépés után nem vont le pontot');
   E('document.getElementById("playRestart").click()');await sleep(200);E('hint()');await label();
   assert(E('scoreData.balance')===b0-3&&W.__h===3,'újrakezdés után nem vont le pontot');
-  return `pontok: ${b0} → ${E('scoreData.balance')} (3 fizetős, 1 ingyenes súgó)`}]
+  return `pontok: ${b0} → ${E('scoreData.balance')} (3 fizetős, 1 ingyenes súgó)`}],
+ ['Nyilak nélkül: gombok egy sorban, nincs iránykereszt, nagyobb pálya',async()=>{
+  E('PadLayout.setMode("pad")');await newLevel();assert(await levelWith(()=>E('state.width===5&&state.height===8')),'nincs 5×8-as pálya');await sleep(300);
+  const bw=()=>W.document.getElementById('board').getBoundingClientRect().width,w0=bw();
+  E('PadLayout.setMode("compact")');await sleep(400);
+  assert(E('getComputedStyle(document.querySelector(".pad-dpad")).display')==='none','az iránykereszt látszik');
+  const tops=E('[...document.querySelectorAll(".pad-col .play-action")].filter(b=>!b.hidden).map(b=>Math.round(b.getBoundingClientRect().top))');
+  assert(tops.length===6&&new Set(tops).size===1,`a gombok nem egy sorban vannak (${tops})`);
+  const w1=bw();assert(w1>w0+20,`a pálya nem lett nagyobb (${Math.round(w0)} → ${Math.round(w1)} px)`);
+  return `5×8 pálya: ${Math.round(w0)} → ${Math.round(w1)} px széles`}],
+ ['Nyilak nélkül: gesztusvezérlés kényszerítve, egérrel húzás lép; más elrendezésben az egér nem',async()=>{
+  E('PadLayout.setMode("compact")');await newLevel();await idle();
+  assert(E('TouchSwipe.locked')&&E('TouchSwipe.enabled'),'a gesztusvezérlés nincs bekapcsolva');
+  assert(E('document.getElementById("gestureControl").disabled'),'a kapcsoló kikapcsolható maradt');
+  W.__dragMv=0;E('GameEvents.on("move",()=>{window.__dragMv++})');
+  const drag=async()=>{const el=W.document.querySelector('#board .cell'),r=W.document.getElementById('board').getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2,pe=(type,px,py)=>W.document.elementFromPoint(x,y).dispatchEvent(new W.PointerEvent(type,{bubbles:true,cancelable:true,pointerId:1,pointerType:'mouse',button:0,buttons:type==='pointerup'?0:1,clientX:px,clientY:py,isPrimary:true}));
+   pe('pointerdown',x,y);pe('pointermove',x+20,y);pe('pointermove',x+50,y+2);pe('pointerup',x+50,y+2);await idle()};
+  await drag();assert(W.__dragMv===1,`egérrel húzás ${W.__dragMv} lépést adott`);
+  E('PadLayout.setMode("pad")');await sleep(200);assert(!E('TouchSwipe.locked'),'a kényszerítés megmaradt');
+  const before=W.__dragMv;await drag();assert(W.__dragMv===before,'alul elrendezésben az egér is lépett');
+  return 'nyilak nélkül egérrel húzva 1 lépés, alul elrendezésben nem'}],
+ ['Nyilak nélkül: a súgó iránya a pálya szélén nagy nyílként jelenik meg',async()=>{
+  E('PadLayout.setMode("compact")');E('scoreData.balance=Math.max(scoreData.balance,50);updateScore()');
+  for(let i=0;i<10;i++){await newLevel();E('hint()');try{await until(()=>E('!!toast.querySelector(".hint-dir")'),6000,'iránycímke')}catch(_){continue}
+   const dir=E(`Object.keys(DIR_WORDS).find(d=>toast.querySelector(".hint-dir").textContent.includes(DIR_WORDS[d]))`);
+   assert(E(`!!document.querySelector('#board .hint-edge.hint-edge-${dir}')`),'nincs nyíl a pálya szélén');
+   await mv(dir);assert(!E('document.querySelector(".hint-edge")'),'lépés után a nyíl kint maradt');
+   E('PadLayout.setMode("pad")');return `irány: ${dir}, a nyíl a pálya szélén, lépésre eltűnt`}
+  E('PadLayout.setMode("pad")');throw Error('nem jött iránycímke')}]
 ];
 
 async function run(){

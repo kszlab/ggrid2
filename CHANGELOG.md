@@ -15,6 +15,21 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.72 — 2026-09-26
+
+### Súgó: egy állásért csak egyszer kell fizetni
+- Ha lépés nélkül kéred újra a súgót (pl. mert a javaslat 8 mp után eltűnt), ugyanazt a javaslatot ingyen mutatja meg, és az alkalmazkodó szintnél sem számít újabb súgónak. Lépés, újrakezdés, új pálya vagy robbantás után ismét 1 pont.
+
+### 383 új pálya (Expansion V3 2000)
+- 250 egygolyós pálya az alapkönyvtárba (`expansion-v3-2000-b1`), 133 kétgolyós a kétgolyós könyvtárba (`expansion-v3-2000-b2`); összesen 2000 pálya. Külső, a repó V3 generátorával készült csomag; beépítés előtt a repó eszközeivel függetlenül újraellenőrizve (megoldás, optimalitás, D-osztály, másolatmentesség). Részletek: `docs/EXPANSION-V3-2000.md`.
+- A `verify-level-library-v2` és `verify-multiball-v2` ellenőrzők a v2-könyvtárat továbbra is pontosan ellenőrzik, a bővítőcsomagokat pedig mellette (a mélyellenőrzés az új egygolyós pályák besorolását is újraszámolja).
+
+### Harmadik elrendezés: nyilak nélkül
+- Beállítások → Kezelőfelület → „Nyilak elrendezése”: Alul / Szélen / Nincs (a korábbi ki/be kapcsoló helyett; a korábbi választás megmarad).
+- „Nincs”: nincs iránykereszt, a hat gomb egy sorban a pálya alatt, a pálya így a legnagyobb (412×780-on az 5×8-as pálya 336 helyett 392 px széles). Mobilon simítással, gépen billentyűzettel vagy egérrel húzva lehet lépni; ebben az elrendezésben a gesztusvezérlés mindig be van kapcsolva.
+- A súgó iránya ilyenkor a pálya adott szélén egy nagy, lüktető nyílként jelenik meg. Az automatikus megoldás sávja a gombsor fölé kerül.
+- A súgó szövege frissítve; a regressziós tesztoldal 4 új esettel bővült (21 eset).
+
 ## v0.15.71 — 2026-09-26
 
 ### Súgó iránya jól láthatóan

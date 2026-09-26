@@ -3,25 +3,29 @@
    finger has travelled far enough in one clear direction. Taps are untouched,
    so Freeze target selection by tapping a piece keeps working. While enabled,
    the browser's own gestures (scroll, zoom, pull-to-refresh) are blocked on
-   the game area. Only offered on touch devices; on by default there. */
+   the game area. Only offered on touch devices; on by default there.
+   v0.15.72: in the no-arrows layout swipe is locked on (the player's own setting is kept
+   for the other layouts), and a mouse drag counts as a swipe there too. */
 const TouchSwipe=(()=>{
  const KEY='ggrid.gesture.v1',THRESHOLD=28,DOMINANCE=1.5,BUFFER_MS=650;
  const wrap=document.querySelector('.board-wrap'),toggle=document.querySelector('#gestureControl'),availability=document.querySelector('#gestureAvailability');
  const touchDevice=(navigator.maxTouchPoints||0)>0||matchMedia('(pointer: coarse)').matches;
  let enabled=touchDevice;
  try{const v=localStorage.getItem(KEY);if(v!=null)enabled=touchDevice&&v==='on'}catch(_){}
- let track=null,suppress=null,pending=null,pendingTimer=null;
+ let track=null,suppress=null,pending=null,pendingTimer=null,locked=document.body.classList.contains('layout-compact');
+ const active=()=>enabled||locked;
 
  function sync(){
-  document.body.classList.toggle('gesture-control',enabled);
-  if(toggle){toggle.checked=enabled;toggle.disabled=!touchDevice}
-  if(availability)availability.textContent=touchDevice?'Simítás a játéktéren: egy simítás, egy lépés':'Csak érintőképernyős eszközön érhető el';
+  document.body.classList.toggle('gesture-control',active());
+  if(toggle){toggle.checked=active()&&touchDevice;toggle.disabled=!touchDevice||locked}
+  if(availability)availability.textContent=locked?(touchDevice?'Nyilak nélküli elrendezésben mindig bekapcsolva':'Nyilak nélküli elrendezésben egérrel húzva is léphetsz'):touchDevice?'Simítás a játéktéren: egy simítás, egy lépés':'Csak érintőképernyős eszközön érhető el';
  }
  // force: only for tools/runtime-regression.html, which runs on desktop browsers too.
  function set(v,force=false){enabled=(touchDevice||force)&&v;try{localStorage.setItem(KEY,enabled?'on':'off')}catch(_){}sync()}
+ function setLocked(v){locked=!!v;sync()}
  // Same conditions as tilt control: only on the running game, never under a panel.
  function gameReady(){
-  if(!enabled||document.body.dataset.uiContext!=='game'||!state||state.won)return false;
+  if(!active()||document.body.dataset.uiContext!=='game'||!state||state.won)return false;
   return ['settingsPanel','gameMenuPanel','helpPanel','freePlaySetup','calibration','scenarioPanel'].every(id=>{const el=document.getElementById(id);return !el||el.hidden});
  }
  function play(dir){setBoardTilt(dir,true);move(dir);setTimeout(()=>setBoardTilt(null,false),180)}
@@ -38,7 +42,7 @@ const TouchSwipe=(()=>{
  }
  function ignoredTarget(t){return !!t.closest?.('.victory-overlay,.edge-control')}
  wrap?.addEventListener('pointerdown',e=>{
-  if(track||e.pointerType==='mouse'||!gameReady()||ignoredTarget(e.target))return;
+  if(track||(e.pointerType==='mouse'&&(!locked||e.button!==0))||!gameReady()||ignoredTarget(e.target))return;
   track={id:e.pointerId,x:e.clientX,y:e.clientY,fired:false,target:e.target};
  });
  // Listen on window: pointer capture would retarget the click away from a tapped piece.
@@ -56,9 +60,9 @@ const TouchSwipe=(()=>{
  // A swipe that started on a piece must not also select it as a Freeze target.
  wrap?.addEventListener('click',e=>{const s=suppress;if(!s)return;suppress=null;if(performance.now()<s.until&&(e.target===s.target||s.target.contains?.(e.target))){e.preventDefault();e.stopPropagation()}},true);
  // iOS Safari fallback for touch-action: no page scroll or pinch zoom on the game area.
- wrap?.addEventListener('touchmove',e=>{if(enabled&&document.body.dataset.uiContext==='game')e.preventDefault()},{passive:false});
- wrap?.addEventListener('gesturestart',e=>{if(enabled)e.preventDefault()});
- toggle?.addEventListener('change',()=>set(toggle.checked));
+ wrap?.addEventListener('touchmove',e=>{if(active()&&document.body.dataset.uiContext==='game')e.preventDefault()},{passive:false});
+ wrap?.addEventListener('gesturestart',e=>{if(active())e.preventDefault()});
+ toggle?.addEventListener('change',()=>{if(!locked)set(toggle.checked)});
  sync();
- return{get enabled(){return enabled},touchDevice,set};
+ return{get enabled(){return active()},get locked(){return locked},touchDevice,set,setLocked};
 })();
