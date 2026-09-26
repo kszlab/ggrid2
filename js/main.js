@@ -4,6 +4,11 @@ const board=document.querySelector('#board'),status=document.querySelector('#sta
 const freezeBtn=document.querySelector('#freeze'),difficultyEl=document.querySelector('#difficulty'),sizeEl=document.querySelector('#size'),freezeLimitEl=document.querySelector('#freezeLimit'),soundBtn=document.querySelector('#sound'),ambientBtn=document.querySelector('#ambientSound'),motionBtn=document.querySelector('#motion'),motionNote=document.querySelector('#motionNote');
 const victoryOverlay=document.querySelector('#victoryOverlay'),victoryMoves=document.querySelector('#victoryMoves'),victoryScore=document.querySelector('#victoryScore'),victoryNext=document.querySelector('#victoryNext'),victoryRestart=document.querySelector('#victoryRestart'),victoryChoose=document.querySelector('#victoryChoose');
 let victoryTimer=null,victoryPending=false,solverUsedThisRun=false;
+/* v0.15.70 BOMB (free play only): armed like Freeze, a tap on any non-ball piece removes it
+   for 15 points. A level solved after a bomb gives a fixed 5 points, is not recorded as
+   solved and does not move the adaptive level. The solver ignores bombs entirely. */
+const bombBtn=document.querySelector('#bomb'),BOMB_COST=15,BOMB_REWARD=5;
+let bombArmed=false,bombUsedThisRun=false;
 
 /* v0.15.22: build/edition feature gate.
    Development keeps every feature enabled. A future commercial build can set
@@ -75,12 +80,22 @@ function updateScore(){
  if(visibleHint){visibleHint.disabled=hintDisabled;visibleHint.title=won?'A pálya már kész.':autoSolveAllowed?`Rövid nyomás: súgó (szükség esetén Freeze-zel). ${autoSolveSeconds} másodperc nyomva tartás: automatikus megoldás, pont nélkül.`:'Rövid nyomás: súgó (szükség esetén Freeze-zel).'}
  freezeBtn.disabled=won||!canUseFreeze()||(isScoredFreePlay()&&scoreData.balance<10);
  freezeBtn.dataset.freezeState=freezeBtn.disabled?'unavailable':freezeArmed?'active':'available';
+ if(bombBtn){
+  bombBtn.hidden=!inFreePlay();
+  bombBtn.disabled=won||!isScoredFreePlay()||autoSolveActive||(!bombArmed&&scoreData.balance<BOMB_COST);
+  bombBtn.dataset.bombState=bombBtn.disabled?'unavailable':bombArmed?'active':'available';
+  bombBtn.setAttribute('aria-pressed',String(bombArmed));
+  bombBtn.title=won?'A pálya már kész.':scoreData.balance<BOMB_COST&&!bombArmed?`BOMB: ${BOMB_COST} pont szükséges`:bombArmed?'BOMB aktív: koppints a felrobbantandó elemre, vagy nyomd meg újra a kilépéshez':`BOMB: egy elem eltüntetése ${BOMB_COST} pontért (bombás megoldás: ${BOMB_REWARD} pont)`;
+  document.body.classList.toggle('bomb-armed',bombArmed);
+ }
  freezeBtn.title=won?'A pálya már kész.':freezeBtn.disabled?'Freeze: 10 pont szükséges':freezeArmed?'Freeze aktív: válassz elemet, vagy nyomd meg újra a kilépéshez':generated?'Generátor teszt: Freeze pontlevonás nélkül':isScoredFreePlay()?'Freeze: 10 pont a kijelölt elemmel kiadott irányparancsért':'Freeze: elem kijelölése';
 }
 function spendScore(cost){if(scoreData.balance<cost)return false;scoreData.balance-=cost;saveScore();updateScore();return true}
 function awardWin(){
  if(!isScoredFreePlay()||rewardedThisRun||!state?.won||!currentLevelId)return null;
  rewardedThisRun=true;
+ // A bombed run earns a fixed reward and is not recorded as the level's best (= not "solved").
+ if(bombUsedThisRun){scoreData.balance+=BOMB_REWARD;saveScore();updateScore();return{reward:BOMB_REWARD,previous:0,earned:BOMB_REWARD,balance:scoreData.balance,bombed:true}}
  const reward=scoreReward(),previous=Math.max(0,Number(scoreData.best[currentLevelId])||0),earned=Math.max(0,reward-previous);
  if(reward>previous)scoreData.best[currentLevelId]=reward;
  scoreData.balance+=earned;saveScore();updateScore();updateLevelScore();
@@ -90,7 +105,7 @@ function hideVictory(){
  if(victoryTimer)clearTimeout(victoryTimer);victoryTimer=null;victoryPending=false;
  victoryOverlay.hidden=true;document.body.classList.remove('victory-state');
 }
-function resetWinState(){hideVictory();solverUsedThisRun=false;rewardedThisRun=false;}
+function resetWinState(){hideVictory();solverUsedThisRun=false;rewardedThisRun=false;bombUsedThisRun=false;bombArmed=false;}
 function enterVictory(automatic=false,rewardInfo=null){
  if(!state?.won||victoryPending||!victoryOverlay.hidden)return;
  victoryPending=true;freezeArmed=false;freezeId=null;hintVisible=false;toast.textContent='';
@@ -99,7 +114,7 @@ function enterVictory(automatic=false,rewardInfo=null){
  document.body.classList.add('victory-state');updateScore();
  victoryMoves.textContent=String(state.moves);
  if(solverUsedThisRun||automatic)victoryScore.textContent='Automatikus megoldás · 0 pont';
- else if(isScoredFreePlay()&&rewardInfo)victoryScore.textContent=rewardInfo.earned?`+${rewardInfo.earned} pont · Egyenleg: ${rewardInfo.balance}`:`Korábbi legjobb eredmény: ${rewardInfo.previous} pont`;
+ else if(isScoredFreePlay()&&rewardInfo)victoryScore.textContent=rewardInfo.bombed?`Bombával megoldva · +${rewardInfo.earned} pont · Egyenleg: ${rewardInfo.balance}`:rewardInfo.earned?`+${rewardInfo.earned} pont · Egyenleg: ${rewardInfo.balance}`:`Korábbi legjobb eredmény: ${rewardInfo.previous} pont`;
  else victoryScore.textContent='Pálya teljesítve';
  GameEvents.emit('victory',{automatic,box:victoryScore});
  victoryChoose.hidden=!!ScenarioMode?.active;
@@ -111,6 +126,29 @@ function freezeLimit(){return Infinity;}
 function freezesLeft(){const lim=freezeLimit();return lim===Infinity?Infinity:Math.max(0,lim-freezeUsed);}
 function canUseFreeze(){return freezesLeft()>0;}
 function cancelFreezeSelection(){if(!freezeArmed&&!freezeId)return;freezeArmed=false;freezeId=null;MotionControl?.resume?.();render({preservePieces:true});}
+function cancelBomb(){if(!bombArmed)return;bombArmed=false;MotionControl?.resume?.();render({preservePieces:true});}
+// Blast layer over the piece's own cells (so it follows multi-cell shapes); the piece itself is just removed.
+function spawnBlast(o){
+ for(const c of o.cells){
+  const p=pctPos(o.x+c.x,o.y+c.y,state.width,state.height),b=document.createElement('div');
+  b.className='bomb-blast';b.setAttribute('aria-hidden','true');b.style.left=p.left;b.style.top=p.top;b.style.width=p.width;b.style.height=p.height;
+  b.style.setProperty('--delay',(Math.random()*.08).toFixed(3)+'s');
+  for(let i=0;i<7;i++){const s=document.createElement('i'),a=(i/7)*Math.PI*2+Math.random()*.6,r=55+Math.random()*45;s.style.setProperty('--dx',(Math.cos(a)*r).toFixed(1)+'%');s.style.setProperty('--dy',(Math.sin(a)*r).toFixed(1)+'%');b.append(s)}
+  board.append(b);setTimeout(()=>b.remove(),900);
+ }
+}
+function detonate(id){
+ const o=state?.objects.find(x=>x.id===id&&!x.exited);
+ if(!bombArmed||!o||o.type==='ball'||busy||state.won)return;
+ if(!spendScore(BOMB_COST)){cancelBomb();return}
+ spawnBlast(o);
+ state={...state,objects:state.objects.filter(x=>x.id!==id)};
+ bombArmed=false;bombUsedThisRun=true;hintVisible=false;clearSolverCache();
+ AudioManager.bomb?.();SceneRenderer?.event?.('bomb');
+ toast.textContent=`💣 Felrobbantva · −${BOMB_COST} pont`;
+ render({preservePieces:true});MotionControl?.resume?.();
+ GameEvents.emit('bomb',{id,type:o.type});
+}
 function syncSoundControls(){soundBtn.setAttribute('aria-checked',String(AudioManager.effectsEnabled));ambientBtn.setAttribute('aria-checked',String(AudioManager.ambientEnabled))}
 function selectedDims(){const v=String(sizeEl.value);if(v.includes('x')){const [w,h]=v.split('x').map(Number);return{w,h}}const n=+v;return{w:n,h:n}}
 function pctPos(x,y,w,h){const inset=globalThis.ThemeVisuals?.pieceInset?.(SceneRenderer?.theme)??1.8,cx=100/w,cy=100/h;return{left:`calc(${x*cx}% + ${inset}px)`,top:`calc(${y*cy}% + ${inset}px)`,width:`calc(${cx}% - ${inset*2}px)`,height:`calc(${cy}% - ${inset*2}px)`};}
@@ -139,10 +177,10 @@ function render(opts={}){
    const ck=`${o.id}:${ci}`;wanted.add(ck);let el=existing.get(ck);
    if(o.exited){if(el){el.style.opacity='0';el.style.transform='scale(.45)';setTimeout(()=>el.remove(),180)}continue;}
    if(!el){el=document.createElement('button');el.type='button';el.dataset.cellkey=ck;el.dataset.id=o.id;el.dataset.bodyid=o.id;el.ariaLabel=o.type==='ball'?'Golyó':o.type==='wall'?'Fix blokk':(o.cells.length>1?'Ragasztott tégla':'Tégla');
-    el.addEventListener('click',()=>{if(o.type!=='wall'&&freezeArmed&&!busy&&!state.won){freezeId=freezeId===o.id?null:o.id;if(freezeId){AudioManager.freeze();SceneRenderer?.event?.('freeze');MotionControl.resume();}else MotionControl.pause();render({preservePieces:true});}});board.append(el);}
+    el.addEventListener('click',()=>{if(bombArmed){if(o.type!=='ball')detonate(o.id);return}if(o.type!=='wall'&&freezeArmed&&!busy&&!state.won){freezeId=freezeId===o.id?null:o.id;if(freezeId){AudioManager.freeze();SceneRenderer?.event?.('freeze');MotionControl.resume();}else MotionControl.pause();render({preservePieces:true});}});board.append(el);}
    const c=o.cells[ci],p=pctPos(o.x+c.x,o.y+c.y,state.width,state.height);
    el.style.left=p.left;el.style.top=p.top;el.style.width=p.width;el.style.height=p.height;
-   el.className=`piece ${o.type} ${o.cells.length>1?'glued '+outerEdgeClasses(o,ci):''} ${freezeId===o.id?'selected':''}`;
+   el.className=`piece ${o.type} ${o.cells.length>1?'glued '+outerEdgeClasses(o,ci):''} ${freezeId===o.id?'selected':''} ${bombArmed&&o.type!=='ball'?'bomb-target':''}`;
    el.setAttribute('aria-pressed',String(freezeArmed&&freezeId===o.id));
   }
  }
@@ -241,13 +279,13 @@ function playEvents(events){
 }
 function move(dir,automatic=false){
  if(!state||state.won||busy||(autoSolveActive&&!automatic))return;
- const usedFreeze=freezeArmed&&freezeId!=null,wasArmed=freezeArmed;
+ const usedFreeze=freezeArmed&&freezeId!=null,wasArmed=freezeArmed,wasBomb=bombArmed;bombArmed=false;
  if(usedFreeze&&!automatic&&isScoredFreePlay()&&scoreData.balance<10){cancelFreezeSelection();return}
  SceneRenderer?.setDirection?.(dir);if(hintVisible){hintVisible=false;toast.textContent='';}
  setBusy(true);const r=step(state,dir,usedFreeze?freezeId:null);
  if(usedFreeze){stopHold();if(!automatic&&isScoredFreePlay())spendScore(10);freezeUsed++;}
  state=r.state;lastEvents=r.events;freezeArmed=false;freezeId=null;GameEvents.emit('move',{dir,automatic});
- if(wasArmed&&!state.won)MotionControl.resume();
+ if((wasArmed||wasBomb)&&!state.won)MotionControl.resume();
  render({preservePieces:true});playEvents(r.events);
  if(state.won){
   const rewardInfo=automatic||solverUsedThisRun?null:awardWin();
@@ -293,12 +331,12 @@ autoSolveStopBtn.addEventListener('click',stopAutoSolve);
 function startAutoSolve(){
  if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
  if(!state||state.won||autoSolveActive)return;
- stopHold();cancelFreezeSelection();hintVisible=false;
+ stopHold();cancelFreezeSelection();cancelBomb();hintVisible=false;
  const token=++autoSolveToken;showAutoSolveBar('Megoldás számítása…');
  setTimeout(()=>{
   if(token!==autoSolveToken||!state)return;
   let result;
-  if(state.moves===0&&optimal.length){
+  if(state.moves===0&&optimal.length&&!bombUsedThisRun){
    result={status:'solved',path:[...optimal],states:0,elapsedMs:0,cached:true};
    rememberSolverRoute(state,result.path);
   }else result=solveForPlay(state,'auto');
@@ -341,7 +379,7 @@ function freezeAdviceText(result){
 }function startFreezeAutoSolve(){
  if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
  if(!state||state.won||autoSolveActive)return;
- stopHold();cancelFreezeSelection();hintVisible=false;
+ stopHold();cancelFreezeSelection();cancelBomb();hintVisible=false;
  const token=++autoSolveToken;showAutoSolveBar('Freeze-megoldás számítása…');
  setTimeout(()=>{
   if(token!==autoSolveToken||!state)return;
@@ -373,7 +411,7 @@ function freezeAdviceText(result){
 }
 function hint(){
  if(!state||state.won||autoSolveActive)return;
- cancelFreezeSelection();
+ cancelFreezeSelection();cancelBomb();
  if(hintVisible){hintVisible=false;toast.textContent='';updateScore();return}
  if(isScoredFreePlay()&&scoreData.balance<1)return;
  hintVisible=true;
@@ -760,7 +798,8 @@ const CalibrationLab=(()=>{
  return{open};
 })();
 
-freezeBtn.addEventListener('click',()=>{if(state?.won||autoSolveActive||freezeBtn.disabled)return;if(freezeArmed){cancelFreezeSelection();return}freezeArmed=true;freezeId=null;stopHold();MotionControl.pause();render({preservePieces:true});});
+bombBtn?.addEventListener('click',()=>{if(state?.won||autoSolveActive||bombBtn.disabled)return;if(bombArmed){cancelBomb();return}cancelFreezeSelection();bombArmed=true;stopHold();MotionControl.pause();render({preservePieces:true});});
+freezeBtn.addEventListener('click',()=>{if(state?.won||autoSolveActive||freezeBtn.disabled)return;if(freezeArmed){cancelFreezeSelection();return}cancelBomb();freezeArmed=true;freezeId=null;stopHold();MotionControl.pause();render({preservePieces:true});});
 document.querySelector('#restart').addEventListener('click',()=>{if(busy)return;cancelAutoSolve();clearSolverCache();resetWinState();state=cloneState(initial);freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;toast.textContent='';render();MotionControl.onNewLevel();MotionControl.resume();GameEvents.emit('level:restart');});
 // newLevel() may wait for a theme switch; motion resumes only on the new level.
 document.querySelector('#new').addEventListener('click',async()=>{hideVictory();await newLevel();MotionControl.resume();});

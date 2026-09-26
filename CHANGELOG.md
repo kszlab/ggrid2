@@ -15,6 +15,19 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.70 — 2026-09-26
+
+### Összevont súgó
+- A sima súgó és a Freeze-súgó egyetlen 💡 gomb lett (hópihe nélkül). Rövid nyomásra 1 pontért a következő lépést mutatja: először Freeze nélküli utat keres (gyors, gyorsítótárazott), és csak ha ilyen nincs, akkor ad legfeljebb egy Freeze-t használó javaslatot. 2 másodperces nyomva tartás: automatikus megoldás, szükség esetén Freeze-zel.
+
+### BOMB
+- Új 💣 BOMB képesség a Freeze alatt (csak szabad játékban). Kijelölés után egy pályaelemre koppintva az eltűnik 15 pontért; fal és mozgatható tégla is felrobbantható, golyó és kijárat nem, a többcellás test egészben tűnik el. 15 pont alatt a gomb nem használható; a gomb újabb megnyomása vagy egy irányparancs pontlevonás nélkül megszünteti a robbantási módot. A Freeze és a BOMB egyszerre nem lehet kijelölve.
+- Nincs figyelmeztetés és előzetes vizsgálat: a robbantás azonnal végrehajtódik.
+- Robbanásréteg az elem celláin (a többcellás alakot követi, a valódi elemet nem veti szét), generált robbanáshang (témánként felülírható `bomb` esemény).
+- Bombás megoldás: fix 5 pont, nem rögzül legjobb eredményként (nem számít teljesítettnek), és nem változtatja az alkalmazkodó szintet. A felső sávban az optimum helyén „–” áll. Az újrakezdés visszaállítja az eredeti pályát, és újra teljes pont szerezhető.
+- A solver, a pályagenerálás és a nehézségi besorolás nem számol a bombával.
+- Új `bomb` esemény a `GameEvents`-ben; a regressziós tesztoldal 5 új esettel bővült (összevont súgó, BOMB-ár és tiltás, golyó/fal/többcellás test, kijelölés megszűnése mozgáskor, 5 pontos szabály és újrakezdés).
+
 ## v0.15.69 — 2026-09-26
 
 ### Jelenetfeliratok vissza, díszítésként

@@ -46,16 +46,19 @@ const AdaptiveDifficulty=(()=>{
   return lastChange={balls:cur.balls,before,after:data.ratings[cur.balls]};
  }
  // A level left without winning counts as a failure only after a real attempt.
- function finishOpen(){if(cur&&!cur.done&&!state?.won&&(cur.attempted||solverUsedThisRun))record(0)}
- function freshAttempt(){if(cur){cur.hints=0;cur.attempted=false}}
+ // A bombed attempt never counts, neither as a win nor as a failure (v0.15.70).
+ function finishOpen(){if(cur&&!cur.done&&!cur.bombed&&!state?.won&&(cur.attempted||solverUsedThisRun))record(0)}
+ function freshAttempt(){if(cur){cur.hints=0;cur.attempted=false;cur.bombed=false}}
  const free=()=>!ScenarioMode?.active;
  GameEvents.on('level:leave',()=>{if(free())finishOpen()});
  GameEvents.on('level:start',({game})=>{if(free())begin(game);else cur=null});
  GameEvents.on('level:restart',freshAttempt);
  GameEvents.on('move',()=>{if(cur&&state&&state.moves>=ABANDON_MOVES)cur.attempted=true});
  GameEvents.on('hint',()=>{if(cur)cur.hints++});
+ GameEvents.on('bomb',()=>{if(cur)cur.bombed=true});
  GameEvents.on('victory',({automatic,box})=>{
   if(!cur||cur.done||!free())return;
+  if(cur.bombed){cur.done=true;return}
   const p=automatic||solverUsedThisRun?0:clamp(Math.max(1,optimal.length)/Math.max(1,state.moves,optimal.length)-HINT_COST*cur.hints,0,1);
   const ch=record(p);
   if(ch&&box){const n=document.createElement('div');n.className='adaptive-note';const f=x=>x.toFixed(1).replace('.',',');

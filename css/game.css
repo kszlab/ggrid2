@@ -606,3 +606,15 @@ html:has(body.gesture-control[data-ui-context="game"]),body.gesture-control[data
 .auto-solve-stop:active{transform:translateY(1px);filter:brightness(1.1)}
 .auto-solve-stop:focus-visible{outline:3px solid #fff;outline-offset:2px}
 body.layout-pad main #autoSolveBar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--pad-deck-h) - 36px);z-index:45;margin:0}
+/* v0.15.70 BOMB: target hint while armed, and the blast layer drawn over the removed
+   piece's cells (it follows multi-cell shapes; the piece itself is simply removed). */
+body.bomb-armed .piece.bomb-target{cursor:crosshair;outline:2px dashed #ff8a5a;outline-offset:-4px}
+#bomb[data-bomb-state="active"]{background:linear-gradient(#ff8a4c,#c8371f);color:#fff}
+.bomb-blast{position:absolute;z-index:30;pointer-events:none}
+.bomb-blast::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(circle,#fff 0 10%,#ffe27a 20%,#ff8a2a 40%,#e03420aa 58%,transparent 70%);opacity:0;animation:bomb-flash .6s ease-out var(--delay,0s) forwards}
+.bomb-blast::after{content:"";position:absolute;inset:6%;border-radius:50%;border:3px solid #ffd27a;opacity:0;animation:bomb-ring .65s ease-out var(--delay,0s) forwards}
+.bomb-blast i{position:absolute;left:50%;top:50%;width:9%;height:9%;border-radius:50%;background:#ffcf5a;box-shadow:0 0 6px #ff9a2a;opacity:0;transform:translate(-50%,-50%);animation:bomb-spark .7s ease-out var(--delay,0s) forwards}
+@keyframes bomb-flash{0%{transform:scale(.2);opacity:1}55%{opacity:.95}100%{transform:scale(1.2);opacity:0}}
+@keyframes bomb-ring{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.7);opacity:0}}
+@keyframes bomb-spark{0%{transform:translate(-50%,-50%) scale(1.2);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){.bomb-blast::before,.bomb-blast::after,.bomb-blast i{animation-duration:.25s}}

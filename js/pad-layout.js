@@ -8,7 +8,7 @@
 const PadLayout=(()=>{
  const KEY='ggrid.ui.layout.v1';
  // [id, label, short label for narrow phones]
- const LEFT=[['freeze','Freeze','Freeze'],['playHint','Segítség','Súgó']];
+ const LEFT=[['freeze','Freeze','Freeze'],['bomb','BOMB','BOMB'],['playHint','Segítség','Súgó']];
  const RIGHT=[['playRestart','Újraindítás','Újra'],['playNext','Új pálya','Új pálya'],['playChoose','Pályaválasztó','Pályák']];
  const $=s=>document.querySelector(s);
  const top=$('#padTop'),deck=$('#padDeck'),sw=$('#padLayoutSwitch');
@@ -42,7 +42,8 @@ const PadLayout=(()=>{
   apply(wanted);
   if(!active||typeof state==='undefined'||!state)return;
   movesEl.textContent=String(state.moves||0);
-  const par=(typeof optimal!=='undefined'&&optimal&&optimal.length)?optimal.length:null;
+  const bombed=typeof bombUsedThisRun!=='undefined'&&bombUsedThisRun;
+  const par=!bombed&&(typeof optimal!=='undefined'&&optimal&&optimal.length)?optimal.length:null;
   parEl.textContent=par==null?'–':String(par);
   movesEl.parentElement.classList.toggle('over-par',par!=null&&state.moves>par);
   const diff=(typeof difficultyEl!=='undefined'&&difficultyEl?.value)?'D'+difficultyEl.value:'';

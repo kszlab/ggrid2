@@ -14,7 +14,7 @@
 </style></head>
 <body>
 <h1>GGrid runtime regresszió</h1>
-<p>A játékot egy beágyazott ablakban tölti be és vezérli: alkalmazkodó nehézség és újrakezdés, témaváltás közbeni zárolás, simítás és koppintás. A böngésző GGrid-mentéseit (pontok, beállítások) a futás előtt elmenti, utána visszaállítja.</p>
+<p>A játékot egy beágyazott ablakban tölti be és vezérli: alkalmazkodó nehézség és újrakezdés, témaváltás közbeni zárolás, simítás és koppintás, összevont súgó, BOMB. A böngésző GGrid-mentéseit (pontok, beállítások) a futás előtt elmenti, utána visszaállítja.</p>
 <button id="run" type="button">Tesztek futtatása</button>
 <div id="summary"></div>
 <table id="results"></table>
@@ -125,7 +125,61 @@ const tests=[
   E('freezeArmed=true;freezeId=null');a.click();assert(E('freezeId')===null,'a simítás saját koppintása nem nyelődött el');
   const b=[...W.document.querySelectorAll('#board .piece')].find(e=>!e.classList.contains('wall')&&e.dataset.id!==a.dataset.id);
   b.click();assert(E('freezeId')===b.dataset.id,'a következő koppintás elveszett');
-  E('cancelFreezeSelection();TouchSwipe.set(TouchSwipe.touchDevice)');return 'simítás: 1 lépés, utána a koppintás működik'}]
+  E('cancelFreezeSelection();TouchSwipe.set(TouchSwipe.touchDevice)');return 'simítás: 1 lépés, utána a koppintás működik'}],
+ ['Súgó: egyetlen 💡 gomb, Freeze-es javaslat, ha Freeze nélkül nincs út',async()=>{
+  assert(!W.document.getElementById('playFreezeHint'),'a külön Freeze-súgó gomb még megvan');
+  E('scoreData.balance=Math.max(scoreData.balance,200);updateScore()');
+  // find a level where bombing one object leaves no Freeze-free route
+  for(let i=0;i<20;i++){await newLevel();
+   const id=E(`(state.objects.filter(o=>o.type!=='ball').find(o=>{const t={...state,objects:state.objects.filter(x=>x.id!==o.id)};return solveDetailed(t,{maxDepth:60,maxStates:200000}).status==='unsolvable'})||{}).id`);
+   if(!id)continue;
+   E('document.getElementById("bomb").click()');W.document.querySelector(`#board .piece[data-id="${id}"]`).click();await sleep(100);
+   const bal=E('scoreData.balance');W.__hints=0;E('GameEvents.on("hint",()=>{window.__hints=(window.__hints||0)+1})');E('hint()');
+   await until(()=>/Fagyaszd|Freeze/.test(E('toast.textContent'))&&!/keresés|számol/.test(E('toast.textContent')),9000,'Freeze-es javaslat');
+   assert(E('scoreData.balance')===bal-1,'a súgó nem 1 pontba került');
+   return `„${E('toast.textContent')}”`}
+  throw Error('nem találtam Freeze-t igénylő helyzetet')}],
+ ['BOMB: 15 pont alatt nem használható, felette igen',async()=>{
+  await newLevel();E('scoreData.balance=10;updateScore()');assert(E('bombBtn.disabled'),'10 ponttal használható volt');
+  E('document.getElementById("bomb").click()');assert(!E('bombArmed'),'letiltva is kijelölődött');
+  E('scoreData.balance=60;updateScore()');assert(!E('bombBtn.disabled'),'60 ponttal sem használható');return 'tiltás 15 pont alatt'}],
+ ['BOMB: golyó nem, többcellás test egészben, fal is eltűnik; 15 pont; robbanásréteg',async()=>{
+  E('scoreData.balance=Math.max(scoreData.balance,100);updateScore()');
+  assert(await levelWith(()=>E(`state.objects.some(o=>o.type==='wall')&&state.objects.some(o=>o.type==='brick'&&o.cells.length>1)`),40),'nincs fallal és többcellás testtel rendelkező pálya');
+  const piece=id=>W.document.querySelector(`#board .piece[data-id="${id}"]`);
+  E('document.getElementById("bomb").click()');assert(E('bombArmed'),'nem lett aktív');
+  const ball=E(`state.objects.find(o=>o.type==='ball').id`);piece(ball).click();assert(E(`state.objects.some(o=>o.id==='${ball}')`)&&E('bombArmed'),'a golyóra koppintás hatott');
+  const body=E(`state.objects.find(o=>o.type==='brick'&&o.cells.length>1).id`),cells=E(`state.objects.find(o=>o.id==='${body}').cells.length`),bal=E('scoreData.balance');
+  piece(body).click();await sleep(60);
+  assert(!E(`state.objects.some(o=>o.id==='${body}')`),'a test nem tűnt el');assert(!piece(body),'a test elemei a pályán maradtak');
+  const blasts=W.document.querySelectorAll('#board .bomb-blast').length;assert(blasts>=cells,`${blasts} robbanás ${cells} cellára`);
+  assert(E('scoreData.balance')===bal-15,'nem 15 pont vonódott le');assert(!E('bombArmed'),'a mód aktív maradt');
+  E('document.getElementById("bomb").click()');const wall=E(`state.objects.find(o=>o.type==='wall').id`);piece(wall).click();await sleep(60);
+  assert(!E(`state.objects.some(o=>o.id==='${wall}')`),'a fal nem tűnt el');
+  return `${cells} cellás test (${blasts} robbanás) és fal eltüntetve`}],
+ ['BOMB: irányparancs megszünteti a kijelölést, pontlevonás nélkül',async()=>{
+  await newLevel();E('scoreData.balance=Math.max(scoreData.balance,100);updateScore()');const bal=E('scoreData.balance'),n=E('state.objects.length');
+  E('document.getElementById("bomb").click()');assert(E('bombArmed'),'nem lett aktív');
+  for(const d of ['up','down','left','right']){await mv(d);if(!E('bombArmed'))break}
+  assert(!E('bombArmed'),'a kijelölés megmaradt');assert(E('scoreData.balance')===bal&&E('state.objects.length')===n,'mozgáskor robbant vagy pontot vont le');return 'kijelölés megszűnt'}],
+ ['BOMB: bombás megoldás fix 5 pont, nem teljesített, a szint nem változik; újrakezdés visszaállít',async()=>{
+  E('scoreData.balance=Math.max(scoreData.balance,100);updateScore()');
+  for(let i=0;i<20;i++){await newLevel();
+   const id=E(`(state.objects.filter(o=>o.type!=='ball').find(o=>{const t={...state,objects:state.objects.filter(x=>x.id!==o.id)};return solveDetailed(t,{maxDepth:60,maxStates:200000}).status==='solved'})||{}).id`);if(!id)continue;
+   const lvl=E('currentLevelId'),b=balls(),r0=rating(b),n=E('initial.objects.length');
+   E('document.getElementById("bomb").click()');W.document.querySelector(`#board .piece[data-id="${id}"]`).click();await sleep(80);
+   assert(E('document.getElementById("padPar").textContent')==='–','az optimum nem „–” bomba után');
+   const bal=E('scoreData.balance');for(const d of E('solveDetailed(state,{maxDepth:60,maxStates:300000}).path')){if(E('state.won'))break;await mv(d)}
+   await until(()=>E('state.won'),5000,'győzelem');await sleep(500);
+   assert(E('scoreData.balance')===bal+5,`nem 5 pont járt (${bal} → ${E('scoreData.balance')})`);
+   assert(!(Number(E(`scoreData.best[${JSON.stringify(lvl)}]`))>0),'teljesítettként rögzült');
+   assert(Math.abs(rating(b)-r0)<1e-9,'a szint változott');
+   assert(/Bombával/.test(E('document.getElementById("victoryScore").textContent')),'a győzelmi ablak nem jelzi a bombát');
+   E('document.getElementById("victoryRestart").click()');await sleep(250);
+   assert(E('state.objects.length')===n&&!E('bombUsedThisRun'),'az újrakezdés nem állította vissza a pályát');
+   assert(E('document.getElementById("padPar").textContent')===String(E('optimal.length')),'az optimum nem jött vissza');
+   return `${lvl}: +5 pont, nem teljesített, szint D${r0} változatlan, újrakezdés rendben`}
+  throw Error('nem találtam megfelelő pályát')}]
 ];
 
 async function run(){
