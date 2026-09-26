@@ -1,28 +1,28 @@
 <!doctype html>
 <html lang="hu"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="icon" type="image/x-icon" href="favicon.ico?v=0.15.77">
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=0.15.77" sizes="any">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=0.15.77">
+<link rel="icon" type="image/x-icon" href="favicon.ico?v=0.15.78">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=0.15.78" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=0.15.78">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#10374a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GGrid">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>GGrid – v0.15.77</title>
-<link rel="stylesheet" href="css/game.css?v=0.15.77">
-<link rel="stylesheet" href="css/game-ui-theme.css?v=0.15.77">
-<link rel="stylesheet" href="css/pad-layout.css?v=0.15.77">
-<link rel="stylesheet" href="css/theme-rotation.css?v=0.15.77">
-<link rel="stylesheet" href="css/adaptive-difficulty.css?v=0.15.77"></head>
+<title>GGrid – v0.15.78</title>
+<link rel="stylesheet" href="css/game.css?v=0.15.78">
+<link rel="stylesheet" href="css/game-ui-theme.css?v=0.15.78">
+<link rel="stylesheet" href="css/pad-layout.css?v=0.15.78">
+<link rel="stylesheet" href="css/theme-rotation.css?v=0.15.78">
+<link rel="stylesheet" href="css/adaptive-difficulty.css?v=0.15.78"></head>
 <body data-ui-context="shell">
 <div id="startup" class="startup" aria-live="polite"><div class="startup-card"><div class="startup-title">GGrid</div><div class="startup-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="startup-ball"></i><i></i><i></i><i class="startup-brick"></i><i></i></div><div class="startup-text" data-i18n="app.loading">A játék töltődik…</div></div></div>
 
 <div id="homeScreen" class="home-screen">
  <div class="home-card">
   <div class="home-logo">GGrid</div>
-  <div class="home-version">v0.15.77</div>
+  <div class="home-version">v0.15.78</div>
   <button type="button" id="scenarioOpen" hidden></button>
   <button type="button" id="homeFreePlay" class="primary-home"><span data-i18n="home.freePlay">▶ Szabad játék</span> <span id="homeLevelId" class="home-level-id">—</span></button>
   <button type="button" id="homeSettings" data-i18n="home.settings">⚙ Beállítások</button>
@@ -123,7 +123,7 @@
  <button type="button" id="menuHelp" data-i18n="menu.help">❔ Játékleírás</button>
  <button type="button" id="menuSettings" data-i18n="home.settings">⚙ Beállítások</button>
  <button type="button" id="menuHome" data-i18n="menu.home">⌂ Kilépés a főmenübe</button>
- <div class="panel-version">GGrid v0.15.77</div>
+ <div class="panel-version">GGrid v0.15.78</div>
 </div></div>
 
 <div id="settingsPanel" class="ui-panel" hidden><div class="ui-card settings-card">
@@ -169,7 +169,7 @@
   <section id="shellThemeSection"><h3 data-i18n="settings.shell">Főképernyő és menük</h3><label for="shellThemeSelect" data-i18n="settings.shellLook">Megjelenés</label> <select id="shellThemeSelect"><option value="classic" data-i18n="settings.shellClassic">Klasszikus</option><option value="warm" data-i18n="settings.shellWarm">Meleg üveg</option></select></section>
   <section id="freeSettings"><h3>Szabad játék</h3><div id="settingsFree"></div></section>
  <div id="settingsCode" hidden></div>
- <div class="panel-version">GGrid v0.15.77</div>
+ <div class="panel-version">GGrid v0.15.78</div>
 </div></div>
 
 <div id="helpPanel" class="ui-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden><div class="ui-card help-card">
@@ -183,45 +183,45 @@
   <section data-i18n-html="help.aids"><h3>Segítségek</h3><p>A <strong>💡</strong> rövid megnyomása 1 pontért megmutatja a következő lépést az aktuális állásból. Az irányt egy kiemelt címke mutatja (például <strong>↑ FEL</strong>), és a pálya alatti megfelelő nyílgomb lüktetve felvillan (nyilak nélküli elrendezésben a pálya adott szélén egy nagy nyíl); a javaslat a következő lépésig, legfeljebb 8 másodpercig látszik. Ha lépés nélkül kéred újra, ugyanazt a javaslatot ingyen mutatja meg; lépés, újrakezdés vagy új pálya után ismét 1 pontba kerül. Ha Freeze nélkül nincs megoldás, olyan utat keres, amely legfeljebb egy Freeze-t használ, és megnevezi a lefagyasztandó elemet. <strong>2 másodpercig nyomva tartva</strong> a játék lépésről lépésre bemutatja a megoldást, szükség esetén Freeze-zel.</p><p><strong>Automatikus megoldás:</strong> az állapota a pálya alatti sávban látszik. A piros <strong>✕</strong> gombbal bármikor leállíthatod, és onnan folytathatod, ahol tart. Ha egy pályán elindítottad, azért a menetért nem jár pont akkor sem, ha kézzel fejezed be; újrakezdés után újra szerezhetsz pontot. Ha abból az állásból nincs megtalálható megoldás, a játék jelzi.</p><p>A <strong>❄ Freeze</strong> gombbal kijelölési módba lépsz. Érintsd meg a helyben tartandó golyót vagy mozgatható elemet; ugyanarra újra koppintva törölheted, másikra koppintva áthelyezheted a kijelölést. A Freeze gomb újabb megnyomásával pontlevonás nélkül kiléphetsz. Kijelölt elem mellett az első irányparancs 10 pontba kerül akkor is, ha semmi nem mozdul; ezután a Freeze-mód megszűnik. 10 pont alatt a gomb nem érhető el.</p><p>A <strong>💣 BOMB</strong> gombbal robbantási módba lépsz (egérrel a pálya fölött szálkereszt jelzi), majd egy pályaelemre koppintva azt 15 pontért eltünteted: az elem robbanással eltűnik, és a pálya megrázkódik; fal és mozgatható tégla is felrobbantható, golyó és kijárat nem, a többcellás test egészben tűnik el. A BOMB gomb újabb megnyomásával pontlevonás nélkül kiléphetsz, és egy irányparancs is megszünteti a robbantási módot. 15 pont alatt a gomb nem érhető el. Bomba után a pálya fix 5 pontot ér, nem számít teljesítettnek, és a szintedet sem változtatja; az újrakezdés visszaállítja az eredeti pályát, és újra teljes pont szerezhető.</p></section>
   <section data-i18n-html="help.sound"><h3>Hang és menü</h3><p>A Beállításokban a játék akcióhangjai és a téma háttérhangja külön kapcsolhatók. A ☰ menüből újrakezdhetsz, új pályát kérhetsz, megnyithatod a beállításokat, ezt a súgót, vagy visszatérhetsz a főképernyőre.</p></section>
  </div>
- <div class="panel-version">GGrid v0.15.77</div>
+ <div class="panel-version">GGrid v0.15.78</div>
 </div></div>
 
 <div id="scenarioPanel" class="scenario-panel" hidden><div class="scenario-card"><div class="scenario-head"><strong id="scenarioTitle">Játékmód</strong><button type="button" id="scenarioClose">✕</button></div><div id="scenarioDesc" class="scenario-desc">Válassz forgatókönyvet, vagy térj vissza a szabad játékhoz.</div><div id="scenarioList" class="scenario-list"></div><div class="scenario-actions"><button type="button" id="playScenario" disabled>Indítás</button><button type="button" id="freePlay">Szabad játék</button></div></div></div>
 
 <div id="calibration" class="calibration" hidden><div class="cal-card"><div class="cal-head"><strong>GGrid · mozdulatmérés</strong><button type="button" id="calClose" aria-label="Mérés bezárása">✕</button></div><div id="calPhase" class="cal-phase">Előkészítés</div><div id="calArrow" class="cal-arrow">•</div><div id="calInstruction" class="cal-instruction">Tartsd a képernyőt magad felé, a telefont kényelmes helyzetben.</div><div class="cal-progress"><i id="calProgress"></i></div><div id="calStats" class="cal-stats"></div><div class="cal-actions"><button type="button" id="calStart">Mérés indítása</button><button type="button" id="calExport" disabled>JSON-fájl letöltése</button></div><div class="cal-small">A nyilaknál röviden billents az adott irányba. A CSÚSZTASD feliratoknál mozgasd a telefont a kijelző síkjában, billentés nélkül; végig nézzen feléd a képernyő. Emelés és süllyesztés közben is nézzen feléd. A csúsztatás, emelés és süllyesztés nem játékirány. A mentés kizárólag az érzékelők mérési adatait tartalmazza.</div></div></div>
 
-<script src="js/i18n.js?v=0.15.77"></script>
+<script src="js/i18n.js?v=0.15.78"></script>
 <script>
-/* v0.15.77: the language files load first; then the game scripts run in this order. */
-I18n.boot('0.15.77',[
-  'js/game-core.js?v=0.15.77',
-  'js/solver.js?v=0.15.77',
-  'js/freeze-solver-v1.js?v=0.15.77',
-  'js/freeze-solver-v2.js?v=0.15.77',
-  'js/level-library.js?v=0.15.77',
-  'js/multiball-library.js?v=0.15.77',
-  'js/generated-test-library.js?v=0.15.77',
-  'js/level-pool.js?v=0.15.77',
-  'js/audio.js?v=0.15.77',
-  'js/rigid-shapes.js?v=0.15.77',
-  'js/theme-visuals.js?v=0.15.77',
-  'js/theme-assets.js?v=0.15.77',
-  'js/theme-autotile.js?v=0.15.77',
-  'js/theme-layout.js?v=0.15.77',
-  'js/theme-frame.js?v=0.15.77',
-  'js/scene-renderer.js?v=0.15.77',
-  'js/motion-model.js?v=0.15.77',
-  'js/motion-gesture.js?v=0.15.77',
-  'js/motion-tilt-v2.js?v=0.15.77',
-  'js/main.js?v=0.15.77',
-  'js/scenario-loader.js?v=0.15.77',
-  'js/pad-layout.js?v=0.15.77',
-  'js/touch-swipe.js?v=0.15.77',
-  'js/theme-rotation.js?v=0.15.77',
-  'js/adaptive-difficulty.js?v=0.15.77',
-  'js/ui-shell.js?v=0.15.77',
-  'js/pwa.js?v=0.15.77',
-  'js/progress-transfer.js?v=0.15.77'
+/* v0.15.78: the language files load first; then the game scripts run in this order. */
+I18n.boot('0.15.78',[
+  'js/game-core.js?v=0.15.78',
+  'js/solver.js?v=0.15.78',
+  'js/freeze-solver-v1.js?v=0.15.78',
+  'js/freeze-solver-v2.js?v=0.15.78',
+  'js/level-library.js?v=0.15.78',
+  'js/multiball-library.js?v=0.15.78',
+  'js/generated-test-library.js?v=0.15.78',
+  'js/level-pool.js?v=0.15.78',
+  'js/audio.js?v=0.15.78',
+  'js/rigid-shapes.js?v=0.15.78',
+  'js/theme-visuals.js?v=0.15.78',
+  'js/theme-assets.js?v=0.15.78',
+  'js/theme-autotile.js?v=0.15.78',
+  'js/theme-layout.js?v=0.15.78',
+  'js/theme-frame.js?v=0.15.78',
+  'js/scene-renderer.js?v=0.15.78',
+  'js/motion-model.js?v=0.15.78',
+  'js/motion-gesture.js?v=0.15.78',
+  'js/motion-tilt-v2.js?v=0.15.78',
+  'js/main.js?v=0.15.78',
+  'js/scenario-loader.js?v=0.15.78',
+  'js/pad-layout.js?v=0.15.78',
+  'js/touch-swipe.js?v=0.15.78',
+  'js/theme-rotation.js?v=0.15.78',
+  'js/adaptive-difficulty.js?v=0.15.78',
+  'js/ui-shell.js?v=0.15.78',
+  'js/pwa.js?v=0.15.78',
+  'js/progress-transfer.js?v=0.15.78'
 ]);
 </script>
 </body></html>

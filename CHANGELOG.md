@@ -15,6 +15,17 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.78 — 2026-09-26
+
+### Pályaválasztó telefonon
+- **Minden kifér:**
+  - a téma-előnézet a többi elem után maradó helyet tölti ki (228–500 px);
+  - eddig a képernyő 57%-a volt, ami a 701–830 px magas telefonokon kb. 56 px-szel túllógott: a fejléc és az indítógomb levágódott;
+  - 640 px magasságtól semmit nem kell görgetni, ennél kisebb képernyőn a „Játék indítása” gomb alul rögzítve marad.
+- **Minta-pálya:** a magassághoz is igazodik, és nem lóg rá a téma nevére. A kijárat-jel lekerült róla, mert a lapozónyíl mellett kettőzött nyílnak látszott.
+- **Alkalmazkodó nehézség:** egy sorban jelenik meg, rövidebb állapotszöveggel („2+ nehézségnél aktív”) és ↺ nullázó gombbal.
+- **Verziószám:** lekerült a lapról.
+
 ## v0.15.77 — 2026-09-26
 
 ### Telepíthető, offline is működő app (PWA)
