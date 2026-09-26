@@ -263,7 +263,10 @@ body.scenario-mode #playChoose{display:none!important}
 
 
 /* v0.12.28 – HOLDKERT full-screen skin composition pass */
-.skin-scene-title{display:none}
+/* v0.15.68: no theme name or scene caption is drawn on the board, in any theme (the
+   theme's name is shown only in the free-play theme picker). Themes may style these
+   elements, but they never become visible. */
+.skin-scene-title,.sr-caption{display:none!important}
 
 /* v0.12.39 - D1..D10 calibration picker */
 .difficulty-picker{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%}

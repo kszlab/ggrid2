@@ -15,6 +15,12 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.68 — 2026-09-26
+
+### Nincs témafelirat a pályaképen
+- A pályaképen egyik témában sem jelenik meg a téma neve (pl. „HOLDKERT”, „NAPÜVEGHÁZ”), sem a jelenet angol felirata (pl. „MOON GARDEN // 静 水”, „ACID RAIN // ROOFTOP 09 EVAC”). A téma neve csak a szabad játék témaválasztóján látszik.
+- Egyetlen közös szabály a `css/game.css`-ben (`.skin-scene-title`, `.sr-caption`), így a későbbi témákra is érvényes. A pálya mérete és helye nem változott.
+
 ## v0.15.67 — 2026-09-26
 
 ### Futásidejű állapotkezelési javítások (audit alapján)
