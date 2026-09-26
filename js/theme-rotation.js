@@ -53,18 +53,29 @@ const ThemeRotation=(()=>{
   const id=pick(null);if(themeEl&&id){themeEl.value=id;loadedId=id;launchPending=true}
  },true);
  function inFreePlay(){return enabled&&!ScenarioMode?.active}
- // Called by main.js newLevel(): switch theme first, then show the level.
+ // Called by main.js newLevel(): switch theme first, then show the level. Returns a Promise.
  function newLevel(requestLevel){
-  if(!inFreePlay())return requestLevel();
-  if(launchPending){launchPending=false;const r=requestLevel();prepareNext();return r}
+  if(!inFreePlay())return Promise.resolve(requestLevel());
+  if(launchPending){launchPending=false;const r=requestLevel();prepareNext();return Promise.resolve(r)}
   const id=nextId||pick(loadedId),token=++switching;nextId=null;
-  if(id===loadedId){const r=requestLevel();prepareNext();return r}
-  (async()=>{
-   await ScenarioMode.loadFreeTheme(id);if(token!==switching)return;
-   loadedId=id;if(themeEl)themeEl.value=id;requestLevel();prepareNext();
+  if(id===loadedId){unlock();const r=requestLevel();prepareNext();return Promise.resolve(r)}
+  // While the theme loads, the old level must be dead: no key, swipe, tilt or tap may
+  // reach it (and the new theme must not show on it). The newest request wins.
+  lock();
+  return (async()=>{
+   try{
+    try{await ScenarioMode.loadFreeTheme(id)}catch(e){console.error(e)}
+    if(token!==switching)return false;
+    loadedId=id;if(themeEl)themeEl.value=id;const r=requestLevel();prepareNext();return r;
+   }finally{if(token===switching)unlock()}
   })();
-  return true;
  }
+ function lock(){
+  cancelAutoSolve();stopHold();cancelFreezeSelection();MotionControl?.pause?.();
+  state=null;initial=null;optimal=[];board.innerHTML='';toast.textContent='';
+  document.body.classList.add('level-switching');
+ }
+ function unlock(){document.body.classList.remove('level-switching')}
  // Choose the next level's theme now and warm the browser cache for it.
  async function prepareNext(){
   nextId=pick(loadedId);const entry=themes().find(t=>t.id===nextId);if(!entry||prefetched.has(nextId))return;prefetched.add(nextId);

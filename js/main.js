@@ -778,14 +778,15 @@ const CalibrationLab=(()=>{
 
 freezeBtn.addEventListener('click',()=>{if(state?.won||autoSolveActive||freezeBtn.disabled)return;if(freezeArmed){cancelFreezeSelection();return}freezeArmed=true;freezeId=null;stopHold();MotionControl.pause();render({preservePieces:true});});
 document.querySelector('#restart').addEventListener('click',()=>{if(busy)return;cancelAutoSolve();clearSolverCache();resetWinState();state=cloneState(initial);freezeArmed=false;freezeId=null;freezeUsed=0;hintVisible=false;toast.textContent='';render();MotionControl.onNewLevel();MotionControl.resume();GameEvents.emit('level:restart');});
-document.querySelector('#new').addEventListener('click',()=>{hideVictory();newLevel();MotionControl.resume();});
+// newLevel() may wait for a theme switch; motion resumes only on the new level.
+document.querySelector('#new').addEventListener('click',async()=>{hideVictory();await newLevel();MotionControl.resume();});
 victoryRestart.addEventListener('click',()=>document.querySelector('#restart').click());
 victoryChoose.addEventListener('click',()=>{hideVictory();AppUI?.openFreeSetup?.()});
 victoryNext.addEventListener('click',async()=>{
  if(ScenarioMode?.active){
   hideVictory();await ScenarioMode.advanceAfterWin();MotionControl.resume();return;
  }
- hideVictory();newLevel();MotionControl.resume();
+ hideVictory();await newLevel();MotionControl.resume();
 });
 document.querySelector('#hint').addEventListener('click',hint);
 // Short click still requests a hint; a two-second pointer hold runs the demo when enabled for this app variant.

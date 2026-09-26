@@ -6,4 +6,5 @@
 .theme-dots i.picked{background:#f5d16b;opacity:1}
 .theme-pick-row{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.72rem;color:#c9dce7}
 .theme-pick-row button{min-height:28px;padding:0 11px;border:0;border-radius:9px;background:#ffffff14;color:#e8f5ff;font-weight:800;font-size:.72rem;cursor:pointer}
-.theme-pick-row button:active{transform:translateY(1px)}
+.theme-pick-row button:active{transform:translateY(1px)}/* v0.15.67: no taps reach the game while a theme switch loads the next level. */
+body.level-switching main{pointer-events:none}
