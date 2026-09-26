@@ -107,7 +107,7 @@ const ScenarioMode=(()=>{
   stopTimer();const t=effective.timer;if(!t)return;
   if(t.mode!=='countdown'||!(t.seconds>0))throw Error('UNSUPPORTED_TIMER');
   timeLeft=t.seconds;paintInfo();
-  timerId=setInterval(()=>{timeLeft--;paintInfo();if(timeLeft<=0){stopTimer();toast.textContent='Lejárt az idő. A pálya újraindul.';setTimeout(()=>loadStage(chapterIndex,stageIndex),500)}},1000);
+  timerId=setInterval(()=>{timeLeft--;paintInfo();if(timeLeft<=0){stopTimer();flashToast('Lejárt az idő. A pálya újraindul.');setTimeout(()=>loadStage(chapterIndex,stageIndex),500)}},1000);
  }
  function paintInfo(){
   if(!active||!effective){info.textContent='';return}
@@ -139,10 +139,10 @@ const ScenarioMode=(()=>{
  async function advanceAfterWin(){
   if(await nextStage())return;
   const finished=scenario?.name||'Forgatókönyv';
-  await freePlay();toast.textContent='Forgatókönyv teljesítve: '+finished;AppUI?.showHome?.();
+  await freePlay();flashToast('Forgatókönyv teljesítve: '+finished);AppUI?.showHome?.();
  }
  function onWin(){if(!active||!state?.won)return;stopTimer()}
- function showError(e){console.error(e);toast.textContent='Forgatókönyv-hiba: '+(e.message||e)}
+ function showError(e){console.error(e);flashToast('Forgatókönyv-hiba: '+(e.message||e))}
  function localPackages(){try{const a=JSON.parse(localStorage.getItem(localStore)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
  function saveLocalPackage(p){
   if(p?.format!=='ggrid-scenario-package'||p.formatVersion!==1||!p.scenario)throw Error('INVALID_CONTENT_FORMAT');
@@ -169,7 +169,7 @@ const ScenarioMode=(()=>{
     addChoice(s,async()=>{const d=structuredClone(s);d.__url='local:'+d.id;d.__package=p;return d},tag);
    }
    const importBtn=document.createElement('button');importBtn.type='button';importBtn.textContent='＋ Scenario fájl importálása';importBtn.className='scenario-choice';
-   importBtn.onclick=()=>{const inp=document.createElement('input');inp.type='file';inp.accept='.json,.ggrid-scenario';inp.onchange=async()=>{try{const p=JSON.parse(await inp.files[0].text());saveLocalPackage(p);await open();toast.textContent='Scenario importálva.'}catch(e){showError(e)}};inp.click()};list.append(importBtn);
+   importBtn.onclick=()=>{const inp=document.createElement('input');inp.type='file';inp.accept='.json,.ggrid-scenario';inp.onchange=async()=>{try{const p=JSON.parse(await inp.files[0].text());saveLocalPackage(p);await open();flashToast('Scenario importálva.')}catch(e){showError(e)}};inp.click()};list.append(importBtn);
   }catch(e){list.textContent='A forgatókönyvek nem tölthetők be.';showError(e)}
  }
  function close(){panel.hidden=true;MotionControl.resume()}

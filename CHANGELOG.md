@@ -15,6 +15,23 @@ A korábbi repository-történetben egy-egy verzió gyakran több, fájlonként 
 
 ---
 
+## v0.15.71 — 2026-09-26
+
+### Súgó iránya jól láthatóan
+- A súgó javaslatában az irányt kiemelt címke mutatja (pl. „↑ FEL”, „→ JOBBRA”) a téma kiemelő színében, nagy nyíllal; a pálya alatti megfelelő nyílgomb ugyanebben a színben lüktetve felvillan (klasszikus elrendezésben a pálya széli nyíl). A javaslat a következő lépésig, legfeljebb 8 másodpercig látszik.
+
+### Feliratok nem maradnak a pályán
+- Közös feliratkezelő (`flashToast`, `showHintToast`): az állapotüzenetek (Freeze felhasználva, Felrobbantva, solver-hibaüzenetek, „Nincs pálya…”, forgatókönyv-üzenetek) 2 másodperc múlva vagy a következő lépésnél eltűnnek; a „számol…” üzeneteket az eredmény váltja fel. Egy lejárt időzítő sosem töröl közben megjelent újabb üzenetet.
+
+### BOMB finomítások
+- Kijelölt BOMB mellett nincs körvonal az elemeken; a pálya fölött vékony szálkereszt kurzor jelzi a robbantási módot.
+- A robbanás megrázza a pályát (ugyanaz a rázás, mint falba ütközéskor; mozgáscsökkentésnél elmarad).
+- A gomb saját, világos bombaikont kapott (a sötét 💣 emoji helyett), narancssárga szikrával.
+
+### Súgó
+- A játék súgója frissítve: iránycímke és kiemelt nyílgomb, 8 másodperces súgó, eltűnő üzenetek, BOMB szálkereszt és rázás, „–” optimum bomba után, a bombás pálya nem számít bele az alkalmazkodó szintbe.
+- A regressziós tesztoldal 4 új esettel bővült (17 eset).
+
 ## v0.15.70 — 2026-09-26
 
 ### Összevont súgó

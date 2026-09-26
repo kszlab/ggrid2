@@ -29,6 +29,25 @@ const GameEvents=(()=>{const subs=new Map();return{
  on(type,fn){(subs.get(type)??subs.set(type,[]).get(type)).push(fn)},
  emit(type,detail={}){for(const fn of subs.get(type)||[]){try{fn(detail)}catch(e){console.error('GameEvents',type,e)}}}
 }})();
+/* v0.15.71: board messages never linger. flashToast(): status text that disappears after
+   2 s or at the next step, whichever comes first. showHintToast(): the hint advice with a
+   large direction label; it stays until the next step, at most 8 s, and the matching
+   arrow button pulses meanwhile. "Számol…" texts are set directly and get replaced. */
+const DIR_WORDS={up:'FEL',down:'LE',left:'BALRA',right:'JOBBRA'},DIR_ARROWS={up:'↑',down:'↓',left:'←',right:'→'};
+let toastTimer=null,toastClearsOnMove=false;
+function clearToast(){clearTimeout(toastTimer);toastTimer=null;toastClearsOnMove=false;toast.textContent=''}
+// A timer only clears its own message, never a newer one written meanwhile.
+function flashToast(text,ms=2000){clearTimeout(toastTimer);toast.textContent=text;toastClearsOnMove=true;toastTimer=setTimeout(()=>{if(toast.textContent===text)clearToast()},ms)}
+function dirLabel(dir){const s=document.createElement('span'),b=document.createElement('b');s.className='hint-dir';b.textContent=DIR_ARROWS[dir]||'';s.append(b,DIR_WORDS[dir]||dir);return s}
+function showHintToast({prefix,dir,suffix=''}){
+ const label=dirLabel(dir);clearTimeout(toastTimer);toast.replaceChildren(prefix+' ',label,...(suffix?[' '+suffix]:[]));
+ toastClearsOnMove=true;toastTimer=setTimeout(()=>{if(!label.isConnected)return;hintVisible=false;clearToast();updateScore()},8000);
+}
+// The pulsing arrow follows the toast: whenever the direction label leaves it, the highlight goes too.
+new MutationObserver(()=>{const dir=Object.keys(DIR_WORDS).find(d=>toast.querySelector('.hint-dir')?.textContent.includes(DIR_WORDS[d]))||null;
+ document.querySelectorAll('.hint-target').forEach(el=>{if(el.dataset.holdDir!==dir)el.classList.remove('hint-target')});
+ if(dir)document.querySelectorAll(`[data-hold-dir="${dir}"]`).forEach(el=>el.classList.add('hint-target'));
+}).observe(toast,{childList:true,subtree:true,characterData:true});
 function appFeatureEnabled(name){return APP_VARIANT_FEATURES[APP_VARIANT]?.[name]===true}
 
 
@@ -144,8 +163,8 @@ function detonate(id){
  spawnBlast(o);
  state={...state,objects:state.objects.filter(x=>x.id!==id)};
  bombArmed=false;bombUsedThisRun=true;hintVisible=false;clearSolverCache();
- AudioManager.bomb?.();SceneRenderer?.event?.('bomb');
- toast.textContent=`💣 Felrobbantva · −${BOMB_COST} pont`;
+ AudioManager.bomb?.();SceneRenderer?.event?.('bomb');shakeBoard();
+ flashToast(`💣 Felrobbantva · −${BOMB_COST} pont`);
  render({preservePieces:true});MotionControl?.resume?.();
  GameEvents.emit('bomb',{id,type:o.type});
 }
@@ -180,7 +199,7 @@ function render(opts={}){
     el.addEventListener('click',()=>{if(bombArmed){if(o.type!=='ball')detonate(o.id);return}if(o.type!=='wall'&&freezeArmed&&!busy&&!state.won){freezeId=freezeId===o.id?null:o.id;if(freezeId){AudioManager.freeze();SceneRenderer?.event?.('freeze');MotionControl.resume();}else MotionControl.pause();render({preservePieces:true});}});board.append(el);}
    const c=o.cells[ci],p=pctPos(o.x+c.x,o.y+c.y,state.width,state.height);
    el.style.left=p.left;el.style.top=p.top;el.style.width=p.width;el.style.height=p.height;
-   el.className=`piece ${o.type} ${o.cells.length>1?'glued '+outerEdgeClasses(o,ci):''} ${freezeId===o.id?'selected':''} ${bombArmed&&o.type!=='ball'?'bomb-target':''}`;
+   el.className=`piece ${o.type} ${o.cells.length>1?'glued '+outerEdgeClasses(o,ci):''} ${freezeId===o.id?'selected':''}`;
    el.setAttribute('aria-pressed',String(freezeArmed&&freezeId===o.id));
   }
  }
@@ -266,22 +285,23 @@ function requestPoolLevel(){
   if(c.balls===2)applyMultiBallLevel(g);else applyLibraryLevel(g);
   return true;
  }catch(e){
-  console.error('Level pool',e);toast.textContent='Nincs pálya a kiválasztott méretekhez és nehézséghez.';return false;
+  console.error('Level pool',e);flashToast('Nincs pálya a kiválasztott méretekhez és nehézséghez.');return false;
  }
 }
 function newLevel(){GameEvents.emit('level:leave');return typeof ThemeRotation!=='undefined'?ThemeRotation.newLevel(requestPoolLevel):requestPoolLevel()}
+function shakeBoard(){board.classList.remove('blocked');void board.offsetWidth;board.classList.add('blocked');setTimeout(()=>board.classList.remove('blocked'),190)}
 function playEvents(events){
  const moves=events.filter(e=>e.type==='move').length,blocked=events.some(e=>e.type==='blocked'),exited=events.some(e=>e.type==='exit'),won=events.some(e=>e.type==='win');
  if(blocked){AudioManager.blocked();SceneRenderer?.event?.('blocked')}else if(moves){AudioManager.move(moves);SceneRenderer?.event?.('move')}
  if(exited){AudioManager.exit();SceneRenderer?.event?.('exit')}if(won){AudioManager.win();SceneRenderer?.event?.('win')}
- if(blocked){board.classList.remove('blocked');void board.offsetWidth;board.classList.add('blocked');setTimeout(()=>board.classList.remove('blocked'),190)}
+ if(blocked)shakeBoard();
  if(won){board.classList.add('winner');setTimeout(()=>board.classList.remove('winner'),600)}
 }
 function move(dir,automatic=false){
  if(!state||state.won||busy||(autoSolveActive&&!automatic))return;
  const usedFreeze=freezeArmed&&freezeId!=null,wasArmed=freezeArmed,wasBomb=bombArmed;bombArmed=false;
  if(usedFreeze&&!automatic&&isScoredFreePlay()&&scoreData.balance<10){cancelFreezeSelection();return}
- SceneRenderer?.setDirection?.(dir);if(hintVisible){hintVisible=false;toast.textContent='';}
+ SceneRenderer?.setDirection?.(dir);if(hintVisible)hintVisible=false;if(toastClearsOnMove)clearToast();
  setBusy(true);const r=step(state,dir,usedFreeze?freezeId:null);
  if(usedFreeze){stopHold();if(!automatic&&isScoredFreePlay())spendScore(10);freezeUsed++;}
  state=r.state;lastEvents=r.events;freezeArmed=false;freezeId=null;GameEvents.emit('move',{dir,automatic});
@@ -290,7 +310,7 @@ function move(dir,automatic=false){
  if(state.won){
   const rewardInfo=automatic||solverUsedThisRun?null:awardWin();
   enterVictory(automatic,rewardInfo);
- }else if(usedFreeze)toast.textContent=isScoredFreePlay()?'Freeze felhasználva · −10 pont':'Freeze felhasználva';
+ }else if(usedFreeze)flashToast(isScoredFreePlay()?'Freeze felhasználva · −10 pont':'Freeze felhasználva');
  setTimeout(()=>{setBusy(false);render({preservePieces:true});},155);
 }
 let autoSolveActive=false,autoSolveTimer=null,autoSolveToken=0;
@@ -329,7 +349,7 @@ function stopAutoSolve(){
 }
 autoSolveStopBtn.addEventListener('click',stopAutoSolve);
 function startAutoSolve(){
- if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
+ if(!appFeatureEnabled('autoSolve')){flashToast('Az automatikus megoldás ebben a kiadásban nem érhető el.');return}
  if(!state||state.won||autoSolveActive)return;
  stopHold();cancelFreezeSelection();cancelBomb();hintVisible=false;
  const token=++autoSolveToken;showAutoSolveBar('Megoldás számítása…');
@@ -368,16 +388,15 @@ function freezeSolverFailureText(result){
  if(result?.status==='limit')return'A Freeze-keresés elérte a számítási korlátot; ettől még lehet menthető út.';
  return'Nem sikerült Freeze-megoldást számolni.';
 }
-const ARROWS={up:'↑',down:'↓',left:'←',right:'→'};
-// Advice text for a Freeze-solver result (used by the merged hint).
-function freezeAdviceText(result){
- const first=result.actions[0];
- if(result.freezeUses===0)return`Innen minimum ${result.actions.length} lépés. Következő optimális irány: ${ARROWS[first.dir]}`;
- if(first.freezeId)return`❄ Fagyaszd le: ${first.freezeId}, majd ${ARROWS[first.dir]} · innen ${result.actions.length} lépés`;
+// Structured advice for a Freeze-solver result (the merged hint shows it with a direction label).
+function freezeAdvice(result){
+ const first=result.actions[0],n=result.actions.length;
+ if(result.freezeUses===0)return{prefix:`Innen ${n} lépés · Következő:`,dir:first.dir};
+ if(first.freezeId)return{prefix:`❄ Fagyaszd le: ${first.freezeId}, majd`,dir:first.dir};
  const fi=result.firstFreezeIndex,fa=fi>=0?result.actions[fi]:null;
- return`Következő: ${ARROWS[first.dir]} · Freeze ${fi+1}. lépésnél: ${fa?.freezeId||'?'} + ${fa?ARROWS[fa.dir]:''}`;
+ return{prefix:'Következő:',dir:first.dir,suffix:`· Freeze a ${fi+1}. lépésnél: ${fa?.freezeId||'?'} + ${fa?DIR_WORDS[fa.dir]:''}`};
 }function startFreezeAutoSolve(){
- if(!appFeatureEnabled('autoSolve')){toast.textContent='Az automatikus megoldás ebben a kiadásban nem érhető el.';return}
+ if(!appFeatureEnabled('autoSolve')){flashToast('Az automatikus megoldás ebben a kiadásban nem érhető el.');return}
  if(!state||state.won||autoSolveActive)return;
  stopHold();cancelFreezeSelection();cancelBomb();hintVisible=false;
  const token=++autoSolveToken;showAutoSolveBar('Freeze-megoldás számítása…');
@@ -385,7 +404,7 @@ function freezeAdviceText(result){
   if(token!==autoSolveToken||!state)return;
   const result=solveWithFreezeForPlay(state,'auto');
   if(token!==autoSolveToken)return;
-  if(result.status!=='solved'||!result.actions?.length){hideAutoSolveBar();toast.textContent=freezeSolverFailureText(result);return}
+  if(result.status!=='solved'||!result.actions?.length){hideAutoSolveBar();flashToast(freezeSolverFailureText(result));return}
   const actions=result.actions;
   solverUsedThisRun=true;rewardedThisRun=true;autoSolveActive=true;MotionControl?.pause?.();render({preservePieces:true});
   let index=0;
@@ -412,7 +431,7 @@ function freezeAdviceText(result){
 function hint(){
  if(!state||state.won||autoSolveActive)return;
  cancelFreezeSelection();cancelBomb();
- if(hintVisible){hintVisible=false;toast.textContent='';updateScore();return}
+ if(hintVisible){hintVisible=false;clearToast();updateScore();return}
  if(isScoredFreePlay()&&scoreData.balance<1)return;
  hintVisible=true;
  toast.textContent='Solver számol…';
@@ -422,17 +441,17 @@ function hint(){
   // only if there is none does the Freeze solver advise (at most one Freeze).
   const result=solveForPlay(state,'hint');
   if(!hintVisible)return;
-  let text;
-  if(result.status==='solved'&&result.path?.length)text=`Innen minimum ${result.path.length} lépés. Következő optimális irány: ${ARROWS[result.path[0]]}`;
+  let advice;
+  if(result.status==='solved'&&result.path?.length)advice={prefix:`Innen ${result.path.length} lépés · Következő:`,dir:result.path[0]};
   else{
    const fr=solveWithFreezeForPlay(state,'hint');
    if(!hintVisible)return;
-   if(fr.status!=='solved'||!fr.actions?.length){toast.textContent=freezeSolverFailureText(fr);updateScore();return}
-   text=freezeAdviceText(fr);
+   if(fr.status!=='solved'||!fr.actions?.length){hintVisible=false;flashToast(freezeSolverFailureText(fr));updateScore();return}
+   advice=freezeAdvice(fr);
   }
   if(isScoredFreePlay()&&!spendScore(1)){hintVisible=false;return}
   GameEvents.emit('hint',{kind:'step'});
-  toast.textContent=text;
+  showHintToast(advice);
   updateScore();
  },0);
 }

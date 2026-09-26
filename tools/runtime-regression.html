@@ -179,7 +179,37 @@ const tests=[
    assert(E('state.objects.length')===n&&!E('bombUsedThisRun'),'az újrakezdés nem állította vissza a pályát');
    assert(E('document.getElementById("padPar").textContent')===String(E('optimal.length')),'az optimum nem jött vissza');
    return `${lvl}: +5 pont, nem teljesített, szint D${r0} változatlan, újrakezdés rendben`}
-  throw Error('nem találtam megfelelő pályát')}]
+  throw Error('nem találtam megfelelő pályát')}],
+ ['Feliratok: az állapotüzenet 2 mp után, illetve lépésre eltűnik',async()=>{
+  await newLevel();E("flashToast('teszt: időre')");assert(E('toast.textContent')==='teszt: időre','nem jelent meg');
+  await sleep(2300);assert(E('toast.textContent')==='','2 mp után is kint maradt');
+  E("flashToast('teszt: lépésre')");await mv('up');if(E('toast.textContent')!=='')await mv('down');
+  assert(E('toast.textContent')==='','lépés után is kint maradt');return 'időre és lépésre is eltűnik'}],
+ ['Súgó: iránycímke és kiemelt nyílgomb; lépésre eltűnik',async()=>{
+  E('scoreData.balance=Math.max(scoreData.balance,50);updateScore()');
+  for(let i=0;i<10;i++){await newLevel();E('hint()');try{await until(()=>E('!!toast.querySelector(".hint-dir")'),6000,'iránycímke')}catch(_){continue}
+   const word=E('toast.querySelector(".hint-dir").textContent'),dir=E(`Object.keys(DIR_WORDS).find(d=>toast.querySelector(".hint-dir").textContent.includes(DIR_WORDS[d]))`);
+   assert(dir,'ismeretlen irány: '+word);
+   assert(E(`document.querySelector('.pad-dir[data-hold-dir="${dir}"]').classList.contains('hint-target')`),'a nyílgomb nincs kiemelve');
+   assert(E('document.querySelectorAll(".hint-target").length')>=1&&E(`[...document.querySelectorAll('.hint-target')].every(e=>e.dataset.holdDir==="${dir}")`),'más nyílgomb is ki van emelve');
+   await mv(dir);assert(!E('toast.querySelector(".hint-dir")')&&E('document.querySelectorAll(".hint-target").length')===0,'lépés után a súgó kint maradt');
+   return `„${word}”, kiemelt gomb: ${dir}`}
+  throw Error('nem jött iránycímke')}],
+ ['Súgó: 8 másodperc után magától eltűnik',async()=>{
+  for(let i=0;i<10;i++){await newLevel();E('hint()');try{await until(()=>E('!!toast.querySelector(".hint-dir")'),6000,'iránycímke')}catch(_){continue}
+   await sleep(7000);assert(E('!!toast.querySelector(".hint-dir")'),'8 mp előtt eltűnt');
+   await sleep(1400);assert(!E('toast.querySelector(".hint-dir")')&&E('document.querySelectorAll(".hint-target").length')===0&&!E('hintVisible'),'8 mp után is kint maradt');
+   return 'kb. 8 mp után eltűnt'}
+  throw Error('nem jött iránycímke')}],
+ ['BOMB: nincs körvonal, szálkereszt kurzor, világos ikon, robbanáskor rázkódás',async()=>{
+  await newLevel();E('scoreData.balance=Math.max(scoreData.balance,50);updateScore()');
+  assert(E('!!document.querySelector("#bomb svg.bomb-icon")'),'nincs saját bombaikon');
+  E('document.getElementById("bomb").click()');const brick=E(`state.objects.find(o=>o.type!=='ball').id`),el=W.document.querySelector(`#board .piece[data-id="${brick}"]`);
+  const cs=W.getComputedStyle(el);assert(cs.outlineStyle==='none'||cs.outlineWidth==='0px','kijelölt BOMB mellett körvonal van');
+  assert(/url\(/.test(W.getComputedStyle(W.document.getElementById('board')).cursor),'nincs szálkereszt kurzor');
+  el.click();assert(E('board.classList.contains("blocked")'),'a robbanás nem rázta meg a pályát');
+  assert(/Felrobbantva/.test(E('toast.textContent')),'nincs „Felrobbantva” üzenet');await sleep(2300);assert(E('toast.textContent')==='','a „Felrobbantva” kint maradt');
+  return 'körvonal nincs, kurzor szálkereszt, rázkódás és 2 mp-es üzenet'}]
 ];
 
 async function run(){
