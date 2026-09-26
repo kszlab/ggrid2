@@ -638,3 +638,10 @@ body.layout-pad .pad-dir.hint-target span{background:#1b1410}
 /* v0.15.74 language picker in the settings */
 .settings-select{flex:0 0 auto;min-height:34px;min-width:120px;padding:0 10px;border:1px solid #ffffff33;border-radius:9px;background:#10253b;color:#e8f5ff;font:800 .82rem system-ui,sans-serif;cursor:pointer}
 .settings-select:focus-visible{outline:3px solid #ffd58a;outline-offset:2px}
+/* v0.15.77 PWA update bar (js/pwa.js): a new version is ready – top of the screen, clear of the notch */
+.pwa-update-bar{position:fixed;z-index:9000;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 24px);padding:6px 6px 6px 14px;border:1px solid var(--ui-border,#ffffff55);border-radius:14px;background:var(--ui-surface-raised,#183c48);color:var(--ui-text,#f4f7fa);box-shadow:0 8px 24px #0008;font:700 .86rem system-ui,sans-serif}
+.pwa-update-bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pwa-update-bar button{min-height:34px;border-radius:10px;font:800 .84rem system-ui,sans-serif;cursor:pointer}
+.pwa-update-now{padding:0 14px;border:0;background:var(--ui-accent,#e4c477);color:#10273a}
+.pwa-update-later{width:34px;border:1px solid #ffffff33;background:transparent;color:inherit}
+.pwa-update-bar button:focus-visible{outline:3px solid var(--ui-focus,#ffd58a);outline-offset:2px}

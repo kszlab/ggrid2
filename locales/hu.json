@@ -401,6 +401,25 @@
   "context": "Board message",
   "maxLength": 34
  },
+ "pwa.updateReady": "Új verzió érhető el",
+ "@pwa.updateReady": {
+  "context": "Bar at the top when a new game version has been downloaded (installed app)",
+  "maxLength": 34
+ },
+ "pwa.updateNow": "Frissítés",
+ "@pwa.updateNow": {
+  "context": "Button in the update bar: reload into the new version",
+  "maxLength": 12
+ },
+ "pwa.later": "Később",
+ "@pwa.later": {
+  "context": "Screen reader label of the ✕ button that closes the update bar"
+ },
+ "pwa.offlineReady": "A játék mostantól internet nélkül is fut",
+ "@pwa.offlineReady": {
+  "context": "Board message once all game files are stored on the device",
+  "maxLength": 44
+ },
  "toast.autoUnavailable": "Az automatikus megoldás ebben a kiadásban nem érhető el.",
  "@toast.autoUnavailable": {
   "context": "Board message"
